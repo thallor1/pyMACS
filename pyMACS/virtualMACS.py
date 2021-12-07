@@ -17,38 +17,32 @@ import multiprocessing as mp
 from tqdm import tqdm 
 from tqdm import tnrange, tqdm_notebook
 
-'''
-This is the main class for the package. Initializes all of the other parts of the experiment. 
-
-Contains the following Methods:
-	1. initialize_sample_from_cif - replaces default sample object with a user defined one
-	2. All instrument parameters can be set in object. 
-	3. Single MCstas scan can be run with a simple call after all parameters are set
-	4. An A3 range can be given to run a scan in sample rotation, with specified kidney angle resolution.
-	5. A set of Ei values can be given to run scans in energy. Note there are no angles assosciated with this
-	6. A combined angle and energy scan with given number of A3 steps, Ei steps, and A4 resolution
-	7. Initalize instrument parameters based on an ng0 file. 
-	8. Iterate over a directory of ng0 files, running mcstas scans to match each angle/energy
-	9. Iterate over a directory of mcstas scans to create ng0 files (one for each Ei) that are readable by DAVE
-
-
-'''
-
 class virtualMACS(object):
-	'''
-	Most of the parameters are stored in these objects:
-	kidney 
-	monochromator
-	sample
+		"""
+		This class encompasses the virtual MACS experiment and contains various subclasses to handle 
+		the various elements of its operation. The object itself mostly contains information regarding just 
+		simulation parameters like neutron simulated count and directories. 
 
-	The Mcstas models theselves are prewritten and compiled so the user should not have to worry
-	about that. Compilation only occurrs upon changing the .instr file itself.
+		Parameters
+		---------
+		:param exptName: A string that describes the experiment. Used to make directories for this simulation.
+		:type exptName: str, required
+		:param cifName: A string that denotes the filename of the .cif file assosciated with your sample. Must be in working directory.
+		:type cifName: str, required
+		:param useOld: Bool denoting if old instrument files should be preserved. Default False. 
+		:type useOld: bool, optional
+		:param n_sample: Number of neutrons to simulate at sample position. Default 1e5
+		:type n_sample: (int/float) optional
+		:param n_mono:(int) Number of neutrons to simulate at monochromator position. Default 1e6
+		:type n_mono: (int/float) optional
+		:param kidney_angle_resolution: Angular resolution of detectors in the kidney scan / A4 angle, default 1.0 degrees
+		:type kidney_angle_resolution: (float) optional
+		
 
-	Input params are the following:
-		exptName - directory in which all of the simulations will be stored
-		cifName - not technically mandatory but if given will initialize the sample object
-	'''
-	def __init__(self,exptName,cifName=None,useOld=False):
+		"""
+		def __init__(self,exptName,cifName=None,useOld=False):
+		""" Constructor method
+		"""
 		self.exptName=exptName
 		if cifName is not None:
 			self.sample=sample.Sample(ciffile=cifName)
@@ -65,7 +59,7 @@ class virtualMACS(object):
 		self.data=macsdata.Data(self.sample,self.exptName,kidney_result_dir=self.exptdir+'/Kidney_simulations/')
 
 		#Now some elements that are usually only needed for the simulations
-		self.n_sample = 1e6
+		self.n_sample = 1e5
 		self.n_mono = 1e6 
 		self.A3_angle = 0.0
 		self.kidney_angle_resolution = 1.0 #Should be set by user eventually
@@ -104,8 +98,9 @@ class virtualMACS(object):
 		self.inel_reflect_SF_list = None 
 
 	def mount_ramdisk_old(self):
-		#Mounts a ramdisk for use in simulation outputs
-		#First check if it is already mounted or not.
+		""" Mounts a disk based in memory. Disk operations are too slow, users are not intended to access
+			the ramdisk."""
+
 		if os.path.ismount(self.ramdisk_dir):
 			return 1
 		else:
@@ -115,54 +110,37 @@ class virtualMACS(object):
 			os.system('echo \''+str(self.sudo_password)+'\' | sudo -S mount -t tmpfs -o size='+str(self.ramdisk_size)+' mcstasramdisk '+self.ramdisk_dir)
 		print('RAMDISK mounted in '+self.ramdisk_dir)
 		print('Ensure tmpfs is unmounted safely.')
+		return 1
 
 	def mount_ramdisk(self):
-		'''
-		Like a ramdisk but does not require root access
-		'''
+		""" Mounts a disk based in memory. Disk operations are too slow, users are not intended to access
+			the ramdisk."""
 		if os.path.exists(self.ramdisk_dir):
 			return 1
 		else:
 			os.mkdir(self.ramdisk_dir)
 			print(self.ramdisk_dir+' successfully mounted.')
 
-	def unmount_ramdisk_old(self):
-		#Deletes contents of the ramdisk and unmounts it, returning the disk to pure memory
-		if os.path.ismount(self.ramdisk_dir):
-			#Unount
-			os.system('echo \''+str(self.sudo_password)+'\' | sudo -S umount -l '+self.ramdisk_dir)
-		if os.path.exists(self.ramdisk_dir):
-			#Delete this folder
-			os.system('echo \''+str(self.sudo_password)+'\' | sudo -S rm -rf '+self.ramdisk_dir)
-		return 1
-
-	def clear_ramdisk_old(self):
-		#Deletes contents of the ramdisk
-		if os.path.exists(self.ramdisk_dir):
-			#Delete this folder
-			os.system('echo \''+str(self.sudo_password)+'\' | sudo -S rm -rf '+self.ramdisk_dir)
-		return 1
 
 	def clear_ramdisk(self):
-		'''
-		deletes contents of the shm disk
-		'''
+		""" Unmounts the ramdisk. Should be done after simulation is over to free memory. 
+		"""
 		if os.path.exists(self.ramdisk_dir):
 			os.system('rm -rf '+self.ramdisk_dir)
 		return 1
 
 	def unmount_ramdisk(self):
-		'''
-		deletes the ramdisk folder
-		'''
+		""" Unmounts the ramdisk. Should be done after simulation is over to free memory. 
+		"""
 		if os.path.exists(self.ramdisk_dir):
 			os.rmdir(self.ramdisk_dir)
 		return 1
 
 
 	def prepare_old_expt_directory(self):
-		#Prevents the instrument from needing to be recompiled, instantites the right simulation files
-		#without moving them. 
+		"""Prepares an experiment using previously generated and/or compiled .instr files. Used to 
+		resume a simulation that was interrupted or should be appended.
+		"""
 		cwd=os.getcwd()
 		if self.useOld==True:
 			self.clear_ramdisk()
@@ -187,7 +165,8 @@ class virtualMACS(object):
 		return 1
 
 	def clean_expt_directory(self):
-		#Removes old files from the experiment directory excpet for monochromator scans
+		"""Removes old simulation files.
+		"""
 		cwd = os.getcwd()
 		files_in_kidsims = glob.glob(cwd+'/'+self.exptName+'/Kidney_simulations/*')
 		while len(files_in_kidsims)>=1:
@@ -199,8 +178,8 @@ class virtualMACS(object):
 		return 1
 
 	def prepare_expt_directory(self):
-		#Geneartes an instrument file using the current instrument parameters. Places it in the experiment directory.
-		#The template file will depend on the sample used. 
+		"""Automatically prepares the McStas instrument files and output directories. Will require that instruments 
+		be recompiled. Takes into consideration the various sample options allowed."""
 		if type(self.sample.laufile)==bool:
 			#Need to generate and assign lau file
 			self.sample.cif2lau()
@@ -241,9 +220,8 @@ class virtualMACS(object):
 		return 1
 
 	def edit_instr_file(self):
-		#Edits the currently active instrument file to match the sample parameters
-		#First step is to load in the instr file.
-		#self.prepare_expt_directory() #This has to be done if we are updating the file itself.
+		"""Updates the instrument file to match the current sample and instrument configuration. Will require 
+		a recompilation of the instrument."""
 		print('Generating sample parameters using file '+str(self.sample.ciffile))
 		print('Writing instrument file assuming scattering u='+str(self.sample.orient_u)+', v='+str(self.sample.orient_v))
 		#Generate the labframe for the sample 
@@ -488,13 +466,21 @@ class virtualMACS(object):
 		return 1 
 
 	def prepare_spot_sample(self,omega=None,spot_HKL=None,spot_Qmag=None,spot_twoTheta=None,spot_eideal=None):
-		#Prepares the sample for a spot calculation for spot_sample. Assigns necessary 
-		# parameters to the sample before running the simulation. 
-		# May either specify an HKL point, Q_magnitude, or scattering angle.
-		# In the end only omega and twoTheta (degrees) matter. 
+		"""Prepares the sample for a spot calculation for spot_sample. Assigns necessary parameters to the sample before running the simulation. 
+		May either specify an HKL point, Q_magnitude, or scattering angle. In the end only omega and twoTheta (degrees) matter.
+		 If scattering angle is specified through HKL, it is an array of form [H,K,L]
 
-
-		# If scattering angle is specified through HKL, it is an array of form [H,K,L]
+		:param omega: Energy transfer at sample in meV. 
+		:type omega: float, required
+		:param spot_HKL: Reflection indices HKL in reciprocal lattice units. 
+		:type spot_HKL: list of shape [H,K,L], optional
+		:param spot_Qmag: Magnitude of momentum transfer for spot sample in Ang^-1
+		:type spot_Qmag: float, optional
+		:param spot_twoTheta: Scattering angle of reflection in degrees.
+		:type spot_twoTheta: float, optional
+		:param spot_eideal: Incident energy expected for the spot, Ei=omega+Ef
+		:type spot_eideal: float, optional
+		"""
 		if omega==None:
 			print("Warning: To use spot_sample configuration the delta function energy transfer must be specified.")
 			print('Assign sample.spot_omega=xx meV and try again.')
@@ -516,12 +502,10 @@ class virtualMACS(object):
 
 
 	def compileInstr(self):
-		'''
-		Simple function to run the instrument compiler before beginnning scan. 
+		"""
+		Runs the instrument compiler before beginnning scan. 
 
-		No arguments are taken it is simply called.
-
-		'''
+		"""
 		#First generate c code, need to actually go into the directories to excecute these operations
 		instr_dir = self.instr_file_directory
 		instr_filename = self.instr_main_file.split('/')[-1]
@@ -561,9 +545,8 @@ class virtualMACS(object):
 		return 1
 
 	def compileMonochromator(self):
-		'''
-		Simple function to compile the monochromator
-		'''
+		"""Compiles monochromator McStas files.
+		"""
 		#First generate c code, need to actually go into the directories to excecute these operations
 		instr_dir = self.instr_file_directory
 		instr_filename = 'MACS_monochromator.instr'
@@ -600,6 +583,8 @@ class virtualMACS(object):
 
 
 	def write_mono_paramfile_from_current_params(self):
+		"""Writes the parmeter text file for monochromator simulation
+		"""
 		cwd=self.cwd
 		if not os.path.exists(cwd+'/'+self.exptName+'/param_files_monochromator/'):
 			os.mkdir(cwd+'/'+self.exptName+'/param_files_monochromator/')
@@ -616,7 +601,8 @@ class virtualMACS(object):
 
 
 	def write_kidney_paramfile_from_current_params(self):
-		#First check if there exists a directory for parameter files
+		"""Write the parameter text file for a kidney simulation
+		"""
 		orig_dir = self.cwd
 		if not os.path.exists(orig_dir+'/'+self.exptName+'/param_files_kidney/'):
 			os.mkdir(orig_dir+'/'+self.exptName+'/param_files_kidney/')
@@ -661,6 +647,18 @@ class virtualMACS(object):
 		return out_name
 
 	def runMonoScan(self,Ei_set=False,Ef_set=False,kidney_set=False,A3_set=False,beta_1_set = False, beta_2_set =False):
+		"""For a particular configuration, runs a monochromator scan. Automatically moves files to correct location afterwards.
+		:param Ei_set: Ei setting for monochromator
+		:type Ei_set: float, optional
+		:param Ef_set: Ef setting for kidney
+		:type Ef_set: float, optional 
+		:param kidney_set: Kidney angle setting for kidney.
+		:type kidney_set: float, optional 
+		:param beta_1_set: Beta 1 angle in degrees.
+		:type beta_1_set: float, optional 
+		:param beta_2_set: Beta 2 angle in degrees.
+		:type beta_2_set: float, optional.
+		"""
 		#Check if an output directory exists for monochromator scans
 		cwd = self.cwd
 		if not os.path.exists(self.exptdir+'/Monochromator_simulations/'):
