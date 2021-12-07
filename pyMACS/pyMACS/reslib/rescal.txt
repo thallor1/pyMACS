@@ -1,0 +1,6 @@
+File Applications/ResLibCal/rescal.m
+
+  ResCal: wrapper to ResLibCal
+ 
+  See also: ResLibcal
+
