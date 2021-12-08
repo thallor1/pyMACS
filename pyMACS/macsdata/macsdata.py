@@ -6,15 +6,28 @@ import scipy
 from scipy.stats import binned_statistic_2d
 
 class Data(object):
-	'''
+	"""
 	Class to handle the results of McStas simulations and compare to 
-	experimental data.
+	experimental data. Also used to convert to ng0 format for Mslice.
 
-	Also used to convert to ng0 format for Mslice.
-
-	The only parameters that are required from run to run by MSLICE are 
-	A2,A3,A5,SPEC###,Diff##,SPEC,DIFF<AnalyzerTheta##,kidney,time,monitor,ptai
-	'''
+	:param exptName: Name assosciated with the experiment.
+	:type exptName: str
+	:param data_matrix: Huge pandas matrix containing all of the previous results. Store all results in memory to be quickly referenced.
+		Gone into in more detail elsewhere in individual functions, but can technically also be accessed directly by users. 
+	:type data_matrix: pd.Dataframe
+	:param projected_matrix: Results after being projected into Q/E space the viewing axis specified by the sample alignment. 
+		Also a pandas dataframe.
+	:type projected_matrix: pd.Dataframe
+	:param expt_data_matrix: Pandas Dataframe containing all imported experimental results. Convenient to compare to the normal data_matrix
+		directly. 
+	:type expt_data_matrix: pd.Dataframe
+	:param projected_expt_matrix: Experimental data projected into Q/E space using the specified sample orientation. 
+	:type projected_expt_matrix: pd.Dataframe
+	:param PTAI_det: If PTAI is being used, specifies the detector. 
+	:type PTAI_det: int
+	:param csv_name: Specifies the name of the .csv file where the cumulative data matrix is stored. 
+	:type csv_name: str
+	"""
 	def __init__(self,sample,exptName=None,kidney_result_dir=None,compile_mode='all',beta_1=1.0,beta_2=1.0,PTAI_det=3):
 		#Note the sample object is defined in the same module.
 		self.compile_mode=compile_mode #Specifies if output ng0 files should be combined, individual, etc
@@ -81,7 +94,7 @@ class Data(object):
 		output_file.write('#Columns             QX            QY            QZ             E            A4          Time       Monitor            A2            A3            A5            A6           DFM            A1       AColMon AnalyzerTheta01 AnalyzerTheta02 AnalyzerTheta03 AnalyzerTheta04 AnalyzerTheta05 AnalyzerTheta06 AnalyzerTheta07 AnalyzerTheta08 AnalyzerTheta09 AnalyzerTheta10 AnalyzerTheta11 AnalyzerTheta12 AnalyzerTheta13 AnalyzerTheta14 AnalyzerTheta15 AnalyzerTheta16 AnalyzerTheta17 AnalyzerTheta18 AnalyzerTheta19 AnalyzerTheta20       BColMon BaseSampleTheta      BeFilMon         Beta1         Beta2        DFMDTS          DIFF        DIFF01        DIFF02        DIFF03        DIFF04        DIFF05        DIFF06        DIFF07        DIFF08        DIFF09        DIFF10        DIFF11        DIFF12        DIFF13        DIFF14        DIFF15        DIFF16        DIFF17        DIFF18        DIFF19        DIFF20          DMBT            Ef            Ei          FLIP         Focus             H           HKL             K        Kidney             L      MBTSlide          MCFX      MgFilMon    MonBlade01    MonBlade02    MonBlade03    MonBlade04    MonBlade05    MonBlade06    MonBlade07    MonBlade08    MonBlade09    MonBlade10    MonBlade11    MonBlade12    MonBlade13    MonBlade14    MonBlade15    MonBlade16    MonBlade17    MonBlade18    MonBlade19    MonBlade20    MonBlade21        MonRot      MonTrans          PTAI      PgFilMon         SPARE          SPEC        SPEC01        SPEC02        SPEC03        SPEC04        SPEC05        SPEC06        SPEC07        SPEC08        SPEC09        SPEC10        SPEC11        SPEC12        SPEC13        SPEC14        SPEC15        SPEC16        SPEC17        SPEC18        SPEC19        SPEC20     SmplLTilt     SmplUTilt         SmplX         SmplY         SmplZ          VBAH          VBAV         cfxbe       cfxhopg        cfxmgf    timestamp\n')
 		output_file.close()
 
-	def getIntensity(self,datfile):
+	def __getIntensity(self,datfile):
 		#Gets the Intensity total for both diff and spec files
 		try:
 			npArray = np.genfromtxt(datfile)
@@ -102,7 +115,7 @@ class Data(object):
 			TotErr=0
 		return TotIntensity,TotErr
 
-	def getParams(self,fname):
+	def __getParams(self,fname):
 		#Extracts parameters provided at top of mcstas .dat file
 		#Builds a dictionary of relevant params at top of the file
 		#Note that non-param entries at top of file are nonsense in the dict 
@@ -139,7 +152,10 @@ class Data(object):
 
 
 	def load_data_matrix_from_csv(self,csv_file=False):
-		#loads the data matrix from csv backup
+		"""Provided a csv_file produced by a previous data matrix, loads it and appends it to the current data_matrix.
+			Duplicates are automatically removed. 
+
+		"""
 		if csv_file==False:
 			#use default
 			csv_name=self.csv_name
@@ -158,7 +174,13 @@ class Data(object):
 		return 1
 
 	def combine_all_csv(self,fname='_total.csv'):
-		#Combines all precalculated data matrices stored in the results directory
+		"""Combines all of the .csv files in the result directory and saves into a composite large one. This can be slow. 
+			Preserves old files. 
+
+		:param fname: Suffix to append output csv filename with. Total filename is (result_dir + exptName + fname).
+		:type fnaem: str
+
+		"""
 		all_csvs = glob.glob(self.kidney_result_dir+'*.csv')
 		df = pd.concat(map(lambda file: pd.read_csv(file,header=0),all_csvs))
 		df=df.drop_duplicates(subset=['A3','Ei','Ef','Kidney'],keep='last')
@@ -170,8 +192,11 @@ class Data(object):
 		return 1
 
 	def append_data_matrix_from_csv(self,csv_file=False):
-		#Adds a precalculated data matrix as specified to the data matrix. Filename is required for this operation.
-		#Will be quite slow if used for large operations. Better to break into small batches.
+		"""Loads a csv_file containing a data matrix and appends it to the data matrix.
+
+			:param csv_file: Filename of data matrix stored in .csv file.
+			:type csv_file: str
+		"""
 		orig_frame = self.data.data_matrix
 		new_frame = pd.read_csv(self.kidney_result_dir+csv_file,header=0)
 		frames = [orig_frame,new_frame]
@@ -180,7 +205,7 @@ class Data(object):
 		self.data_matrix=final_frame
 		return 1
 
-	def scan_to_csv(self,simulation_folder,file_suffix=''):
+	def __scan_to_csv(self,simulation_folder,file_suffix=''):
 		#Given one folder containing a simulation for a particular configuration, appends the folder to the overall data matrix. 
 		col_labels=['A3','A2','A5','A6','H','K','L','Ei','Ef','DIFF','DIFF1','DIFF2','DIFF3','DIFF4','DIFF5','DIFF6','DIFF7','DIFF8','DIFF9','DIFF10','DIFF11',\
 					'DIFF12','DIFF13','DIFF14','DIFF15','DIFF16','DIFF17','DIFF18','DIFF19','DIFF20','SPEC','SPEC1','SPEC2','SPEC3','SPEC4','SPEC5','SPEC6','SPEC7','SPEC8','SPEC9','SPEC10','SPEC11',\
@@ -265,7 +290,8 @@ class Data(object):
 		return 1
 
 	def combine_csv_scans(self,preserve_old=False,flagstr=False):
-		#Takes individual csvs which are the output of each scan and combines them into a master csv. Also updates the data matrix to reflect this.
+		"""Takes individual csvs which are the output of each scan and combines them into a master csv. 
+			Also updates the data matrix to reflect this."""
 		all_files = glob.glob(self.kidney_result_dir+'*.csv')
 
 		flist = []
@@ -307,11 +333,12 @@ class Data(object):
 		return outfilename
 
 	def project_data_QE(self,which_data='mcstas',PTAI=False):
-		#Project the result into QE space- requires information from the sample object
-		'''
-		Input arguments:
-			which_data- 'mcstas' to use calculated scattering and 'macs' for experimental
-		'''
+		"""Project the results stored in the data matrix into QE space- requires information from the sample object
+		
+		:param which_data: Determines if experimental or simulated data should be used, 
+			'mcstas' to use calculated scattering and 'macs' for experimental. Allowed value 'mcstas' and 'macs'
+		:type which_data: str
+		"""
 		if which_data=='mcstas':
 			data_mat = self.data_matrix
 		elif which_data=='macs':
@@ -496,10 +523,25 @@ class Data(object):
 		return 1 
 
 	def bin_constE_slice(self,num_ubins,num_vbins,urange,vrange,omega_range,which_data='mcstas'):
-		#If the data matrix has already been projection into Q-space, returns a constant energy slice
-		#Two options are allowed for the binning with the 'which_data' option.
-		#	simulation- mcstas 
-		#   macs - imported real data
+		"""If the data matrix has already been projection into Q-space, returns a constant energy slice based on the specified bins.
+		The directions are specified by the crystal orientation, i.e. the u-v vectors. 
+
+		:param num_ubins: Number of bins along the u-direction. 
+		:type num_ubins: int
+		:param num_vbins: number of bins along the v-direction.
+		:type num_vbins: int
+		:param urange: List of min and max values along u-axis in format of [umin, umax]
+		:type urange: list
+		:param vrange: list of min and max values along v-axis in format of [vmin, vmax]
+		:type vrange: list
+		:param omega_range: List of min and max values in energy transfer to average over in format of [Emin, Emax]
+		:type omega_range: [float, float]
+		:param which_data: Determines if experimental or simulated data should be used, 
+			'mcstas' to use calculated scattering and 'macs' for experimental. Allowed value 'mcstas' and 'macs'
+		:type which_data: str
+		:return X,Y,Z: Matrices of U-coordinates, V-coordinates, and intensities. Suitable to plot in plt.pcolormesh.
+		:rtype: np.ndarray,np.ndarray,np.ndarray
+		"""
 		if type(self.projected_matrix)==bool and which_data=='mcstas':
 			self.project_data_QE()
 		if type(self.projected_expt_matrix)==bool and which_data=='macs':
@@ -522,20 +564,28 @@ class Data(object):
 		return X,Y,Z
 
 	def take_slice(self,ubins,vbins,omegabins,which_data='mcstas',statistic='mean',smooth=False):
-		'''
+		"""
+		Takes a slice integrating over one dimension in Q-space. Two  of the bins must be in MANTID/HORACE style
+		format [min,max,number of bins], and one must be integrated over and specified as [min,max]
 
-		Takes a slice integrating over one dimension in Q-space. 
-		Input arguments:
-			Ubins - Bin specification in mantid format along u-direction (min,max,number of bins)
-			Vbins - '' along v-direction
-			omeagabins - '' along energy axis
-			which_data - allowed values 'mcstas' or real data 'macs'
-			statistic - not currently supported, always 'mean'
-			smooth- gaussian smoothing, either false or std dev in pixels
-		Output Arguments:
-			X,Y,Z - matrices representing coordinates and intensitites of slice. Ready to use in something like Pcolormesh.
-			X and Y are bin edges, not centers.
-		'''
+		:param ubins: Bin specification in mantid format along u-direction (min,max,number of bins)
+		:type ubins: list
+		:param vbins: Bin specification in mantid format along v-direction (min,max,number of bins)
+		:type vbins: list
+		:param omeagabins: Bin specification in mantid format along energy axis (min,max,number of bins)
+		:type omegabins: list
+		:param which_data: Determines if experimental or simulated data should be used, 
+			'mcstas' to use calculated scattering and 'macs' for experimental. Allowed value 'mcstas' and 'macs'
+		:type which_data: str
+		:param statistic: Todo - not currently supported, always 'mean'
+		:type statistic: str
+		:param smooth: Output slice gaussian smoothing, either false or std dev in pixels.
+		:type param: bool or int
+		:return X,Y,Z: Matrices of U-coordinates, V-coordinates, and intensities. Suitable to plot in plt.pcolormesh. 
+			The X and Y matrices are bin edges, not centers. 
+		:rtype: np.ndarray,np.ndarray,np.ndarray
+		"""
+
 		if type(self.projected_matrix)==bool and which_data=='mcstas':
 			self.project_data_QE()
 		if type(self.projected_expt_matrix)==bool and which_data=='macs':
@@ -640,15 +690,28 @@ class Data(object):
 		return X,Y,Z,Err
 
 	def take_cut(self,ubins,vbins,omegabins,which_data='mcstas',statistic='mean'):
-		'''
+		"""
 		Takes a cut of the data in the same style as MANTID.
-		Syntax for bins are [min,max] - averaged (or integrated) within this limit
-		[min,max,numBins] - cut axis, cut will be from min to max with that number of steps.
-
+			Syntax for bins are [min,max] - averaged (or integrated) within this limit
+			[min,max,numBins] - cut axis, cut will be from min to max with that number of steps. Two of the three bins must be 
+			integrated over.\n
 		Integration not supported now- only mean in the region. 
 
-		Returns the cut axis array, followed by intensities and errors.
-		'''
+		:param ubins: Binning along u-direction in format of [min,max,numBins] or [min,max]
+		:type ubins: list
+		:param vbins: Binning along v-direction in format of [min,max,numBins] or [min,max]
+		:type vbins: list	
+		:param omegabins: Binning along energy-axis in format of [min,max,numBins] or [min,max]
+		:type omegabins: list	
+		:param which_data: Determines if experimental or simulated data should be used, 
+			'mcstas' to use calculated scattering and 'macs' for experimental. Allowed value 'mcstas' and 'macs'
+		:type which_data: str
+		:param statistic: Only mean is supported right now. Integration in the future. 
+		:type statistic: str
+		:return x,i,err: Returns three np arrays of the cut axis dimension coordinates, the intensities, and errors
+			at this points. 	
+		:rtype: np.ndarray, np.ndarray, np.ndarray	
+		"""
 
 		tot_binlength = len(ubins)+len(vbins)+len(omegabins)
 		if tot_binlength!=7 or (len(ubins) not in [2,3]) or (len(vbins) not in [2,3]) or (len(omegabins) not in [2,3]):
@@ -729,9 +792,12 @@ class Data(object):
 		return x,i,err
 
 	def fake_A3_scan(self,A3_angles):
-		'''
-		Intended to be used with the spot_sample component. Will not work if multiple A3 angles already exist in the current data matrix
-		'''
+		"""Function that fakes the rotation of the sample and simply copies the intensity at one angle over many.
+			Will throw an error if multiple A3 angles exist in the data matrix already. 
+
+		:param A3_angles: List of A3_angles to imitate
+		:type A3_angles: list
+		"""
 		A3_arr = np.array(self.data_matrix['A3'].tolist())
 		if len(np.unique(A3_arr))>1:
 			print('Multiple A3 angles detected in current data matrix. This function will not work.')
@@ -752,11 +818,11 @@ class Data(object):
 		return 1
 
 	def import_ng0_to_matrix(self,fname):
-		#given a MACS ng0 file, generates a dictionary of all parameters and a numpy matrix with data
-		#More generic than getParamsA3Scan function
-		
-		#Differs slightly from standalone file version in that it adds these to the expt_data_matrix object
+		"""Given a real MACS ng0 file, imports the result to the experimental data matrix. 
 
+		:param fname: Filename of the ng0 file.
+		:type fname: str
+		"""
 		data = np.genfromtxt(fname,dtype=str)
 		column_labels={}
 		file_params = {}
@@ -849,9 +915,10 @@ class Data(object):
 		return 1
 
 	def write_data_to_ng0(self,filename='McStas_output_',beta_1=1.0,beta_2=1.0):
-		'''
-		Writes the current data matrix to a data file. 
-		'''
+		"""Writes the current data matrix to an ng0 file directly readable by MSlice.
+		:param filename: Output filename beginning. 
+		:type filename: str
+		"""
 		#First open a file and write the header. 
 		#Check if the file and output directory exists.
 		current_dir = os.getcwd()

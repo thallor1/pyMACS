@@ -6,5 +6,10 @@ Detailed examples of usage can be found in the jupyter notebooks on the github p
 .. toctree::
 
    usage
+   virtualMACS
+   sample
+   kidney
+   macsdata
+   monochromator
 
 

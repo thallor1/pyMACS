@@ -1,30 +1,41 @@
-'''
-The purpose of this object is to store the experimentally relevant information regarding the detector bank, also known as the kidney
-'''
-
 import numpy as np 
 import os
 import math
 
 class Kidney(object):
-	'''
-	Parameters are the following:
+	"""
+	This class contains all of the relevant information regarding the experimental configuration of the kidney.
+	It also contains a method to generate a list of kidney positions for a scan.
 
-	kidney_angle - angle between ki and the center of the kidney itself
-	slit_h - horizontal width of presample slit
-	slit_v - height of slit before smaple 
+	:param kidney_angle: Kidney angle setting where the centered detector geometry is 0, in degrees.
+	:type kidney_angle: float
+	:param Ef: Analyzator energy setting in meV
+	:type Ef: float
+	:param slit_h: Horizontal slit width before sample in mm. 
+	:type slit_h: float
+	:param slit_v: Vertical slit width before sample in mm. 
+	:type slit_h: float
 
-	'''
+	"""
 	def __init__(self,kidney_angle=0,Ef=5.0,slit_h=0.2,slit_v=0.2):
+		"""
+		Constructor function
+		"""
 		self.kidney_angle=kidney_angle
 		self.slit_h=slit_h
 		self.slit_v=slit_v
 		self.Ef=Ef
 
 	def generate_kidney_positions(self,da4,Ei=5.0):
-		'''
-		Generates a list of kidney positions for an A4 scan given a desired angle resolution
-		'''
+		"""Generates a list of kidney positions for an A4 scan given a desired angle resolution
+
+		:param da4: Desired resolution in twoTheta in degrees. 
+		:type da4: float
+		:param Ei: Incident energy in meV
+		:type Ei: float
+		:return: List of kidney positions for a scan with the given da4 and Ei.
+		:rtype: list
+		"""
 		angle_file = os.path.dirname(__file__)+'/macs_kidneylimit_new.txt'
 		angle_dict= {}
 		angle_mat = np.genfromtxt(angle_file)

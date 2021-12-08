@@ -1,37 +1,19 @@
 import numpy as np
 
 class Monochromator(object):
-	'''
-	This object contains parameters for the monochromator calculation.
+	"""
+	This object contains parameters for the monochromator calculation. TODO: beta1/beta2 calcultation
 
-	*  INPUT PARAMETERS:
-	*    repeat_count=1:    how many times the virtual out from MACS_monochromator is used
-	*    EM=3.4             monochromator energy setting [meV]
-	*    HF=1               Horizontal focusing (ALWAYS 1, 0 mode broken)
-	*    sample_diameter_d=0.02
-	*    beta_1=1
-	*    beta_2=1
-	*    misalign_mono_deg=0.15
-	*    slit_h=0.2         Slit after guide horizontal [m]
-	*    slit_v=0.2         Slit after guide vertical [m]
-	*    CPF(m):	distance between the focal point and the neutron source
-	*		negative if the focal point is behind the source
-	*    MPL(m):	distance between monochromator and source when 2theta=90 
-	*    MPD(m):	distance between drum and monochromator when 2theta=90
-	*               (The distance btw monoch. and sample is 1.675 m when 2theta=90.)
-	*    APE_h:	vertical aperture
-	*    APE_v:	horizontal aperture
-	*    DIRDEV(min):misorientation of the monochromator blade(FWHM)
-	*    DIVSOU(deg):	aceptance angle
-	*    L0_delta (m)  special feature to scan L0 delta to optimize the focal point.
-	*    L1_delta (m)  special feature to scan L0 delta to optimize the focal point.
-	*    mon_t(m)  Monochormator translation  (montrans)
-	*    mon_e(m)  Monochomator elevation (monrot)
-	*    monrot_delta(deg)  monochromator stand delta rotation
-	*
-	*
+	:param repeat_count=1: How many times the virtual out from MACS_monochromator is used
+	:param EM: monochromator energy setting [meV]
+	:param HF=1: Horizontal focusing (ALWAYS 1, 0 mode broken)
+	:param sample_diameter_d: Sample diameter, can just be left at 0.02
+	:param beta_1: Monochromator beta_1 parameter
+	:param beta_2: Monocromator beta_2 parameter
+	:param slit_h: Slit after guide horizontal [m] Default 0.2
+	:param slit_v: Slit after guide vertical [m] Default 0.2
 
-	'''
+	"""
 	def __init__(self,repeat_count=1,Ei=5.0,HF=1,VF=1,beta_1=1.0,beta_2=1.0,misalign_deg=0.15,slit_h=0.2,slit_v=0.2,MPL=6.06,MPD=0.775,\
 		DIRDEV=0.0,DIVSOU=3.0,L0_delta=-1.06,L1_delta=0.0,mon_t=0.0,mon_e=0.0,monrot_delta=0.0):
 		self.repeat_count=repeat_count
@@ -53,5 +35,5 @@ class Monochromator(object):
 		self.mon_e = mon_e 
 		self.monrot_delta = monrot_delta 
 
-	#Eventually add a function to calculate optimal dmbt, betas. 
+	#Eventually add a function to calculate optimal betas. 
 	

@@ -35,6 +35,9 @@ class virtualMACS(object):
 	:type n_mono: (int/float) optional
 	:param kidney_angle_resolution: Angular resolution of detectors in the kidney scan / A4 angle, default 1.0 degrees
 	:type kidney_angle_resolution: (float) optional
+	:param A3_angle: Current sample A3 rotation angle.
+	:type A3_angle: float
+	
 	
 	"""
 	def __init__(self,exptName,cifName=None,useOld=False):
@@ -95,7 +98,7 @@ class virtualMACS(object):
 		self.inel_reflect_SF_list = None 
 		return 1
 
-	def mount_ramdisk_old(self):
+	def __mount_ramdisk_old(self):
 		""" Mounts a disk based in memory. Disk operations are too slow, users are not intended to access
 			the ramdisk."""
 
@@ -646,6 +649,7 @@ class virtualMACS(object):
 
 	def runMonoScan(self,Ei_set=False,Ef_set=False,kidney_set=False,A3_set=False,beta_1_set = False, beta_2_set =False):
 		"""For a particular configuration, runs a monochromator scan. Automatically moves files to correct location afterwards.
+
 		:param Ei_set: Ei setting for monochromator
 		:type Ei_set: float, optional
 		:param Ef_set: Ef setting for kidney
@@ -727,6 +731,7 @@ class virtualMACS(object):
 	def runKidneyScan(self,append_data_matrix=True,Ei_set=False,Ef_set=False,kidney_set=False,A3_set=False,beta_1_set=False,beta_2_set=False,\
 		scan_suffix=False):
 		"""For current parameters, runs a kidney scan. 
+
 		:param Ei_set: Ei setting for monochromator
 		:type Ei_set: float, optional
 		:param Ef_set: Ef setting for kidney
@@ -869,9 +874,21 @@ class virtualMACS(object):
 		return 1
 
 	def script_scan(self,A3_list,Ei_list=False,num_threads=1,scan_title=False):
-		#Provided with a list of A3 angles, a kidney angle resolution, optionally a list\
-		# of incident energies, simulates a MACS scan over the full range.
-		# Num-threads parameter is for parallelization.
+		"""
+		Provided with a list of A3 angles, a kidney angle resolution, optionally a list
+			of incident energies, simulates a MACS scan over the full range.
+
+		:param A3_list: List of desired A3 angles for the scan. 
+		:type A3_list: list
+		:param Ei_list: List of desired incident energies. Final energy is specified using virtualMACS.kidney.Ef_all = Ef.
+		:type Ei_list: list
+		:param num_threads: If parallelization is being used, specifies number of threads.
+		:type num_threads: int
+		:param scan_title: If desired, can attach a particular name to the scan. Useful when emulating ng0 files. 
+		:type scan_title: str
+
+
+		"""
 		if scan_title==False:
 			suffix=''
 		else:
@@ -955,16 +972,37 @@ class virtualMACS(object):
 		return 1
 
 	def script_powder_scan(self,Ei_list=False,num_threads=1,scan_title=False):
-		#Provided with a list of A3 angles, a kidney angle resolution, optionally a list\
-		# of incident energies, simulates a MACS scan over the full range.
-		# Num-threads parameter is for parallelization.
-		# Simply just calls script_scan but fixes A3 to 0
+		"""
+		Provided with a list of A3 angles, a kidney angle resolution, optionally a list
+			of incident energies, simulates a MACS scan over the full range.
+			Num-threads parameter is for parallelization.
+			Simply just calls script_scan but fixes A3 to 0
+
+		:param Ei_list: List of incident energies to run.
+		:type Ei_list: list
+		:param num_threads: If parallelization is being used, number of threads to use. 
+		:type num_threds: int
+		:param scan_title: Name assosciated with this particular scan. 
+		:type scan_title: str
+		"""
 		A3_list = np.array([0.0])
 		self.script_scan(A3_list,Ei_list=False,num_threads=num_threads,scan_title=scan_title)
 		return 1
 
 
 	def simulate_ng0(self,ng0_file,in_scan=False,n_threads=1):
+		"""
+		Provided an ng0 file or the path to an ng0 file, emulates a scan identically with the following parameters:\n
+			A3, Ei, Ef, beta1, beta1, kidney_angle, PTAI\n
+			Saves the result to its own ng0 file if not part of a larger scan. The result should match the input ng0 file 
+			point by point when viewed using MSlice or the built in tools.
+
+		:param ng0_file: Input file or path to file. Must be a MACS ng0 file. 
+		:type ng0_file: str
+		:param num_threads: If parallelization is being used, number of threads to use. 
+		:type num_threds: int
+		"""
+
 		#Mount the ramdisk
 		self.mount_ramdisk()
 		#Directly simulates an input ng0 file from start to finish.
@@ -1015,8 +1053,17 @@ class virtualMACS(object):
 		return 1
 
 	def simulate_ng0dir(self,ng0_dir,n_threads=1):
-		#Iterate of a directory containing ng0 files
+		"""
+		Provided a director of only ng0 files, emulates all scans identically with the following parameters:\n
+			A3, Ei, Ef, beta1, beta1, kidney_angle, PTAI\n
+			Saves the result to its own ng0 file if not part of a larger scan. The result should match the input ng0 file 
+			point by point when viewed using MSlice or the built in tools.
 
+		:param ng0_dir: List of input files or path to files. Must be MACS ng0 files. 
+		:type ng0_file: list of strs
+		:param num_threads: If parallelization is being used, number of threads to use. 
+		:type num_threds: int
+		"""
 		#First mount ramdisk
 		self.mount_ramdisk()
 
@@ -1111,15 +1158,11 @@ class virtualMACS(object):
 		#Prepare the requisite lau file 
 		self.sample.cif2lau()
 		Ei_ideal = self.kidney.Ef + omega
-		print('a')
 		#launame = self.sample.gen_custom_lau(self.sample.inel_HKL,self.sample.inel_SF,Ei_ideal,omega)	
 		#Need to recompile the instrument
 		self.data.data_matrix=False
-		print('b')
 		self.prepare_expt_directory()
-		print('c')
 		self.edit_instr_file()
-		print('d')
 		if run_flag==True:
 			self.compileInstr()
 			self.compileMonochromator()

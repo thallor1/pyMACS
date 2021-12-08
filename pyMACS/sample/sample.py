@@ -7,30 +7,64 @@ import lmfit
 from lmfit import Model,Parameters
 
 class Sample(object):
-	'''
-	The purpose of this class is to perform operations related to intrinsic sample properties that will ultimately be simulated. 
+	"""
+	The purpose of this class is to perform operations related to intrinsic sample properties that will ultimately be simulated.
+	It contains information regarding the sample itself as well as its orientaion, and methods to calculate crystallographic quantities.
 
-	Parameters:
-
-	a,b,c  - Lattice parameters in Ang 
-	alpha,beta,gamma - Unit cell angles 
-	name - the name of the sample
-	astar,bstar,cstar - numpy arrays, Reciprocal lattice vectors(calculated)
-	avec, bvec, cvec - real space vectors of the unit cell (calculated)
-	cell_vol - unit cell volume (calculated)
-	cell_vol_recip - volume of reciprocal unit cell (calculated)
-	sample_shape - allowed values are 'cylinder' and 'box'
-	sample_diameter_d - diameter of cylinder, in m
-	sapmle_tilt - tilt from vertical axis in deg, 0 being vertical and axis is the x-axis (perpendicular to beam)
-	sample_length - length of cylinder, in m 
-	sample_widx - box width, in m 
-	sample_widy - box width in beam direction in m 
-	sample_widz - box height in m 
-	ciffile - preferred method to initialize the sample.
-	b_arr - scattering lengths of the ions in the sample. Can also be extracted from NIST tables, or use a custom value in the case of isotope enhancement
+	:param a: Length of lattice vector in a-direction (Ang)
+	:type a: float
+	:param b: Length of lattice vector in b-direction (Ang)
+	:type b: float
+	:param c: length of lattice vector in c-direction (Ang)
+	:type c: float
+	:param alpha: Lattice alpha angle (deg)
+	:type alpha: float
+	:param beta: Lattice beta angle (deg)
+	:type beta: float
+	:param gamma: Lattice gamma angle (deg)
+	:type gamma: float
+	:param name: Name assosciated with the sample.
+	:type name: str
+	:param astar: Reciprocal lattice vector astarin Ang^-1. Calculated from direct lattice and should not be input.
+	:type astar: np.ndarray of len 3
+	:param bstar: Reciprocal lattice vector bstar in Ang^-1. Calculated from direct lattice and should not be input.
+	:type bstar: np.ndarray of len 3
+	:param cstar: Reciprocal lattice vector cstar in Ang^-1. Calculated from direct lattice and should not be input
+	:type cstar: np.ndarray of len 3
+	:param avec: Direct lattice vector a in Ang. Calculated from lattice specification and should not be input.
+	:type avec: np.ndarray of len 3
+	:param bvec: Direct lattice vector b in Ang. Calculated from lattice specification and should not be input.
+	:type bvec: np.ndarray of len 3
+	:param cvec: Direct lattice vector c in Ang. Calculated from lattice specification and should not be input.
+	:type cvec: np.ndarray of len 3
+	:param cell_vol: Direct unit cell volume in Ang^3, again calculated.
+	:type cell_vol: float
+	:param cell_vol_recip: Recriprocal unit cell volume in Ang^-1, calculated.
+	:type cell_vol_recip: float
+	:param sample_shape: Sample shape which also affects many parts of the simulation. The allowed values for this are the following (\'box\',\'cylinder\',\'powder\',\'spot_box\',\'spot_cylinder\',\'box_inel_crystal'). 
+		The first three simulate only elastic scattering with their respective geometries. The spot_box and spot_cylinder components are effectively powders with a delta function in Q and energy. 
+		Finally, the box_inel_crystal shape allows for the insertion of a delta function at arbitrary points in Q-E space.
+	:type sample_shape: str
+	:param sample_diameter_d: For cylinder shape, the diameter
+	:type sample_diameter_d: float
+	:param sample_tilt: Tilt of cylinder from the vertical axis, with 0 being vertical and the rotation axis being the x-axis
+		or perpendicular to the beam. In degrees.
+	:type sample_tilt: float
+	:param sample_length: Length of cylinder geometry in m.
+	:type sample_length: float
+	:param sample_widx: Box geometry width in the x-direction in m.
+	:type sample_widx: float
+	:param sample_widy: Box geometry width in the y-direction in m. 
+	:type sample_widy: float
+	:param sample_widz: Box geometry width in the z-direction in m. 
+	:type sample_widz: float
+	:param ciffile: Cif file assosciated with sample initialization.
+	:type ciffile: str
+	:param b_arr: Scattering lengths of ions in sample. Usually extracted from built in NIST tables.
+	:type b_arr: dict
 
  
-	'''
+	"""
 
 	def __init__(self,a=6.28,b=6.28,c=6.28,alpha=90.0,beta=90.0,gamma=90.0,cell_vol=None,V_recip=None,name='default_sample',sample_shape='cylinder',sample_diameter_d=0.02,sample_tilt=60.0,\
 		sample_length=0.04,sample_widx=0.003,sample_widy=0.003,sample_widz=0.003,symm_ops=None,space_group=None,ciffile=None,laufile=None,customlaufile=None,b_arr=False,orient_u=[1,1,0],orient_v=[0,0,1],orient_w=[1,0,1],\
@@ -217,7 +251,7 @@ class Sample(object):
 
 
 	#Methods begin below
-	def gen_flines(self):
+	def _gen_flines(self):
 		#simply retuns the flines string array
 		cif_f = open(self.fname,'r')
 		f_lines = cif_f.readlines()
@@ -225,10 +259,11 @@ class Sample(object):
 		return f_lines
 
 	def generate_symmetry_operations(self):
-		#Collect the symmetry equivalent sites. File format is 'site_id, symmetry equiv xyz'
-		#Check for sure where the position is
-		#returns the symmetry operations as array of strings, i.e. ['+x','+y','-z']
+		"""Extracts the symmetry operations from the stored cif file.
 
+		:return symm_arr: List of symmetry operations in format of [x,y,z]
+		:rtype: list
+		"""
 		symm_arr = self.cif_dict['_symmetry_equiv_pos_as_xyz']
 		for i in range(len(symm_arr)):
 			if type(symm_arr[i])==str:
@@ -239,7 +274,13 @@ class Sample(object):
 		return symm_arr
 
 	def gen_unique_coords(self):
-		#Get the relevant atomic coordinates and displacement aprameters for unique positions
+		"""Generates the unique coordinates in the unit cell in fractional coordinates. Uses symmetry 
+		operations as specified in cif file.
+
+		:return coords: Returns a dictionary of coordinates with columns [ion,label,x,y,z,occupancy,thermal_dispacement,Uiso,site_multiplicity]
+			Here, x,y,z are the coordinates in fractional coordinates and 'ion' refers to the element.
+		:rtype: dict
+		"""
 		f_lines = self.gen_flines()
 
 		coords = {}
@@ -293,9 +334,12 @@ class Sample(object):
 		self.expected_sites=expected
 		return coords 
 	def gen_unit_cell_positions(self):
-			# Now we must generate all of the positions. We'll generate a list of format:
-		#    [ion, x, y, z]
-		# which makes structure factor calclation easier. 
+		"""Generates the coordinates of ions in the unit cell in fractional coordinates.
+
+		:return structure array: Returns a numpy array with coulmns of [ion, b_elastic, x, y, z, occupancy].
+			Here ion refers to the ion name and b_elastic is the elastic scattering cross section.
+		:rtype: dict
+		"""
 		coords = self.gen_unique_coords()
 		scatt_dict = self.scatt_dict
 		symm_ops = self.generate_symmetry_operations()
@@ -381,11 +425,19 @@ class Sample(object):
 		return structure_array
 
 	def gen_reflection_list(self,max_tau=20,maxQmag=1e10,b_dict=False):
-		#Calculates the structure factor for all reflections in the unit cell. 
-		# returns an array of arrays of format [H K L Freal Fi |F|^2 ]
+		"""Calculates the structure factor for all reflections in the unit cell up to some maximum momentum transfer. 
 
-		#NOTE add in occupancy later
-		#Need to convert from fractional to real coordinates 
+		:param max_tau: Maximum index (doesn't matter which) allowed for reflection generation. Default is 20.
+		:type max_tau: int
+		:param maxQmag: Alternate way to specify maximum allowed reflection, maximum momentum transfer in Ang^-1. 
+		:type maxQmag: float
+		:return tau: List of reflections in a matrix with columns [H K L S(Q)^2] where S(Q)^2 is the structure factor. 
+			Structure factors account for multiplicity. 
+		:rtype: np.ndarray
+		"""
+		#Calculates the structure factor for all reflections in the unit cell. 
+		# returns an array of arrays of format [H K L Freal Fi F^2 ]
+
 		structure = self.gen_unit_cell_positions()
 
 		F_HKL = 0.0
@@ -438,7 +490,17 @@ class Sample(object):
 		self.HKL_list = tau
 		return tau
 	def fetch_F_HKL(self,H,K,L):
-		# Returns the SF^2 of a particular reflection
+		"""For a specified reflection in H, K, L, returns a squared structure factor. 
+		
+		:param H: H-index of reflection. (rlu) 
+		:type H: int / float
+		:param K: K-index of reflection. (rlu)
+		:type K: int / float
+		:param L: L-index of reflection. (rlu)
+		:type L: int / float
+		:return F: Structure factor squared (barn)
+		:rtype: float
+		"""
 		try:
 			HKL = self.HKL_list
 		except AttributeError:
@@ -448,14 +510,37 @@ class Sample(object):
 		return HKL[index]
 	
 	def Qmag_HKL(self,H,K,L):
-		#Returns the magnitude of the q-vector of the assosciated HKL indec in Ang^-1
-		#qvec = 2.0*np.pi*np.array(H*self.astar+K*self.bstar+L*self.cstar)
+		"""For a specfied reflection in H, K, L, returns the magnitude of its momentum transfer. 
+
+		:param H: H-index of reflection. (rlu) 
+		:type H: int / float
+		:param K: K-index of reflection. (rlu)
+		:type K: int / float
+		:param L: L-index of reflection. (rlu)
+		:type L: int / float
+		:return qmag: Structure factor squared (barn)
+		:rtype: float
+		"""
 		qvec = np.array(H*self.astar_vec+K*self.bstar_vec+L*self.cstar_vec)
 		qmag = np.linalg.norm(qvec)
 		return qmag 
 
 	def twotheta_hkl(self,H,K,L,E,mode='deg'):
-		#Simply feeds into equivalent Q_HKL function then converts to twotheta
+		"""For a specfied reflection in H, K, L, and incident energy, returns the scattering angle. 
+
+		:param H: H-index of reflection. (rlu) 
+		:type H: int / float
+		:param K: K-index of reflection. (rlu)
+		:type K: int / float
+		:param L: L-index of reflection. (rlu)
+		:type L: int / float
+		:param E: Incident neutron energy. (meV)
+		:type E: float
+		:param mode: Specifies if angle should be returned in radians or degrees. Allowed values are 'deg' and 'rad'.
+		:type mode: str
+		:return twoTheta: Scattering angle (degrees / rad)
+		:rtype: float
+		"""		
 		lam_i = 9.045/np.sqrt(E)
 		lam_f = 9.045/np.sqrt(E-0.0)
 		ki = 2.0*np.pi/lam_i 
@@ -470,10 +555,25 @@ class Sample(object):
 			return twoTheta	
 
 	def adjust_hkl_inelastic(self,H,K,L,Ei,Ef):
-		#Let's say we want (0.5,0.5,2) Ei=7 Ef=5
-		#The correct elastic representation is about [0.51097741, 0.51097741, 0.32138822]
-		#tau =np.array([0.5,0.5,0.2])
-		#tau = np.array([-0.6,-0.6,-0.4])
+		"""Very particular function to determine what elastic reflection would yield a particular inelastic reflection by simply 
+			scaling down kf and keeping the same scattering angle. Used for the direct calculation of the resolution function at
+			particular points in Q-E space. Generally not useful to users. In essence, in order to calculate inelastic scattering
+			at the desired H,K,L values input to this function, one must use the output of this function in the .lau file
+			used to determine crystal reflections. 
+
+		:param H: H-index of reflection. (rlu) 
+		:type H: int / float
+		:param K: K-index of reflection. (rlu)
+		:type K: int / float
+		:param L: L-index of reflection. (rlu)
+		:type L: int / float
+		:param Ei: Incident neutron energy. (meV)
+		:type Ei: float
+		:param Ef: Final neutron energy after scattering. (meV)
+		:type Ef: float
+		:return reflection: Equivalent H,K,L points of elastic reflection to match input inelastic reflection.
+		:rtype: float
+		"""	
 		tau = np.array([H,K,L])
 		mag_tau = self.Qmag_HKL(*tau)
 		#print(f'For Tau={tau} Q={mag_tau:.3f} Ang^-1')
@@ -601,8 +701,21 @@ class Sample(object):
 		return reflection 
 
 	def twotheta_hkl_omega(self,H,K,L,Ei,omega,mode='deg'):
-		#Given HKL indices, incident energy, and energy transfer, returns the scattering angle
-		# Q^2 = ki^2 + kf^2 -2 ki kf cos(twoTheta)
+		"""For a specfied reflection in H, K, L, and incident energy, and energy transfer returns the scattering angle. 
+
+		:param H: H-index of reflection. (rlu) 
+		:type H: int / float
+		:param K: K-index of reflection. (rlu)
+		:type K: int / float
+		:param L: L-index of reflection. (rlu)
+		:type L: int / float
+		:param Ei: Incident neutron energy. (meV)
+		:type Ei: float
+		:param omega: Neutron energy transfer at sample. (meV)
+		:type omega: float
+		:return twoTheta: Scattering angle (degrees / rad)
+		:rtype: float
+		"""		
 		lam_i = 9.045/np.sqrt(Ei)
 		lam_f = 9.045/np.sqrt(Ei-omega)
 		ki = 2.0*np.pi/lam_i 
@@ -617,8 +730,18 @@ class Sample(object):
 			return twoTheta		
 
 	def QE_to_twotheta(self,Qmag,Ei,omega,mode='deg'):
-		#Given HKL indices, incident energy, and energy transfer, returns the scattering angle
-		# Q^2 = ki^2 + kf^2 -2 ki kf cos(twoTheta)
+		"""Given HKL indices, incident energy, and energy transfer, returns the scattering angle
+
+		:param Qmag: Input Q-magnitude in Ang^-1
+		:type Qmag: float
+		:param Ei: Incident neutron energy in meV
+		:type Ei: float
+		:param omega: Neutron energy transfer at sample in meV
+		:type omega: float
+		:param mode: Determines if angle is returned in degrees or radians. Allowed values 'deg' or 'rad'.
+		:return twoTheta: Neutron scattering angle in (deg/rad)
+		:rtype: float
+		"""
 		lam_i = 9.045/np.sqrt(Ei)
 		lam_f = 9.045/np.sqrt(Ei-omega)
 		ki = 2.0*np.pi/lam_i 
@@ -631,40 +754,9 @@ class Sample(object):
 		else:
 			return twoTheta	
 
-	def theory_powder_bragg_I(self,obsQ,intQ,intE,H,K,L,sample_mass):
-		#Returns a scale factor to scale the data into  'barn/(eV mol sr fu)'
-		#Makes a very rough assumption that Q^2 is constant through the integral (clearly it's not)
-		#If you want to avoid this you need to evaluate int(Q^2), and input 1.0 as obsQ
 
-		'''
-		Input params:
-			obsQ - center of bragg peak 
-			intQ - integral in Q of bragg peak
-			intE - integral in E of bragg peak (In meV!!)
-			HKL, indices of bragg peak
-			sample_mass- mass of sample in grams
-
-		Returns:
-			A scaling factor to normalize your dataset to the bragg peak.In units of fm^2
-			Multiply by multiplicity afterwards if needed
-		'''
-		observed_Qsqr = obsQ**2 *(intQ)
-		obs_E_int =intE #To become eV rather than meV
-		I_obs = observed_Qsqr*obs_E_int
-		f_HKL = self.fetch_F_HKL(H,K,L)[-1]
-		#Convert to barn^2 / Sr
-		f_HKL = f_HKL#*0.01
-		#We want it per fu, so scale the fHKL to reflect this
-		#f_HKL/=formula_scale
-		density = self.formula_weight
-		N = sample_mass/density 
-		numerator = (4.0*np.pi)*I_obs*N 
-		denom = f_HKL * (((2*np.pi)**3)/self.cell_vol)
-		scaling_factor = denom/numerator 
-		return scaling_factor
-
-	def cif2lau(self,outdir=os.getcwd(),launame=None):
-		#Attempt to use the baked in mcstas utility to make an lau file. 
+	def __cif2lau(self,outdir=os.getcwd(),launame=None):
+		"""Converts input cif file to a Crystallographica format .lau file. Not intended for users."""
 		try:
 			if launame is None:
 				launame=self.ciffile.split('.')[0]+'.lau'
@@ -688,12 +780,21 @@ class Sample(object):
 		return 1
 
 	def gen_custom_lau(self,HKL_list,Sqwlist,Ei,omega,outdir=os.getcwd(),launame=None):
-		#Given a set of reflections and strure factors, generates a custom LAU file with columnns of
-		#  [ H K L E S(q,w)] as required by the single_crystal_inelastic component
-		# Takes list of [H K L] indices, list of energy transfers for those indices, and structure factors.
+		"""
+		Given a set of reflections and structre factors, generates a custom LAU file with columnns of
+			[ H K L S(q,w)] as required by the single_crystal_inelastic component
 
-		#Easiest to do this by editing the standard lau file 
-		#Attempt to use the baked in mcstas utility to make an lau file. 
+		:param HKL_list: np array of reflections of format np.array([[H1,K1,L1],[H2,K2,L2],....[Hn,Kn,Ln]])
+		:type HKL_list: np.ndarray
+		:param Sqwlist: np array of structure factors, matching each reflection. 
+		:type Sqwlist: np.ndarray
+		:param Ei: Incident neutron energy (meV)
+		:type Ei: float
+		:param omega: Energy transfer at sample (meV)
+		:type omega: float
+		:param name: Filename of output lau file.
+		:type name: str
+		"""
 		try:
 			if launame is None:
 				launame=self.ciffile.split('.')[0]+'.lau'
@@ -722,15 +823,15 @@ class Sample(object):
 
 		#Fix the HKL list to account for the energy transfer
 		for i in range(len(HKL_list)):
-			print('Requested Reflection')
-			print(HKL_list[i])
+			#print('Requested Reflection')
+			#print(HKL_list[i])
 			H=HKL_list[i,0]
 			K=HKL_list[i,1]
 			L=HKL_list[i,2]
 			newHKL = self.adjust_hkl_inelastic(H,K,L,Ei,Ei-omega)
 			newH,newK,newL = newHKL[0],newHKL[1],newHKL[2]
-			print('Output HKL')
-			print(newHKL)
+			#print('Output HKL')
+			#print(newHKL)
 			#replace nans with 0 
 			if np.isnan(newH):
 				newH=0
@@ -800,8 +901,11 @@ class Sample(object):
 		return name
 
 	def project_sample_realspace(self):
-		#Given an alignment in the objects orient_u and orient_v, with u being perpendicular to beam and v parallel to beam
-		#Used to write instr file, where convention is that x is perpendicular to beam, z is beam direction, y is vertical.
+		"""
+		Given an alignment in the objects orient_u and orient_v, with u being perpendicular to beam and v parallel to beam
+		Used to write instr file, where convention is that x is perpendicular to beam, z is beam direction, y is vertical.
+		 
+		"""
 		#First, recover real space a* b* c* 
 		u_dir = np.array([1.0,0.0,0.0]) #These are in the lab frame, u perp to beam
 		v_dir = np.array([0.0,0.0,1.0])
@@ -864,3 +968,4 @@ class Sample(object):
 		self.cstar_vec_labframe=cstar_vec_f 
 		labframe_mat = np.array([avec_f,bvec_f,cvec_f])
 		self.labframe_mat=labframe_mat
+		return 1
