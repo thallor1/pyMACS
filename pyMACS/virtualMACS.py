@@ -18,29 +18,26 @@ from tqdm import tqdm
 from tqdm import tnrange, tqdm_notebook
 
 class virtualMACS(object):
-		"""
-		This class encompasses the virtual MACS experiment and contains various subclasses to handle 
-		the various elements of its operation. The object itself mostly contains information regarding just 
-		simulation parameters like neutron simulated count and directories. 
+	"""
+	This class encompasses the virtual MACS experiment and contains various subclasses to handle 
+	the various elements of its operation. The object itself mostly contains information regarding just 
+	simulation parameters like neutron simulated count and directories. 
 
-		Parameters
-		---------
-		:param exptName: A string that describes the experiment. Used to make directories for this simulation.
-		:type exptName: str, required
-		:param cifName: A string that denotes the filename of the .cif file assosciated with your sample. Must be in working directory.
-		:type cifName: str, required
-		:param useOld: Bool denoting if old instrument files should be preserved. Default False. 
-		:type useOld: bool, optional
-		:param n_sample: Number of neutrons to simulate at sample position. Default 1e5
-		:type n_sample: (int/float) optional
-		:param n_mono:(int) Number of neutrons to simulate at monochromator position. Default 1e6
-		:type n_mono: (int/float) optional
-		:param kidney_angle_resolution: Angular resolution of detectors in the kidney scan / A4 angle, default 1.0 degrees
-		:type kidney_angle_resolution: (float) optional
-		
-
-		"""
-		def __init__(self,exptName,cifName=None,useOld=False):
+	:param exptName: A string that describes the experiment. Used to make directories for this simulation.
+	:type exptName: str, required
+	:param cifName: A string that denotes the filename of the .cif file assosciated with your sample. Must be in working directory.
+	:type cifName: str, required
+	:param useOld: Bool denoting if old instrument files should be preserved. Default False. 
+	:type useOld: bool, optional
+	:param n_sample: Number of neutrons to simulate at sample position. Default 1e5
+	:type n_sample: (int/float) optional
+	:param n_mono: (int) Number of neutrons to simulate at monochromator position. Default 1e6
+	:type n_mono: (int/float) optional
+	:param kidney_angle_resolution: Angular resolution of detectors in the kidney scan / A4 angle, default 1.0 degrees
+	:type kidney_angle_resolution: (float) optional
+	
+	"""
+	def __init__(self,exptName,cifName=None,useOld=False):
 		""" Constructor method
 		"""
 		self.exptName=exptName
@@ -96,6 +93,7 @@ class virtualMACS(object):
 		self.inel_reflect_list = None
 		self.inel_reflect_omega_list = None 
 		self.inel_reflect_SF_list = None 
+		return 1
 
 	def mount_ramdisk_old(self):
 		""" Mounts a disk based in memory. Disk operations are too slow, users are not intended to access
@@ -468,7 +466,7 @@ class virtualMACS(object):
 	def prepare_spot_sample(self,omega=None,spot_HKL=None,spot_Qmag=None,spot_twoTheta=None,spot_eideal=None):
 		"""Prepares the sample for a spot calculation for spot_sample. Assigns necessary parameters to the sample before running the simulation. 
 		May either specify an HKL point, Q_magnitude, or scattering angle. In the end only omega and twoTheta (degrees) matter.
-		 If scattering angle is specified through HKL, it is an array of form [H,K,L]
+		If scattering angle is specified through HKL, it is an array of form [H,K,L]
 
 		:param omega: Energy transfer at sample in meV. 
 		:type omega: float, required
@@ -582,7 +580,7 @@ class virtualMACS(object):
 		return 1
 
 
-	def write_mono_paramfile_from_current_params(self):
+	def __write_mono_paramfile_from_current_params(self):
 		"""Writes the parmeter text file for monochromator simulation
 		"""
 		cwd=self.cwd
@@ -600,7 +598,7 @@ class virtualMACS(object):
 		return out_name
 
 
-	def write_kidney_paramfile_from_current_params(self):
+	def __write_kidney_paramfile_from_current_params(self):
 		"""Write the parameter text file for a kidney simulation
 		"""
 		orig_dir = self.cwd
@@ -728,8 +726,20 @@ class virtualMACS(object):
 
 	def runKidneyScan(self,append_data_matrix=True,Ei_set=False,Ef_set=False,kidney_set=False,A3_set=False,beta_1_set=False,beta_2_set=False,\
 		scan_suffix=False):
-		#Runs a kidney scan using specified parameters.
-		#If parameters are not specified, defaults to object settings
+		"""For current parameters, runs a kidney scan. 
+		:param Ei_set: Ei setting for monochromator
+		:type Ei_set: float, optional
+		:param Ef_set: Ef setting for kidney
+		:type Ef_set: float, optional 
+		:param kidney_set: Kidney angle setting for kidney.
+		:type kidney_set: float, optional 
+		:param beta_1_set: Beta 1 angle in degrees.
+		:type beta_1_set: float, optional 
+		:param beta_2_set: Beta 2 angle in degrees.
+		:type beta_2_set: float, optional.
+		:param scan_suffix: Short descriptor of the current scan. Will be in output filenames.
+		:type scan_suffix: string, optional
+		"""
 		if Ei_set==False:
 			Ei_set=self.monochromator.Ei 
 		if Ef_set==False:
@@ -849,11 +859,11 @@ class virtualMACS(object):
 		#Delete the parameter file unless otherwise specified. 
 		return 1
 
-	def runKidneyScan_scripting(self,A3,kidney_angle,Ei,Ef,beta1,beta2,append_data_matrix=True,scan_suffix=False):
+	def __runKidneyScan_scripting(self,A3,kidney_angle,Ei,Ef,beta1,beta2,append_data_matrix=True,scan_suffix=False):
 		#Run the simulation at this point 
 		self.runKidneyScan(append_data_matrix=append_data_matrix,Ei_set=Ei,Ef_set=Ef,kidney_set=kidney_angle,A3_set=A3,beta_1_set = beta1, beta_2_set = beta2,scan_suffix=scan_suffix)
 		return 1
-	def runMonoScan_scripting(self,Ei,Ef,beta1,beta2):
+	def __runMonoScan_scripting(self,Ei,Ef,beta1,beta2):
 		#Run the simulation at this point 
 		self.runMonoScan(Ei_set=Ei,Ef_set=Ef,kidney_set=self.kidney.kidney_angle,A3_set=self.A3_angle,beta_1_set = beta1, beta_2_set = beta2)
 		return 1
