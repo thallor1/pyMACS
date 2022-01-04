@@ -96,9 +96,9 @@ class virtualMACS(object):
 		self.inel_reflect_list = None
 		self.inel_reflect_omega_list = None 
 		self.inel_reflect_SF_list = None 
-		return 1
+		return None
 
-	def __mount_ramdisk_old(self):
+	def mount_ramdisk_old(self):
 		""" Mounts a disk based in memory. Disk operations are too slow, users are not intended to access
 			the ramdisk."""
 
@@ -391,19 +391,15 @@ class virtualMACS(object):
 			print('##############\n')
 		elif self.sample.sample_shape=='box_inel_crystal':
 			#Check if the required arrays have been specified for this calculation
-			if type(self.sample.inel_HKL) == bool:
-				print('Cannot prepare experiment in box_inel_crystal mode.\nSpecifiy HKL list using expt.inel_HKL first.')
+			if self.sample.inel_HKL_Sq is None:
+				print('Cannot prepare experiment in box_inel_crystal mode.\nSpecifiy HKL_E_Sq list using expt.sample.inel_HKL_E_Sq first.')
 				return 0
-			if type(self.sample.inel_omega) == bool:
-				print('Cannot prepare experiment in box_inel_crystal mode.\nSpecifiy energy transfer using expt.inel_omega first.')
-				return 0 
-			if type(self.sample.inel_SF)== bool:
-				print('Cannot prepare experiment in box_inel_crystal mode.\nSpecifiy structure factors using expt.inel_SF first.')
-				return 0 
-			#Prepare the requisite lau file 
-			launame = self.sample.gen_custom_lau(self.sample.inel_HKL,self.sample.inel_SF,self.kidney.Ef+self.sample.inel_omega,self.sample.inel_omega)
-			#Move this into the main instrument directory 
+			#Prepare the requisite lau file for each omega
+			omega = self.sample.inel_omega
+			Ei_ideal = self.kidney.Ef + omega
+			launame = self.sample.gen_custom_lau(self.sample.inel_HKL_Sq,Ei_ideal,omega)
 			shutil.copy(self.cwd+'/'+launame,self.instr_file_directory)
+
 
 			#Check the size of the sample. Max allowed cubic dimension is 2 cm
 			if self.sample.sample_widx>=0.02:
@@ -416,9 +412,7 @@ class virtualMACS(object):
 				print('Warning: Maximium allowed sample dimension exceeded. Max dimension is 2cm, setting to 1 cm')
 				self.sample.sample_widz=0.019	
 			filedata = filedata.replace('REPLACEsamp_delta_d',str(self.sample.delta_d))
-			filedata = filedata.replace('REPLACE_inel_crystal_delta_d',str(self.sample.delta_d))
 			filedata = filedata.replace('REPLACEsamp_mosaic',str(self.sample.sample_mosaic))
-			filedata = filedata.replace('REPLACE_inel_crystal_mosaic',str(self.sample.sample_mosaic))
 			filedata = filedata.replace('REPLACEsamp_ax',str(sampmat[0,0]))
 			filedata = filedata.replace('REPLACEsamp_ay',str(sampmat[0,1]))
 			filedata = filedata.replace('REPLACEsamp_az',str(sampmat[0,2]))
@@ -428,20 +422,6 @@ class virtualMACS(object):
 			filedata = filedata.replace('REPLACEsamp_cx',str(sampmat[2,0]))
 			filedata = filedata.replace('REPLACEsamp_cy',str(sampmat[2,1]))
 			filedata = filedata.replace('REPLACEsamp_cz',str(sampmat[2,2]))
-			#same as above but for the inelastic process
-			filedata = filedata.replace('REPLACE_inel_crystal_ax',str(sampmat[0,0]))
-			filedata = filedata.replace('REPLACE_inel_crystal_ay',str(sampmat[0,1]))
-			filedata = filedata.replace('REPLACE_inel_crystal_az',str(sampmat[0,2]))
-			filedata = filedata.replace('REPLACE_inel_crystal_bx',str(sampmat[1,0]))
-			filedata = filedata.replace('REPLACE_inel_crystal_by',str(sampmat[1,1]))
-			filedata = filedata.replace('REPLACE_inel_crystal_bz',str(sampmat[1,2]))
-			filedata = filedata.replace('REPLACE_inel_crystal_cx',str(sampmat[2,0]))
-			filedata = filedata.replace('REPLACE_inel_crystal_cy',str(sampmat[2,1]))
-			filedata = filedata.replace('REPLACE_inel_crystal_cz',str(sampmat[2,2]))
-			filedata = filedata.replace('REPLACE_inel_crystal_ref_fname','\"'+self.sample.customlaufile+'\"')
-			filedata = filedata.replace('REPLACE_inel_crystal_omega',str(self.sample.inel_omega))
-			
-
 			filedata = filedata.replace('REPLACEsamp_abs_xc',str(self.sample.rho_abs))
 			filedata = filedata.replace('REPLACEsamp_inc_xc',str(self.sample.sigma_inc))
 			filedata = filedata.replace('REPLACEsamp_cell_vol',str(self.sample.cell_vol))
@@ -451,6 +431,32 @@ class virtualMACS(object):
 			filedata = filedata.replace('REPLACEcrystal_axis_xrot',str(self.sample.crystal_axis_xrot))
 			filedata = filedata.replace('REPLACEcrystal_axis_yrot',str(self.sample.crystal_axis_yrot))
 			filedata = filedata.replace('REPLACEcrystal_axis_zrot',str(self.sample.crystal_axis_zrot))
+			#same as above but for the inelastic process
+			inel_template = "COMPONENT REPLACEexternal_inel_sample=Single_crystal_inelastic_custom(xwidth=REPLACEsamp_xwidth,yheight=REPLACEsamp_ywidth,zdepth=REPLACEsamp_zwidth,\n  delta_d_d=REPLACE_inel_crystal_delta_d,mosaic=REPLACE_inel_crystal_mosaic,barns=1,\n  ax=REPLACE_inel_crystal_ax, ay=REPLACE_inel_crystal_ay, az = REPLACE_inel_crystal_az,\n  bx=REPLACE_inel_crystal_bx, by=REPLACE_inel_crystal_by, bz = REPLACE_inel_crystal_bz,\n  cx=REPLACE_inel_crystal_cx, cy=REPLACE_inel_crystal_cy, cz = REPLACE_inel_crystal_cz,\n  reflections=REPLACE_inel_crystal_ref_fname, omega=REPLACEsamp_omega)\nAT (0,0,0) RELATIVE target\nROTATED (0,0,0) RELATIVE crystal_axis\n\n"
+			inel_sample_str = ""
+
+			inel_sample_str = inel_template.replace('REPLACE_inel_crystal_ax',str(sampmat[0,0]))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_ay',str(sampmat[0,1]))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_az',str(sampmat[0,2]))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_bx',str(sampmat[1,0]))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_by',str(sampmat[1,1]))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_bz',str(sampmat[1,2]))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_cx',str(sampmat[2,0]))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_cy',str(sampmat[2,1]))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_cz',str(sampmat[2,2]))
+			inel_sample_str = inel_sample_str.replace('REPLACEexternal_inel_sample','external_single_crystal_sqw')			
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_ref_fname','\"'+self.sample.customlaufile+'\"')
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_mosaic',str(self.sample.sample_mosaic))
+			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_delta_d',str(self.sample.delta_d))				
+			inel_sample_str = inel_sample_str.replace('REPLACEsamp_abs_xc',str(self.sample.rho_abs))
+			inel_sample_str = inel_sample_str.replace('REPLACEsamp_inc_xc',str(self.sample.sigma_inc))
+			inel_sample_str = inel_sample_str.replace('REPLACEsamp_cell_vol',str(self.sample.cell_vol))
+			inel_sample_str = inel_sample_str.replace('REPLACEsamp_xwidth',str(self.sample.sample_widx))
+			inel_sample_str = inel_sample_str.replace('REPLACEsamp_ywidth',str(self.sample.sample_widy))
+			inel_sample_str = inel_sample_str.replace('REPLACEsamp_zwidth',str(self.sample.sample_widz))
+			inel_sample_str = inel_sample_str.replace('REPLACEsamp_omega',str(self.sample.inel_omega))
+
+			filedata = filedata.replace('// INSERT EXTERNAL INEL SAMPLE STRING HERE',inel_sample_str)
 			print('\n##############\n')
 			print(' Inelastic Crystal sample successfully prepared. \n')
 			print('##############\n')
@@ -583,12 +589,15 @@ class virtualMACS(object):
 		return 1
 
 
-	def __write_mono_paramfile_from_current_params(self):
+	def write_mono_paramfile_from_current_params(self):
 		"""Writes the parmeter text file for monochromator simulation
 		"""
 		cwd=self.cwd
-		if not os.path.exists(cwd+'/'+self.exptName+'/param_files_monochromator/'):
-			os.mkdir(cwd+'/'+self.exptName+'/param_files_monochromator/')
+		try:
+			if not os.path.exists(cwd+'/'+self.exptName+'/param_files_monochromator/'):
+				os.mkdir(cwd+'/'+self.exptName+'/param_files_monochromator/')
+		except Exception as e:
+			pass
 		self.mono_param_dir = self.exptdir+'/param_files_monochromator/'
 		out_name = self.mono_param_dir+'mono_params_ei'+'{:.2f}'.format(self.monochromator.Ei)+'_beta1_'+'{:.3f}'.format(self.monochromator.beta_1)+'_beta2_'+'{:.3f}'.format(self.monochromator.beta_2)+'_sample_diameter_d_'+'{:.4f}'.format(self.sample.sample_diameter_d)+'.txt'
 
@@ -601,7 +610,7 @@ class virtualMACS(object):
 		return out_name
 
 
-	def __write_kidney_paramfile_from_current_params(self):
+	def write_kidney_paramfile_from_current_params(self):
 		"""Write the parameter text file for a kidney simulation
 		"""
 		orig_dir = self.cwd
@@ -864,11 +873,11 @@ class virtualMACS(object):
 		#Delete the parameter file unless otherwise specified. 
 		return 1
 
-	def __runKidneyScan_scripting(self,A3,kidney_angle,Ei,Ef,beta1,beta2,append_data_matrix=True,scan_suffix=False):
+	def runKidneyScan_scripting(self,A3,kidney_angle,Ei,Ef,beta1,beta2,append_data_matrix=True,scan_suffix=False):
 		#Run the simulation at this point 
 		self.runKidneyScan(append_data_matrix=append_data_matrix,Ei_set=Ei,Ef_set=Ef,kidney_set=kidney_angle,A3_set=A3,beta_1_set = beta1, beta_2_set = beta2,scan_suffix=scan_suffix)
 		return 1
-	def __runMonoScan_scripting(self,Ei,Ef,beta1,beta2):
+	def runMonoScan_scripting(self,Ei,Ef,beta1,beta2):
 		#Run the simulation at this point 
 		self.runMonoScan(Ei_set=Ei,Ef_set=Ef,kidney_set=self.kidney.kidney_angle,A3_set=self.A3_angle,beta_1_set = beta1, beta_2_set = beta2)
 		return 1
@@ -1117,7 +1126,7 @@ class virtualMACS(object):
 		#At this point generate the data matrix. all files should be in the ramdisk. Information cannot be allowed to sit in the ramdisk.
 		return 1
 
-	def calc_resfunc(self,hkl_list,omega,A3_step=0.5,num_Ei=9,n_threads=1,use_res_sample=False,scan_title='',Ei_settings=False,run_flag=True):
+	def calc_resfunc(self,hkl_sq_list,omega,A3_step=0.5,num_Ei=9,n_threads=1,use_res_sample=False,scan_title='',Ei_settings=False,run_flag=True):
 		'''
 		Calculaetes full Q/E resolution ellipsoids around 
 		specified poidfnts in Q/E space given the frame of reference of the sample. 
@@ -1128,7 +1137,7 @@ class virtualMACS(object):
 			A3_step : step size of virtual A3 angle
 			num_Ei : number of energy transfers to calculate resolution function around.
 			hkl_list : Np array of format [[h,k,l],[h2,k2,l2], ...] of arbitrary length
-			omega : Energy transfer of point of interest. Only one allowed per calculation
+			omega : Energy transfer of point of interest. May either be a single float or a list of energy transfers. 
 			use_res_sample : Specifies whether use sample will be used or the provided resolution sample.
 			scan_name : Name of the scan, files will be appended with this to identify later. 
 			Ei_settings : Option to use specific Ei rather than automatically generating
@@ -1146,9 +1155,8 @@ class virtualMACS(object):
 			self.sample.orient_v = np.array([0,0,1])
 		else:
 			self.sample.sample_shape='box_inel_crystal'
-		self.sample.inel_HKL = hkl_list
-		self.sample.inel_omega=omega 
-		self.sample.inel_SF = np.ones(len(hkl_list))*10.0
+		self.sample.inel_HKL_Sq = hkl_sq_list
+		self.sample.inel_omega = omega
 		self.sample.sample_widx=5e-3
 		self.sample.sample_widz=5e-3
 		self.sample.sample_widy=5e-3
@@ -1157,8 +1165,8 @@ class virtualMACS(object):
 		self.sample.project_sample_realspace()
 		#Prepare the requisite lau file 
 		self.sample.cif2lau()
-		Ei_ideal = self.kidney.Ef + omega
-		#launame = self.sample.gen_custom_lau(self.sample.inel_HKL,self.sample.inel_SF,Ei_ideal,omega)	
+		Ei_ideal = self.kidney.Ef+omega
+		launame = self.sample.customlaufile
 		#Need to recompile the instrument
 		self.data.data_matrix=False
 		self.prepare_expt_directory()
@@ -1167,26 +1175,43 @@ class virtualMACS(object):
 			self.compileInstr()
 			self.compileMonochromator()
 			#Sample + instrument are prepared. Predict FWHM from MACS website observations:
-			excitation_Ei = self.kidney.Ef + omega 
-			fwhm_approx = 0.1*excitation_Ei-0.16 #See https://www.ncnr.nist.gov/instruments/macs/EivsFWHM_res.jpg
-			if fwhm_approx<0.01:
-				fwhm_approx=0.05 #User has set the Ef to be too low, throw a warning:
-				print('WARNING: Ef setting of '+str(self.kidney.Ef)+' meV is too low to be reasonable. Check your \n \
-					parameters. Results probably not meaningful')
-			omega_max = omega+2.0*fwhm_approx
-			omega_min = omega-2.0*fwhm_approx
-			omega_step = np.abs(omega_max-omega_min)/num_Ei 
-
-			omega_list = [omega_min+i*omega_step for i in range(num_Ei)]
-			if omega not in omega_list:
-				omega_list.append(omega)
-			omega_list=np.array(omega_list)
-			omega_list=np.sort(omega_list)
-			Ei_list = omega_list + self.kidney.Ef
-			if Ei_settings != False:
+			excitation_Ei = self.kidney.Ef + omega
+			if type(Ei_settings) is not bool:
 				Ei_list = Ei_settings
+			else:
+				fwhm_approx = 0.1*excitation_Ei-0.16 #See https://www.ncnr.nist.gov/instruments/macs/EivsFWHM_res.jpg
+				if fwhm_approx<0.01:
+					fwhm_approx=0.05 #User has set the Ef to be too low, throw a warning:
+					print('WARNING: Ef setting of '+str(self.kidney.Ef)+' meV is too low to be reasonable. Check your \n \
+						parameters. Results probably not meaningful')
+				omega_max = omega+2.0*fwhm_approx
+				omega_min = omega-2.0*fwhm_approx
+				omega_step = np.abs(omega_max-omega_min)/num_Ei 
+
+				omega_list = [omega_min+i*omega_step for i in range(num_Ei)]
+				if omega not in omega_list:
+					omega_list.append(omega)
+				omega_list=np.array(omega_list)
+				omega_list=np.sort(omega_list)
+				Ei_list = omega_list + self.kidney.Ef
+
 			#Now run calculation over all A3 angles. 
 			A3_list = np.arange(-90,90,A3_step)
 			#Now simply call the script_scan method. 
 			self.script_scan(A3_list=A3_list,Ei_list=Ei_list,scan_title=scan_title,num_threads=n_threads)
+		return 1
+
+	def calc_resfunc_slice(self,q_list,e_range):
+		"""
+		Calculates full Q/E resolution ellipsoids along a given path in Q-space.
+		Automatically determines spacing between the ellipsoids such that they should not
+		overlap. Also evenly spaces ellipsoids in energy. Result can be interpolated to use in 
+		SPINW or other calculations of S(Q,omega)
+
+		:param q_list: List of q-points that determine the scan direction in format of a Nx3 matrix where columns are H,K,L
+		:type q_list: Nx3 np.ndarray
+		:param e_range: Min and max energy transfers of the scans of format [minE,maxE]
+		:type e_range: list
+		"""
+
 		return 1

@@ -94,7 +94,7 @@ class Data(object):
 		output_file.write('#Columns             QX            QY            QZ             E            A4          Time       Monitor            A2            A3            A5            A6           DFM            A1       AColMon AnalyzerTheta01 AnalyzerTheta02 AnalyzerTheta03 AnalyzerTheta04 AnalyzerTheta05 AnalyzerTheta06 AnalyzerTheta07 AnalyzerTheta08 AnalyzerTheta09 AnalyzerTheta10 AnalyzerTheta11 AnalyzerTheta12 AnalyzerTheta13 AnalyzerTheta14 AnalyzerTheta15 AnalyzerTheta16 AnalyzerTheta17 AnalyzerTheta18 AnalyzerTheta19 AnalyzerTheta20       BColMon BaseSampleTheta      BeFilMon         Beta1         Beta2        DFMDTS          DIFF        DIFF01        DIFF02        DIFF03        DIFF04        DIFF05        DIFF06        DIFF07        DIFF08        DIFF09        DIFF10        DIFF11        DIFF12        DIFF13        DIFF14        DIFF15        DIFF16        DIFF17        DIFF18        DIFF19        DIFF20          DMBT            Ef            Ei          FLIP         Focus             H           HKL             K        Kidney             L      MBTSlide          MCFX      MgFilMon    MonBlade01    MonBlade02    MonBlade03    MonBlade04    MonBlade05    MonBlade06    MonBlade07    MonBlade08    MonBlade09    MonBlade10    MonBlade11    MonBlade12    MonBlade13    MonBlade14    MonBlade15    MonBlade16    MonBlade17    MonBlade18    MonBlade19    MonBlade20    MonBlade21        MonRot      MonTrans          PTAI      PgFilMon         SPARE          SPEC        SPEC01        SPEC02        SPEC03        SPEC04        SPEC05        SPEC06        SPEC07        SPEC08        SPEC09        SPEC10        SPEC11        SPEC12        SPEC13        SPEC14        SPEC15        SPEC16        SPEC17        SPEC18        SPEC19        SPEC20     SmplLTilt     SmplUTilt         SmplX         SmplY         SmplZ          VBAH          VBAV         cfxbe       cfxhopg        cfxmgf    timestamp\n')
 		output_file.close()
 
-	def __getIntensity(self,datfile):
+	def getIntensity(self,datfile):
 		#Gets the Intensity total for both diff and spec files
 		try:
 			npArray = np.genfromtxt(datfile)
@@ -115,7 +115,7 @@ class Data(object):
 			TotErr=0
 		return TotIntensity,TotErr
 
-	def __getParams(self,fname):
+	def getParams(self,fname):
 		#Extracts parameters provided at top of mcstas .dat file
 		#Builds a dictionary of relevant params at top of the file
 		#Note that non-param entries at top of file are nonsense in the dict 
@@ -205,7 +205,7 @@ class Data(object):
 		self.data_matrix=final_frame
 		return 1
 
-	def __scan_to_csv(self,simulation_folder,file_suffix=''):
+	def scan_to_csv(self,simulation_folder,file_suffix=''):
 		#Given one folder containing a simulation for a particular configuration, appends the folder to the overall data matrix. 
 		col_labels=['A3','A2','A5','A6','H','K','L','Ei','Ef','DIFF','DIFF1','DIFF2','DIFF3','DIFF4','DIFF5','DIFF6','DIFF7','DIFF8','DIFF9','DIFF10','DIFF11',\
 					'DIFF12','DIFF13','DIFF14','DIFF15','DIFF16','DIFF17','DIFF18','DIFF19','DIFF20','SPEC','SPEC1','SPEC2','SPEC3','SPEC4','SPEC5','SPEC6','SPEC7','SPEC8','SPEC9','SPEC10','SPEC11',\
@@ -688,6 +688,94 @@ class Data(object):
 			Z[tuple(old_nani)]=np.nan 
 			Err[tuple(old_nani)]=np.nan
 		return X,Y,Z,Err
+
+	def take_volume(self,ubins,vbins,omegabins,which_data='mcstas',statistic='mean',smooth=False):
+		"""
+		Returns a volume integrating over no dimensions. All bins must be in MANTID/HORACE style
+		format [min,max,number of bins]
+
+		:param ubins: Bin specification in mantid format along u-direction (min,max,number of bins)
+		:type ubins: list
+		:param vbins: Bin specification in mantid format along v-direction (min,max,number of bins)
+		:type vbins: list
+		:param omeagabins: Bin specification in mantid format along energy axis (min,max,number of bins)
+		:type omegabins: list
+		:param which_data: Determines if experimental or simulated data should be used, 
+			'mcstas' to use calculated scattering and 'macs' for experimental. Allowed value 'mcstas' and 'macs'
+		:type which_data: str
+		:param statistic: Todo - not currently supported, always 'mean'
+		:type statistic: str
+		:param smooth: Output slice gaussian smoothing, either false or std dev in pixels.
+		:type param: bool or int
+		:return X,Y,Z: Matrices of U-coordinates, V-coordinates, and intensities. Suitable to plot in plt.pcolormesh. 
+			The X and Y matrices are bin edges, not centers. 
+		:rtype: np.ndarray,np.ndarray,np.ndarray
+		"""
+
+		if type(self.projected_matrix)==bool and which_data=='mcstas':
+			self.project_data_QE()
+		if type(self.projected_expt_matrix)==bool and which_data=='macs':
+			self.project_data_QE(which_data='macs')
+		tot_binlength = len(ubins)+len(vbins)+len(omegabins)
+		if tot_binlength!=9 or (len(ubins) not in [3]) or (len(vbins) not in [3]) or (len(omegabins) not in [3]):
+			print('Volume specification invalid. All dimensions must be in the form of [min, max, numbins].')
+			return 0,0,0,0
+		if which_data=='mcstas':
+			df_copy = self.projected_matrix.copy()
+		elif which_data=='macs':
+			df_copy = self.projected_expt_matrix.copy()
+		else:
+			df_copy = self.projected_matrix.copy()
+		df_copy = df_copy.loc[(df_copy['Qu']<=ubins[1]) & (df_copy['Qu']>=ubins[0])]
+		df_copy = df_copy.loc[(df_copy['Qv']<=vbins[1]) & (df_copy['Qv']>=vbins[0])]
+		df_copy = df_copy.loc[(df_copy['DeltaE']<=omegabins[1]) & (df_copy['DeltaE']>=omegabins[0])]
+		#Data now restricted to the relevant region of Q-E space. Now bin:
+		sampledat = np.array([df_copy['Qu'].to_numpy(),df_copy['Qv'].to_numpy(),df_copy['DeltaE'].to_numpy()]).T
+		values = df_copy['SPEC'].to_numpy().T
+		errs = df_copy['SPECErr'].to_numpy().T 
+		errs[errs==0]=np.nan
+		weights = 1.0/errs 
+		weights[np.isinf(weights)]=np.nan
+		weighted_vals = values*weights
+		weighted_vals[np.isnan(weighted_vals)]=0.0
+		sumofweights =  np.nansum(weights)
+		def weighted_mean(weighted_vals):
+			weighted_vals[np.isnan(weighted_vals)]=0 
+			weighted_vals[np.isinf(weighted_vals)]=0 
+			good_i = np.intersect1d(np.where(weighted_vals!=0)[0],np.where(~np.isnan(weighted_vals))[0])
+			weighted_vals=weighted_vals[good_i]
+			num = np.sqrt(np.nansum(weighted_vals))
+			return num
+		def weighted_mean_errs(weights):
+			weights[weights==0]=np.nan 
+			errs=1.0/weights 
+			errs[errs==0]=np.nan
+			return np.sqrt(np.nansum(errs**2))/np.nansum(weights)
+		#Rather than simply computing the mean, we need to compute the weighted mean and its error bar. 
+		bin_list = np.array([np.linspace(ubins[0],ubins[1],ubins[2]),\
+							np.linspace(vbins[0],vbins[1],vbins[2]),\
+							np.linspace(omegabins[0],omegabins[1],omegabins[2])])
+
+		ret_weightvals = scipy.stats.binned_statistic_dd(sample=sampledat,values=values,statistic=weighted_mean,bins=bin_list)
+		sumweights = scipy.stats.binned_statistic_dd(sample=sampledat,values=weights,statistic='sum',bins=bin_list)
+		ret_errs = scipy.stats.binned_statistic_dd(sample=sampledat,values=weights,statistic=weighted_mean_errs,bins=bin_list)
+		x = ret_weightvals.bin_edges[0]
+		y = ret_weightvals.bin_edges[1]
+		z = ret_weightvals.bin_edges[2]
+		print(np.shape(ret_weightvals.statistic))
+		X,Y,Z = np.meshgrid(x,y,z)
+		I = ret_weightvals.statistic[:,:,0]/sumweights.statistic[:,:,0]
+		Err = ret_errs.statistic[:,:,0]
+		if type(smooth)!=bool:
+			#Smooth intensities, errors.
+			old_nani = [np.isnan(I)]
+			I[np.isnan(I)]=0
+			Err[np.isnan(Err)]=0
+			I = scipy.ndimage.gaussian_filter(I,sigma=smooth)
+			Err = scipy.ndimage.gaussian_filter(Err,sigma=smooth)
+			I[tuple(old_nani)]=np.nan 
+			Err[tuple(old_nani)]=np.nan
+		return X,Y,Z,I,Err
 
 	def take_cut(self,ubins,vbins,omegabins,which_data='mcstas',statistic='mean'):
 		"""

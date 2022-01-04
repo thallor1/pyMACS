@@ -5,6 +5,7 @@ import os
 import shutil  
 import lmfit 
 from lmfit import Model,Parameters
+import matplotlib.pyplot as plt
 
 class Sample(object):
 	"""
@@ -150,6 +151,7 @@ class Sample(object):
 		self.scatt_dict = scatt_dict
 		self.laufile=laufile
 		self.customlaufile=customlaufile
+		self.customlaufile_list = []
 		self.cif_dict = cif_obj
 		self.abs_dict=abs_dict
 
@@ -230,7 +232,7 @@ class Sample(object):
 		self.spot_HKL=None
 		self.spot_Qmag=None
 		self.inel_omega=None #Used for full resolution function calculation with inel_crystal component
-		self.inel_HKL=None # Used for full resolution function calculation with the inel_crystal component
+		self.inel_HKL_Sq=None # Used for full resolution function calculation with the inel_crystal component
 		self.inel_SF=None # Used for full resolution function calculation, custom structure factors
 		self.spot_eideal=None 
 
@@ -248,10 +250,11 @@ class Sample(object):
 		self.labframe_mat=None
 		# extracts some additional info in the cif file about the general unit cell
 		f_lines = self.gen_flines()
+		return None
 
 
 	#Methods begin below
-	def _gen_flines(self):
+	def gen_flines(self):
 		#simply retuns the flines string array
 		cif_f = open(self.fname,'r')
 		f_lines = cif_f.readlines()
@@ -554,7 +557,7 @@ class Sample(object):
 		else:
 			return twoTheta	
 
-	def adjust_hkl_inelastic(self,H,K,L,Ei,Ef):
+	def adjust_hkl_inelastic(self,H,K,L,Ei,omega):
 		"""Very particular function to determine what elastic reflection would yield a particular inelastic reflection by simply 
 			scaling down kf and keeping the same scattering angle. Used for the direct calculation of the resolution function at
 			particular points in Q-E space. Generally not useful to users. In essence, in order to calculate inelastic scattering
@@ -574,131 +577,93 @@ class Sample(object):
 		:return reflection: Equivalent H,K,L points of elastic reflection to match input inelastic reflection.
 		:rtype: float
 		"""	
+		self.project_sample_realspace()
+		#First get information about the specified reflection in the lab frame. All quantities in Ang^-1
 		tau = np.array([H,K,L])
-		mag_tau = self.Qmag_HKL(*tau)
-		#print(f'For Tau={tau} Q={mag_tau:.3f} Ang^-1')
-		Ei = 7.0
-		Ef = 5.0
-		lam_i = 9.045/np.sqrt(Ei)
-		lam_f = 9.045/np.sqrt(Ef)
-		ki = np.array([0,0,1])*2.0*np.pi/lam_i
-		kf_0 = np.array([0,0,1])*2.0*np.pi/lam_f #Not the correct direction
-		ki_m = 2.0*np.pi/lam_i 
-		kf_m = 2.0*np.pi/lam_f
-		twoTheta =180.0*np.arccos((ki_m**2 + kf_m**2 - mag_tau**2)/(ki_m*kf_m*2.0))/np.pi
-		#print(f'2theta={twoTheta:.3f} deg')
-		twoTheta = np.pi*twoTheta/180.0
+		if np.dot(tau,np.array(self.orient_u))>=0 and np.dot(tau,np.array(self.orient_v))>=0:
+			quad=1
+			pre=-1
+			delA3=0
+		elif np.dot(tau,np.array(self.orient_u))<=0 and np.dot(tau,np.array(self.orient_v))>=0:
+			quad=2
+			pre=1
+			delA3=0
+		elif np.dot(tau,np.array(self.orient_u))<=0 and np.dot(tau,np.array(self.orient_v))<=0:
+			quad=3
+			pre=1
+			delA3=0
+		elif np.dot(tau,np.array(self.orient_u))>=0 and np.dot(tau,np.array(self.orient_v))<=0:
+			quad=4
+			pre=-1
+			delA3 = 0
+			
+		else:
+			quad=1
+			pre=-1
+			delA3 = 0
+
+		tau_inel = np.array([H,K,L])
+		mag_u = self.Qmag_HKL(self.orient_u[0],self.orient_u[1],self.orient_u[2])
+		mag_v = self.Qmag_HKL(self.orient_v[0],self.orient_v[1],self.orient_v[2])
+		u_mag = mag_u
+		v_mag = mag_v
+		mag_tau_inel = self.Qmag_HKL(*tau_inel)
 		asLab = self.astar_vec_labframe
 		bsLab = self.bstar_vec_labframe
 		csLab = self.cstar_vec_labframe
-
 		u_lab = np.array(self.orient_u[0]*asLab+\
-		                  self.orient_u[1]*bsLab+\
-		                  self.orient_u[2]*csLab)#Reflection Q-vector in Ang^-1
+						self.orient_u[1]*bsLab+\
+						self.orient_u[2]*csLab)
 		v_lab = np.array(self.orient_v[0]*asLab+\
-		                self.orient_v[1]*bsLab+\
-		                self.orient_v[2]*csLab)
-		tau_lab = np.array(tau[0]*asLab+tau[1]*bsLab+tau[2]*csLab)
+						self.orient_v[1]*bsLab+\
+						self.orient_v[2]*csLab)
 
-		#Get the respective A3 angle for this. 
-		UdotTau = np.dot(tau_lab,u_lab)
-		VdotTau = np.dot(tau_lab,v_lab)
+		u_hat_lab = u_lab/np.linalg.norm(u_lab)
+		v_hat_lab = v_lab/np.linalg.norm(v_lab)
+		tau_inel_lab = np.array(tau_inel[0]*asLab+tau_inel[1]*bsLab+tau_inel[2]*csLab) 
+		#Reflection direction in real space. 
+		lam_i = 9.045/np.sqrt(Ei)
+		lam_f = 9.045/np.sqrt(Ei-omega)
+		ki_mag = 2.0*np.pi/lam_i
+		kf_mag = 2.0*np.pi/lam_f
+		ki = ki_mag*np.array([0,0,1])
+		kf_init_el = np.copy(ki_mag)
+		kf_init_inel = kf_mag*ki/np.linalg.norm(ki)#Not right direction
+		#Reflection two theta is easily calculated.
+		#Twotheta for the elastic reflection is not known. 
+		twoTheta_inel = pre*np.arccos((ki_mag**2 + kf_mag**2 - mag_tau_inel**2)/(ki_mag*kf_mag*2.0))
 
-		if (UdotTau>=0 and VdotTau>=0):
-		    quadrant=1
-		    ucheck = np.array([1,0,0])*np.linalg.norm(u_lab)
-		    vcheck = np.array([0,0,1])*np.linalg.norm(v_lab)
-		elif (UdotTau<0 and VdotTau>=0):
-		    quadrant=2
-		    ucheck = np.array([-1,0,0])*np.linalg.norm(u_lab)
-		    vcheck = np.array([0,0,1])*np.linalg.norm(v_lab)
-		elif (UdotTau<0 and VdotTau<0):
-		    quadrant=3
-		    ucheck = np.array([-1,0,0])*np.linalg.norm(u_lab)
-		    vcheck = np.array([0,0,-1])*np.linalg.norm(v_lab)
-		elif (UdotTau>0 and VdotTau<0):
-		    quadrant=4
-		    ucheck = np.array([1,0,0])*np.linalg.norm(u_lab)
-		    vcheck = np.array([0,0,-1])*np.linalg.norm(v_lab)
-		#print(f'Reflection Quadrant {quadrant}')
-		tau = np.abs(tau)
-		tau_lab = np.abs(tau_lab) #Fix the position of the reflection later
+		#Rotate kf to the appropriate twoTheta
+		R = np.array([[np.cos(twoTheta_inel),0,np.sin(twoTheta_inel)],[0,1,0],\
+						 [-np.sin(twoTheta_inel),0,np.cos(twoTheta_inel)]])
+		kf_inel=np.matmul(R,kf_init_inel)
+		kf_el = kf_inel*ki_mag/np.linalg.norm(kf_inel)
+		Q_inel = ki-kf_inel
+		Q_el = ki-kf_el
+		#Find angle between tau_inel and Q_inel
+		#First need to find their absolute polar angles. U is taken as x-axis and theta=0
+		phi_tau = np.arctan2(tau_inel_lab[2],tau_inel_lab[0])
+		phi_Q = np.arctan2(Q_el[2],Q_el[0])
 
-		#Check if the refelction is in plane:
-		theta_ucheck = np.arccos(np.dot(tau_lab,ucheck)/\
-		                        (np.linalg.norm(tau_lab)*np.linalg.norm(ucheck)))
-		theta_vcheck = np.arccos(np.dot(tau_lab,vcheck)/\
-		                        (np.linalg.norm(tau_lab)*np.linalg.norm(vcheck)))
-		total_angle = theta_ucheck+theta_vcheck
-		if np.abs(total_angle-np.pi/2)>0.01:
-		    print(f'Warning: {tau} not in scattering plane.')
-		    
-		# Q = ki - kf, kf = ki - Q
-		#print(f'Rotation twoTheta={twoTheta}')
-		R = np.array([[np.cos(-twoTheta),0,np.sin(-twoTheta)],[0,1,0],[-np.sin(-twoTheta),0,np.cos(-twoTheta)]])
-		kf = np.matmul(R,kf_0)
-		Q_inel = ki-kf
-		Q_inel_abs = np.abs(Q_inel)
-		#Get angle between this q-vector and the lab frame q-vector
-		A3 = np.arccos(np.dot(tau_lab,Q_inel)/(np.linalg.norm(tau_lab)*np.linalg.norm(Q_inel)))
-		#print(f'A3={180.0*A3/np.pi:.3f} deg')
-		#Rotate the sample such that these are in the same direction
-		R = np.array([[np.cos(-A3),0,np.sin(-A3)],[0,1,0],[-np.sin(-A3),0,np.cos(-A3)]])
-		urot = np.matmul(R,u_lab)
-		vrot = np.matmul(R,v_lab)
-		#Get Q-indices in this frame
-		thetau = np.arccos(np.dot(urot,Q_inel)/(np.linalg.norm(Q_inel)*np.linalg.norm(urot)))
-		thetav = np.arccos(np.dot(vrot,Q_inel)/(np.linalg.norm(Q_inel)*np.linalg.norm(vrot)))
+		#theta_Q_tau = np.arccos(np.dot(Q_el,tau_inel_lab)/(np.linalg.norm(Q_el)*np.linalg.norm(tau_inel_lab)))
+		theta_Q_tau =(phi_Q-phi_tau)
 
-		Qx = np.cos(thetau)*np.linalg.norm(Q_inel)/np.linalg.norm(urot)
-		Qy = np.cos(thetav)*np.linalg.norm(Q_inel)/np.linalg.norm(vrot)
-		#print(f'|Q_inel| {np.linalg.norm(Q_inel)}')
-		#print(f'ki = {ki}, |ki|={np.linalg.norm(ki):.2f} Ang^-1')
-		#print(f'kf inel = {kf} |kf inel|={np.linalg.norm(kf):.2f} Ang^-1')
+		
+		#Rotate ki, kf, to get Q_inel in the crystal frame
+		#theta_Q_tau = -20.5*np.pi/180.0
+		R = np.array([[np.cos(theta_Q_tau),0,np.sin(theta_Q_tau)],[0,1,0],\
+						 [-np.sin(theta_Q_tau),0,np.cos(theta_Q_tau)]])
 
-		kf_hat = kf / np.linalg.norm(kf)
-		kf_el = ki_m*kf_hat
-		#print(f'kf el = {kf_el}, |kf el|={np.linalg.norm(kf_el):.2f} Ang^-1')
+		ki_rot = np.matmul(R,ki)
+		kf_inel_rot = np.matmul(R,kf_inel)
+		kf_el_rot=kf_inel_rot*ki_mag/np.linalg.norm(kf_inel_rot)
+		Q_inel_rot = ki_rot-kf_inel_rot
+		Q_el_rot = ki_rot-kf_el_rot
+		Q_final = Q_inel_rot*np.linalg.norm(Q_el_rot)/np.linalg.norm(Q_inel_rot)
 
-		tau_el = ki-kf_el
-
-		#print(f'Q-lab elastic: {tau_el}')
-		#print(f'|Q_el| = {np.linalg.norm(tau_el):.3f} Ang^-1')
-
-		#Rotate u by the difference between kf and kf_el
-		theta_kf = np.arccos(np.dot(Q_inel,tau_el)/(np.linalg.norm(tau_el)*np.linalg.norm(Q_inel)))
-		theta_kf = theta_kf*2.0#30.0*np.pi/180.0
-		#print(f'theta kf = {theta_kf*180.0/np.pi:.3f} deg')
-		R = np.array([[np.cos(theta_kf),0,np.sin(theta_kf)],[0,1,0],[-np.sin(theta_kf),0,np.cos(theta_kf)]])
-		urot = np.matmul(R,urot)
-		vrot = np.matmul(R,vrot)
-
-		thetau_el = np.arccos(np.dot(urot,tau_el)/(np.linalg.norm(tau_el)*np.linalg.norm(urot)))
-		thetav_el = np.arccos(np.dot(vrot,tau_el)/(np.linalg.norm(tau_el)*np.linalg.norm(vrot)))
-
-		Qx_el = np.cos(thetau_el)*np.linalg.norm(tau_el)/np.linalg.norm(urot)
-		Qy_el = np.cos(thetav_el)*np.linalg.norm(tau_el)/np.linalg.norm(vrot)
-
-
-		el_u = Qx_el
-		el_v = Qy_el
-
-
-		if quadrant==1:
-		    reflection = el_u*np.array(self.orient_u) + \
-		                    el_v*np.array(self.orient_v)
-		elif quadrant==2:
-		    reflection = el_u*-1.0*np.array(self.orient_u) + \
-		                    el_v*np.array(self.orient_v)
-		elif quadrant==3:
-		    reflection = el_u*-1.0*np.array(self.orient_u) + \
-		                    el_v*-1.0*np.array(self.orient_v)
-		elif quadrant==4:
-		    reflection = el_u*np.array(self.orient_u) + \
-		                    el_v*-1.0*np.array(self.orient_v)
-		#mcstas quirk:
-		reflection*=-1.0
-		return reflection 
+		hkl_out = (Q_final[0])/u_mag * np.array(self.orient_u) +\
+			(Q_final[2])/v_mag * np.array(self.orient_v)
+		return hkl_out
 
 	def twotheta_hkl_omega(self,H,K,L,Ei,omega,mode='deg'):
 		"""For a specfied reflection in H, K, L, and incident energy, and energy transfer returns the scattering angle. 
@@ -755,7 +720,7 @@ class Sample(object):
 			return twoTheta	
 
 
-	def __cif2lau(self,outdir=os.getcwd(),launame=None):
+	def cif2lau(self,outdir=os.getcwd(),launame=None):
 		"""Converts input cif file to a Crystallographica format .lau file. Not intended for users."""
 		try:
 			if launame is None:
@@ -779,11 +744,83 @@ class Sample(object):
 					f.write(line)
 		return 1
 
-	def gen_custom_lau(self,HKL_list,Sqwlist,Ei,omega,outdir=os.getcwd(),launame=None):
+	def gen_sqw4(self,hkl_omega_sf_list,outdir=os.getcwd,launame=None):
+		"""
+		Given a set of reflections, energy transfers and structure factors, generates a sqw4 file 
+		with columns of [H K L E S(q,w)] for use with the McStas Single_crytsal_inelastic component.
+
+		:param hkl_omega_sf_list: numpy matrix with where each row represents a reflection, \
+			and each column is H, K, L, omega, |F(Q)|^2
+		:type hkl_omega_sf_list: np.ndarray of dimension Nx5
+		:param outdir: Directory to place output file in. Default is working directory. 
+		:type outdir: str 
+		:param launame: Name of input lau file. Default is the cif file with '_inelastic.sqw4' appended.
+		:type outname: str
+		"""
+		sqw4name = self.ciffile.split('.')[0]+'_inelastic.sqw4'
+		try:
+			if os.path.exists(sqw4name):
+				#Delete before going on. 
+				os.system('rm '+sqw4name)
+		except Exception as e:
+			pass 
+		#open a new file. 
+		with open(sqw4name,'w') as f:
+			headerstr = '# lattice_a __a__\n# lattice_b __b__\n# lattice_c __c__\n# lattice_aa __aa__\n# lattice_bb __bb__\n# lattice_cc __cc__\n'\
+				+'# temperature 2\n# field||a 0\n# field||b 0\n# field||c 0\n# column_h 1\n# column_k 2\n# column_l 3\n# column_E 4\n'+  \
+				'# column_S 5\n# h       k       l       En      S(q,w)          \n'
+			headerstr = headerstr.replace('__a__',str(self.a))
+			headerstr = headerstr.replace('__b__',str(self.b))
+			headerstr = headerstr.replace('__c__',str(self.c))
+			headerstr = headerstr.replace('__aa__',str(self.alpha))
+			headerstr = headerstr.replace('__bb__',str(self.beta))
+			headerstr = headerstr.replace('__cc__',str(self.gamma))
+			#Now write the header 
+			f.write(headerstr)
+			#now write each hkl line 
+			for i in range(len(hkl_omega_sf_list)):
+				#Need to not only do the point give, but make zeros directly around it with some specified deltaQ
+				h,k,l,w,sf = hkl_omega_sf_list[i,0],hkl_omega_sf_list[i,1],hkl_omega_sf_list[i,2],\
+								hkl_omega_sf_list[i,3],hkl_omega_sf_list[i,4]
+				delQu=0.03
+				delQv=0.03
+				delOmega = 0.02
+				delU = np.array(self.orient_u)*delQu
+				delV = np.array(self.orient_v)*delQv
+				orig_pt = np.array([h,k,l])
+				delQ_permutations = [orig_pt,\
+									orig_pt+delU,\
+									orig_pt-delU,\
+									orig_pt+delV,\
+									orig_pt-delV,\
+									orig_pt+delU+delV,\
+									orig_pt+delU-delV,\
+									orig_pt-delU+delV,\
+									orig_pt-delU-delV]
+				omega_permutations = [w,w-delOmega,w+delOmega]
+				for j in range(len(delQ_permutations)):
+					for k in range(len(omega_permutations)):
+						w = omega_permutations[k]
+						if j==0 and k==0:
+							sf = hkl_omega_sf_list[i,4]
+						else:
+							sf = 0 
+						h,k,l = delQ_permutations[j]
+						hstr = '{0: >8}'.format('{h:.3f}'.format(h=h))
+						kstr = '{0: >8}'.format('{k:.3f}'.format(k=k))
+						lstr = '{0: >8}'.format('{l:.3f}'.format(l=l))
+						wstr = '{0: >8}'.format('{w:.3f}'.format(w=w))
+						sfstr = '{0: >12}'.format('{sf:.4f}'.format(sf=sf))+'\n'
+						line = hstr+kstr+lstr+wstr+sfstr
+						f.write(line)	
+		print('\nInelastic file '+str(sqw4name)+' prepared.\n')
+		self.customlaufile = sqw4name
+		return sqw4name
+
+	def gen_custom_lau(self,HKL_Sq_list,Ei,omega,outdir=os.getcwd(),launame=None):
 		"""
 		Given a set of reflections and structre factors, generates a custom LAU file with columnns of
 			[ H K L S(q,w)] as required by the single_crystal_inelastic component
-
 		:param HKL_list: np array of reflections of format np.array([[H1,K1,L1],[H2,K2,L2],....[Hn,Kn,Ln]])
 		:type HKL_list: np.ndarray
 		:param Sqwlist: np array of structure factors, matching each reflection. 
@@ -820,16 +857,20 @@ class Sample(object):
 		name = self.ciffile.split('.')[0]+'_custom.lau'
 		shutil.copyfile(self.laufile,name)
 		self.customlaufile=name 
-
+		HKL_list = HKL_Sq_list
 		#Fix the HKL list to account for the energy transfer
-		for i in range(len(HKL_list)):
+		for i in range(len(HKL_Sq_list)):
 			#print('Requested Reflection')
 			#print(HKL_list[i])
 			H=HKL_list[i,0]
 			K=HKL_list[i,1]
 			L=HKL_list[i,2]
-			newHKL = self.adjust_hkl_inelastic(H,K,L,Ei,Ei-omega)
+			Sq = HKL_list[i,3]
+			newHKL = self.adjust_hkl_inelastic(H,K,L,Ei,omega)
 			newH,newK,newL = newHKL[0],newHKL[1],newHKL[2]
+			newH,newK,newL=-newH,-newK,-newL
+			#newH,newK,newL=-H,-K,-L
+
 			#print('Output HKL')
 			#print(newHKL)
 			#replace nans with 0 
@@ -879,24 +920,26 @@ class Sample(object):
 
 
 		#Generate matrix for reflections
-		out_lau_mat = np.zeros((len(Sqwlist),5))
+		out_lau_mat = np.zeros((len(HKL_list),5))
 		out_lau_mat[:,0] = HKL_list[:,0]
 		out_lau_mat[:,1] = HKL_list[:,1]
 		out_lau_mat[:,2] = HKL_list[:,2]
 		out_lau_mat[:,3] = 1 #Not omega but multiplicity
-		out_lau_mat[:,4] = Sqwlist
+		out_lau_mat[:,4] = HKL_list[:,3]
+		print('lau_mat to write:')
+		print(out_lau_mat)
 		#Append custom lau file with the information after formatting each string
 		f = open(self.customlaufile,'a')
 		for i in range(len(out_lau_mat)):
 			hstr = '{0: >8}'.format('{h:.3f}'.format(h=out_lau_mat[i,0]))
 			kstr = '{0: >8}'.format('{k:.3f}'.format(k=out_lau_mat[i,1]))
 			lstr = '{0: >8}'.format('{l:.3f}'.format(l=out_lau_mat[i,2]))
-			wstr = '{0: >8}'.format('{w:.3f}'.format(w=out_lau_mat[i,3]))
+			jstr = '{0: >8}'.format('{j:.3f}'.format(j=out_lau_mat[i,3]))
 			sfstr = '{0: >16}'.format('{sf:.6f}'.format(sf=out_lau_mat[i,4]))+'\n'
-			line = hstr+kstr+lstr+wstr+sfstr
+			line = hstr+kstr+lstr+jstr+sfstr
 			f.write(line)
 		f.close()
-		#self.laufile = name
+		self.customlaufile = name
 		#write the specified reflections to the file 
 		return name
 

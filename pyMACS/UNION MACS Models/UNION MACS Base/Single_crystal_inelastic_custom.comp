@@ -272,7 +272,7 @@ SETTING PARAMETERS(string reflections=0, string geometry=0,
             bx = 0, by = 0, bz = 0,
             cx = 0, cy = 0, cz = 0,
             p_transmit = -1, sigma_abs = 0, sigma_inc = 0,
-		   aa=0, bb=0, cc=0, order=0, RX=0, RY=0, RZ=0, powder=0, PG=0,
+		   aa=0, bb=0, cc=0, order=1, RX=0, RY=0, RZ=0, powder=0, PG=0,
             omega=0)
 OUTPUT PARAMETERS(hkl_info, offdata)
 /* Neutron parameters: (x,y,z,vx,vy,vz,t,sx,sy,sz,p) */ 
@@ -808,13 +808,6 @@ SHARE
     double kf = 2*PI/lam_f;
     double kscale = kf/ki;
     double diffk = ki - kf;
-    //kscale=1;
-    /* make a false Ewald sphere by scaling ki to match kf*/
-    //ki = ki*kscale;
-    //kix = kix*kscale;
-    //kiy = kiy*kscale;
-    //kiz = kiz*kscale;
-
 
     /* Common factor in coherent cross-section */
     double xsect_factor = pow(2*PI, 5.0/2.0)/(V0*ki*ki);
@@ -822,14 +815,10 @@ SHARE
     for(i = j = 0; i < count; i++)
       {
     /* Assuming reflections are sorted, stop search when max tau exceeded. */
-        if(L[i].tau > tau_max)
-          break;
         /* Check if this reciprocal lattice point is close enough to the
            Ewald sphere to make scattering possible. 
            taus are momentum transfer of reflection in Ang^-1
            This has been modified to consider energy transfer. */
-
-
         rho_x = kix - L[i].tau_x;
         rho_y = kiy - L[i].tau_y;
         rho_z = kiz - L[i].tau_z;
@@ -841,21 +830,12 @@ SHARE
         /* Check if scattering is possible (cutoff of Gaussian tails). */
         if(diff <= L[i].cutoff)
         {
-          // twotheta needs to be adjusted to acount for inelastic scattering by rotating rho by the 2theta difference.
-
-          //kscale=1.0;
-          // falsify an elastic scattering event from this point... 
-          //ki = ki*kscale;
-          //kix = kix*kscale;
-          //kiy = kiy*kscale;
-          //kiz = kiz*kscale;
-
           /* Store reflection. */
           T[j].index = i;
           /* Get ki vector in local coordinates. */
-          kx = kix*L[i].u1x + kiy*L[i].u1y + kiz*L[i].u1z;
-          ky = kix*L[i].u2x + kiy*L[i].u2y + kiz*L[i].u2z;
-          kz = kix*L[i].u3x + kiy*L[i].u3y + kiz*L[i].u3z;
+          kx = (kix*L[i].u1x + kiy*L[i].u1y + kiz*L[i].u1z);
+          ky = (kix*L[i].u2x + kiy*L[i].u2y + kiz*L[i].u2z);
+          kz = (kix*L[i].u3x + kiy*L[i].u3y + kiz*L[i].u3z);
           T[j].rho_x = (kx - L[i].tau);
           T[j].rho_y = ky;
           T[j].rho_z = kz;
@@ -1125,7 +1105,8 @@ TRACE
     double E_kf = E_ki-omega;
     double lam_f = sqrt(81.82/E_kf);
     double kf = 2*PI/lam_f;
-    double kf_scaling = kf/ki;   
+    double kscale = kf/ki; 
+    double kf_scaling=kscale;  
     event_counter = 0;
     abs_xsect = hkl_info.sigma_a*2200/v;
     inc_xsect = hkl_info.sigma_i;
@@ -1336,87 +1317,12 @@ TRACE
         kfy = T[j].rho_y + T[j].oy + T[j].b1y*y1 + T[j].b2y*y2;
         kfz = T[j].rho_z + T[j].oz + T[j].b1z*y1 + T[j].b2z*y2;
         /* Normalize kf to length of ki, to account for planer
-          approximation of the Ewald sphere. */
-        adjust = ki/sqrt(kfx*kfx + kfy*kfy + kfz*kfz);
+          approximation of the Ewald sphere. (Inealstic taken into account)) */
+        adjust = ki*kscale/sqrt(kfx*kfx + kfy*kfy + kfz*kfz);
 
         kfx *= adjust;
         kfy *= adjust;
         kfz *= adjust;
-        /*
-          Add energy transfer here. 
-          For elastic scattering, Q = 2ksin(theta)
-          Inelastic, Q^2 = ki^2 + kf^2 - 2kikfcos(2theta)
-          We know magnitudes of ki, if based on initial and final energies.
-          Direction / components of ki are given
-          The Q provided from the ewald sphere is the same as the Q for the inelastic reflection,
-               but 2theta needs to be adjusted slightly. 
-          Q = 2kisin(theta_el) = sqrt(ki**2 + kf**2 - 2kikfcos(2theta_inel))
-          This corrects the energy - direction is corrected earlier. 
-
-          Up until now, assumption is for elastic scattering ki=kf
-        */
-        /*
-        kf_scaling=1;
-        double kfxp=kfx*kf_scaling;
-        double kfyp=kfy*kf_scaling;
-        double kfzp=kfz*kf_scaling;
-        double kfp = sqrt(kfxp*kfxp+kfyp*kfyp+kfzp*kfzp);
-        double Qx = kix - kfx;
-        double Qy = kiy - kfy;
-        double Qz = kiz - kfz;
-        double Qtot = Qx+Qy+Qz;
-
-        double twoTheta_i = acos((-(Qtot*Qtot)+(ki*ki+kf*kf))/(2*ki*kf));
-        double twoTheta_f = acos((-(Qtot*Qtot)+(ki*ki+kfp*kfp))/(2*ki*kfp));
-        
-        double deltwoTheta = twoTheta_f-twoTheta_i;
-
-        printf(
-              "Single_crystal: Warning: \n"
-              "                twoTheta_i=%g twoTheta_f=%g deltwoTheta=%g ",
-              twoTheta_i, twoTheta_f, deltwoTheta);
-        */
-        // rescale ki to be of the right scale, then kf is ki+Q?
-
-        double kixp = kix*kf_scaling;
-        double kiyp = kiy*kf_scaling;
-        double kizp = kiz*kf_scaling;
-
-        double delkix = kix - kixp;
-        double delkiy = kiy - kiyp;
-        double delkiz = kiz - kizp;
-
-        //kfx = kixp -Qx;
-        //kfy = kfy - Qy;
-        //kfz = kfz - Qz;
-
-        adjust = ki/sqrt(kfx*kfx + kfy*kfy + kfz*kfz);
-
-        kfx *= adjust;
-        kfy *= adjust;
-        kfz *= adjust;
-
-        // Energy transfer
-        kfx *=kf_scaling;
-        kfy *=kf_scaling;
-        kfz *=kf_scaling;
-
-        //double twoTheta = acos(kix*kfx+kiy*kfy+kiz*kfz)/(ki*kf);
-        //double Q_inel = sqrt(ki**2 + kf**2 - 2*ki*kf*cos(twoTheta))
-
-        // rotate rho by -deltwotheta in the ki-kf plane, first find normal vector
-        double nx_k,ny_k,nz_k;
-        nx_k = kiy*kfz - kiz*kfy;
-        ny_k = kiz*kfx - kix*kfz;
-        nz_k = kix*kfy - kiy*kfx;
-        // rotate rho here using a transformation matrix
-        //double C=cos(-deltwoTheta);
-        //double S=sin(-deltwoTheta);
-        //double t=1-cos(-deltwoTheta);
-        /* Rotate vectors before moving on */
-        //kfx = (t*nx_k*nx_k +C)*kfx + (t*nx_k*ny_k-S*nz_k)*kfy + (t*nx_k*nz_k+S*ny_k)*kfz;
-        //kfy = (t*nx_k*ny_k+S*nz_k)*kfx + (t*ny_k*ny_k+C)*kfy + (t*ny_k*nz_k-S*nx_k)*kfz;
-        //kfz = (t*nx_k*nz_k - S*ny_k)*kfx + (t*ny_k*nz_k+S*nx_k)*kfy + (t*nz_k*nz_k+C)*kfz;
 
 
         /* Adjust neutron weight (see manual for explanation). */

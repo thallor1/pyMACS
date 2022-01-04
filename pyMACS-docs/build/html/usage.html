@@ -106,6 +106,14 @@
 </li>
 
     
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="http://mcstas.org">mcstas-homepage<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
+    <li class="nav-item">
+        <a class="nav-link nav-external" href="https://github.com/thallor1/pyMACS">pyMACS-github<i class="fas fa-external-link-alt"></i></a>
+    </li>
+    
 </ul>
       </div>
       
@@ -129,14 +137,37 @@
           
             
             <!-- Only show if we have sidebars configured, else just a small margin  -->
-            <div class="col-12 col-md-3 bd-sidebar"><form class="bd-search d-flex align-items-center" action="search.html" method="get">
-  <i class="icon fas fa-search"></i>
-  <input type="search" class="form-control" name="q" id="search-input" placeholder="Search the docs ..." aria-label="Search the docs ..." autocomplete="off" >
-</form><nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
-  <div class="bd-toc-item active">
-    
-  </div>
-</nav>
+            <div class="col-12 col-md-3 bd-sidebar">
+<h3><a href="index.html">Table of Contents</a></h3>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="virtualMACS.html">virtualMACS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sample.html">Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kidney.html">Kidney</a></li>
+<li class="toctree-l1"><a class="reference internal" href="macsdata.html">Data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monochromator.html">Monochromator</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/usage.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
             </div>
             
           
@@ -183,7 +214,20 @@
 <h1>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<p>To use pyMACS, you will need to install the following python libraries:</p>
+<p>To use pyMACS, download the source files on Github. Move them to a directory of your choice, in this
+example we will make a new directory. For example,</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp gp-VirtualEnv">(myenv)</span> <span class="gp">$ </span><span class="nb">cd</span> ~/Documents
+<span class="gp gp-VirtualEnv">(myenv)</span> <span class="gp">$ </span>git clone htpps://github.com/thallor1/pyMACS
+</pre></div>
+</div>
+<p>Now, to use pyMACS in a python script we would first have to add the base directory to our path in the following way:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="n">pyMACS_path</span> <span class="o">=</span> <span class="o">/</span><span class="n">Documents</span><span class="o">/</span><span class="n">pyMACS</span><span class="o">/</span><span class="n">pyMACS</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">pyMACS_path</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">virtualMACS</span> <span class="n">imoport</span> <span class="n">virtualMACS</span>
+</pre></div>
+</div>
 </div>
 </div>
 
@@ -197,7 +241,7 @@
         <i class="fas fa-angle-left"></i>
         <div class="prev-next-info">
             <p class="prev-next-subtitle">previous</p>
-            <p class="prev-next-title">pyMACS Documentation</p>
+            <p class="prev-next-title"><strong>pyMACS</strong> Documentation</p>
         </div>
     </a>
     <a class='right-next' id="next-link" href="virtualMACS.html" title="next page">

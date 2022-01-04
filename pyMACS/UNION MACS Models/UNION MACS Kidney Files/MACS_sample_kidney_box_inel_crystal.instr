@@ -624,16 +624,10 @@ EXTEND %{
   for (flag_index=0;flag_index<number_of_volumes;flag_index++) scattering_history_sample_master[flag_index] = scattered_flag[flag_index];
 %}
 
-// Note that the origin for the spot_sample is not in the center of the box, but in the bottom left corner...
-COMPONENT external_inel_sample=Single_crystal_inelastic_custom(xwidth=REPLACEsamp_xwidth,yheight=REPLACEsamp_ywidth,zdepth=REPLACEsamp_zwidth,
-  delta_d_d=REPLACE_inel_crystal_delta_d,mosaic=REPLACE_inel_crystal_mosaic,barns=1,
-  ax=REPLACE_inel_crystal_ax, ay=REPLACE_inel_crystal_ay, az = REPLACE_inel_crystal_az,
-  bx=REPLACE_inel_crystal_bx, by=REPLACE_inel_crystal_by, bz = REPLACE_inel_crystal_bz,
-  cx=REPLACE_inel_crystal_cx, cy=REPLACE_inel_crystal_cy, cz = REPLACE_inel_crystal_cz,omega =REPLACE_inel_crystal_omega,
-  reflections=REPLACE_inel_crystal_ref_fname)
+// Add as many inel samples as requested energy transfers, all referencing their correct reflection file
 
-AT (0,0,0) RELATIVE target
-ROTATED (0,0,0) RELATIVE crystal_axis 
+// INSERT EXTERNAL INEL SAMPLE STRING HERE
+
 
 COMPONENT Union_master_2 = Union_master(allow_inside_start=1)
 AT (0,0,0) RELATIVE target 
