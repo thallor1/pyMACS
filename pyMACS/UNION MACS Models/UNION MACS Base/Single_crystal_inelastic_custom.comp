@@ -826,6 +826,7 @@ SHARE
         // Rho is just the ki - Q-vector,i.e. kf
 
         // Below simply checks if the magnitude of the expected kf is the same as ki. 
+        // Also need to add condition that Q has the expected sign based on the reflection index. 
         diff = fabs(rho - ki);
         /* Check if scattering is possible (cutoff of Gaussian tails). */
         if(diff <= L[i].cutoff)
@@ -1317,7 +1318,7 @@ TRACE
         kfy = T[j].rho_y + T[j].oy + T[j].b1y*y1 + T[j].b2y*y2;
         kfz = T[j].rho_z + T[j].oz + T[j].b1z*y1 + T[j].b2z*y2;
         /* Normalize kf to length of ki, to account for planer
-          approximation of the Ewald sphere. (Inealstic taken into account)) */
+          approximation of the Ewald sphere. (Inelastic taken into account)) */
         adjust = ki*kscale/sqrt(kfx*kfx + kfy*kfy + kfz*kfz);
 
         kfx *= adjust;

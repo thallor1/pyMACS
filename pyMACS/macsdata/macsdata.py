@@ -485,7 +485,7 @@ class Data(object):
 		u_vec_mag=self.sample.Qmag_HKL(self.sample.orient_u[0],self.sample.orient_u[1],self.sample.orient_u[2])
 		v_vec_mag=self.sample.Qmag_HKL(self.sample.orient_v[0],self.sample.orient_v[1],self.sample.orient_v[2])
 		#The projection of kf onto each direction gives the scattering plane
-		U_proj = 1.0*Qu_proj_dir_list*Q_list/u_vec_mag
+		U_proj = -1.0*Qu_proj_dir_list*Q_list/u_vec_mag
 		V_proj = -1.0*Qv_proj_dir_list*Q_list/v_vec_mag #For some reason a minus sign is required here...
 
 
@@ -764,8 +764,8 @@ class Data(object):
 		z = ret_weightvals.bin_edges[2]
 		print(np.shape(ret_weightvals.statistic))
 		X,Y,Z = np.meshgrid(x,y,z)
-		I = ret_weightvals.statistic[:,:,0]/sumweights.statistic[:,:,0]
-		Err = ret_errs.statistic[:,:,0]
+		I = ret_weightvals.statistic[:,:,:,0]/sumweights.statistic[:,:,:,0]
+		Err = ret_errs.statistic[:,:,:,0]
 		if type(smooth)!=bool:
 			#Smooth intensities, errors.
 			old_nani = [np.isnan(I)]
@@ -1075,5 +1075,11 @@ class Data(object):
 		f.close()
 		return 1
 
+	def get_QE_FWHM(self,hkl_pt,omega,Q_dir):
+		"""
+		Gets FWHM values in Q and energy in Ang^-1 for a specified (h,k,l,omega) position. Requires a cut direction (longitudinal).
+		The transverse direction is defined by the cross product of the +z vector and the cut direction. Returns a FWHM for the longitudinal, 
+		transverse, and energy axes. A Q-resolution can also be specfied, but energy transfer is never binned.
+		"""
 
-
+		return 1

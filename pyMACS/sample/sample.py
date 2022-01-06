@@ -599,8 +599,8 @@ class Sample(object):
 			
 		else:
 			quad=1
-			pre=-1
-			delA3 = 0
+			pre=1
+			delA3 =0
 
 		tau_inel = np.array([H,K,L])
 		mag_u = self.Qmag_HKL(self.orient_u[0],self.orient_u[1],self.orient_u[2])
@@ -632,7 +632,6 @@ class Sample(object):
 		#Reflection two theta is easily calculated.
 		#Twotheta for the elastic reflection is not known. 
 		twoTheta_inel = pre*np.arccos((ki_mag**2 + kf_mag**2 - mag_tau_inel**2)/(ki_mag*kf_mag*2.0))
-
 		#Rotate kf to the appropriate twoTheta
 		R = np.array([[np.cos(twoTheta_inel),0,np.sin(twoTheta_inel)],[0,1,0],\
 						 [-np.sin(twoTheta_inel),0,np.cos(twoTheta_inel)]])
@@ -645,8 +644,7 @@ class Sample(object):
 		phi_tau = np.arctan2(tau_inel_lab[2],tau_inel_lab[0])
 		phi_Q = np.arctan2(Q_el[2],Q_el[0])
 
-		#theta_Q_tau = np.arccos(np.dot(Q_el,tau_inel_lab)/(np.linalg.norm(Q_el)*np.linalg.norm(tau_inel_lab)))
-		theta_Q_tau =(phi_Q-phi_tau)
+		theta_Q_tau =phi_Q-phi_tau
 
 		
 		#Rotate ki, kf, to get Q_inel in the crystal frame
@@ -854,7 +852,7 @@ class Sample(object):
 					f.write(line)
 		#Standard Lau file written. Now we write the custom one. 
 		#write a new file 
-		name = self.ciffile.split('.')[0]+'_custom.lau'
+		name = self.ciffile.split('.')[0]+'Ei_'+str(round(Ei,2))+'_Ef_'+str(round(Ei-omega,2))+'_custom.lau'
 		shutil.copyfile(self.laufile,name)
 		self.customlaufile=name 
 		HKL_list = HKL_Sq_list

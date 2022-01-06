@@ -142,7 +142,7 @@ class virtualMACS(object):
 		"""Prepares an experiment using previously generated and/or compiled .instr files. Used to 
 		resume a simulation that was interrupted or should be appended.
 		"""
-		cwd=os.getcwd()
+		cwd=self.cwd
 		if self.useOld==True:
 			self.clear_ramdisk()
 			self.instr_template_dir=os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Base/'
@@ -163,15 +163,21 @@ class virtualMACS(object):
 			if self.sample.sample_shape=='box_inel_crystal':
 				instr_main_file='MACS_sample_kidney_box_inel_crystal.instr'
 				self.instr_main_file=instr_main_file
+			self.instr_file_directory = cwd+'/'+self.exptName+'/Instrument_files/' 
+			self.instr_main_file = self.instr_file_directory+self.instr_main_file #This now points directly to the instr file that will be modified
+
 		return 1
 
 	def clean_expt_directory(self):
 		"""Removes old simulation files.
 		"""
-		cwd = os.getcwd()
+		cwd = self.cwd
 		files_in_kidsims = glob.glob(cwd+'/'+self.exptName+'/Kidney_simulations/*')
+		if len(files_in_kidsims)>0:
+			input('WARNING: Old simulations have been found. Press enter to continue and delete files.')
 		while len(files_in_kidsims)>=1:
 			files_in_kidsims = glob.glob(cwd+'/'+self.exptName+'/Kidney_simulations/*')
+			print(cwd+'/'+self.exptName+'/Kidney_simulations')
 			os.system('rm -rf '+cwd+'/'+self.exptName+'/param_files_kidney')
 			os.system('rm -rf '+cwd+'/'+self.exptName+'/Kidney_simulations')
 			time.sleep(1)
@@ -181,44 +187,47 @@ class virtualMACS(object):
 	def prepare_expt_directory(self):
 		"""Automatically prepares the McStas instrument files and output directories. Will require that instruments 
 		be recompiled. Takes into consideration the various sample options allowed."""
-		if type(self.sample.laufile)==bool:
-			#Need to generate and assign lau file
-			self.sample.cif2lau()
-		self.clear_ramdisk()
-		cwd=os.getcwd()
-		self.instr_template_dir=os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Base/'
-		self.kidney_instr_dir = os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Kidney Files/'
-		if self.sample.sample_shape not in ['box','cylinder','powder','spot_box','spot_cylinder','box_inel_crystal']:
-			print('WARNING: Only allowed sample shapes are [box, cylinder, powder, spot_box, box_inel_crystal]')
-			print('Instr file not written. ')
-		if self.sample.sample_shape=='cylinder':
-			instr_main_file = 'MACS_sample_kidney_cylinder.instr'
-			self.instr_main_file=instr_main_file
-		if self.sample.sample_shape=='box':
-			instr_main_file = 'MACS_sample_kidney_box.instr'
-			self.instr_main_file=instr_main_file
-		if self.sample.sample_shape=='spot_box':
-			instr_main_file='MACS_sample_kidney_box_spot.instr'
-			self.instr_main_file=instr_main_file
-			#first make a copy of the template files and put them into a new experiment directory
-		if self.sample.sample_shape=='box_inel_crystal':
-			instr_main_file='MACS_sample_kidney_box_inel_crystal.instr'
-			self.instr_main_file=instr_main_file
-		while os.path.exists(cwd+'/'+self.exptName+'/Instrument_files'):
-			print('WARNING: Old instrument directory found. Older files deleted, instrument will need to be recompiled.')
-			os.system('rm -rf '+cwd+'/'+self.exptName.replace(' ','\ '))
-			self.clean_expt_directory()
-		self.instr_file_directory = cwd+'/'+self.exptName+'/Instrument_files/' 
-		self.instr_main_file = self.instr_file_directory+self.instr_main_file #This now points directly to the instr file that will be modified
-		#Copy the base files into the new instrument directory
-		shutil.copytree(self.instr_template_dir,self.instr_file_directory)
-		#Copy the particular instrument file into the instrument directory
-		shutil.copy(self.kidney_instr_dir+instr_main_file,self.instr_file_directory)
-		#Also need to move the lau file into the instrument directory
-		shutil.copy(cwd+'/'+self.sample.laufile,self.instr_file_directory)
-		shutil.copy(cwd+'/'+self.sample.ciffile,self.instr_file_directory)
-
-		return 1
+		if self.useOld==True:
+			self.prepare_old_expt_directory()
+			return 1
+		else:
+			if type(self.sample.laufile) is not str:
+				#Need to generate and assign lau file
+				self.sample.cif2lau()
+			self.clear_ramdisk()
+			cwd=self.cwd
+			self.instr_template_dir=os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Base/'
+			self.kidney_instr_dir = os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Kidney Files/'
+			if self.sample.sample_shape not in ['box','cylinder','powder','spot_box','spot_cylinder','box_inel_crystal']:
+				print('WARNING: Only allowed sample shapes are [box, cylinder, powder, spot_box, box_inel_crystal]')
+				print('Instr file not written. ')
+			if self.sample.sample_shape=='cylinder':
+				instr_main_file = 'MACS_sample_kidney_cylinder.instr'
+				self.instr_main_file=instr_main_file
+			if self.sample.sample_shape=='box':
+				instr_main_file = 'MACS_sample_kidney_box.instr'
+				self.instr_main_file=instr_main_file
+			if self.sample.sample_shape=='spot_box':
+				instr_main_file='MACS_sample_kidney_box_spot.instr'
+				self.instr_main_file=instr_main_file
+				#first make a copy of the template files and put them into a new experiment directory
+			if self.sample.sample_shape=='box_inel_crystal':
+				instr_main_file='MACS_sample_kidney_box_inel_crystal.instr'
+				self.instr_main_file=instr_main_file
+			while os.path.exists(cwd+'/'+self.exptName+'/Instrument_files'):
+				print('WARNING: Old instrument directory found. Older files deleted, instrument will need to be recompiled.')
+				os.system('rm -rf \"'+cwd+'/'+self.exptName+'\"')
+				self.clean_expt_directory()
+			self.instr_file_directory = cwd+'/'+self.exptName+'/Instrument_files/' 
+			self.instr_main_file = self.instr_file_directory+self.instr_main_file #This now points directly to the instr file that will be modified
+			#Copy the base files into the new instrument directory
+			shutil.copytree(self.instr_template_dir,self.instr_file_directory)
+			#Copy the particular instrument file into the instrument directory
+			shutil.copy(self.kidney_instr_dir+instr_main_file,self.instr_file_directory)
+			#Also need to move the lau file into the instrument directory
+			shutil.copy(cwd+'/'+self.sample.laufile,self.instr_file_directory)
+			shutil.copy(cwd+'/'+self.sample.ciffile,self.instr_file_directory)
+			return 1
 
 	def edit_instr_file(self):
 		"""Updates the instrument file to match the current sample and instrument configuration. Will require 
@@ -518,7 +527,7 @@ class virtualMACS(object):
 		instr_filename = self.instr_main_file.split('/')[-1]
 		c_filename = instr_filename.replace('.instr','.c')
 		out_filename = instr_filename.replace('.instr','.out')
-		original_directory = os.getcwd()
+		original_directory = self.cwd
 		os.chdir(instr_dir)
 		shellcommand = ['mcstas','-o',c_filename,instr_filename]
 		shellcommandstr ='mcstas -o '+c_filename+' '+instr_filename
@@ -559,7 +568,7 @@ class virtualMACS(object):
 		instr_filename = 'MACS_monochromator.instr'
 		c_filename = instr_filename.replace('.instr','.c')
 		out_filename = instr_filename.replace('.instr','.out')
-		original_directory = os.getcwd()
+		original_directory = self.cwd
 		os.chdir(instr_dir)
 		shellcommand = ['mcstas','-o',c_filename,instr_filename]
 		shellcommandstr ='mcstas -o '+c_filename+' '+instr_filename
@@ -845,14 +854,16 @@ class virtualMACS(object):
 			if self.preserve_kidney_scan_files==False:
 				while os.path.exists(kidney_output_dir):
 					try:
-						os.system('rm -rf '+str(kidney_output_dir))
+						#os.system('rm -rf \"'+str(kidney_output_dir)+'\"')
+						shutil.rmtree(kidney_output_dir)
 					except Exception as e:
 						print('Warning: \n'+str(e))
 						time.sleep(0.01)
 			if self.preserve_kidney_param_files==False:
 				while os.path.exists(param_fname):
 					try:
-						os.system('rm '+param_fname)
+						#os.system('rm \"'+param_fname+'\"')
+						os.remove(param_fname)
 					except Exception as e:
 						print('Warning when trying to remove paramter file:')
 						print(e)
@@ -862,7 +873,8 @@ class virtualMACS(object):
 			if self.preserve_kidney_param_files==False:
 				while os.path.exists(param_fname):
 					try:
-						os.system('rm '+param_fname)
+						#os.system('rm '+param_fname)
+						os.remove(param_fname)
 					except Exception as e:
 						print('Warning when trying to remove paramter file:')
 						print(e)
@@ -1089,9 +1101,8 @@ class virtualMACS(object):
 		else:
 			#Need to do monochromator jobs FIRST, then kidney
 			ei_ef_b1_b2_list = []
-			for ng0_file in file_list:
-				print('Ng0 file:')
-				print(ng0_file)
+			for f_index in tnrange(len(file_list),desc='Ng0 Files'):
+				ng0_file = file_list[f_index]
 				#Need to do monochromator jobs FIRST, then kidney
 				#Accumulate all Ei, beta1, beta2 combinations and run.
 				data, column_names, file_params = import_ng0(ng0_dir+ng0_file)
@@ -1126,26 +1137,37 @@ class virtualMACS(object):
 		#At this point generate the data matrix. all files should be in the ramdisk. Information cannot be allowed to sit in the ramdisk.
 		return 1
 
-	def calc_resfunc(self,hkl_sq_list,omega,A3_step=0.5,num_Ei=9,n_threads=1,use_res_sample=False,scan_title='',Ei_settings=False,run_flag=True):
-		'''
+	def calc_resfunc(self,hkl_sq_list,omega,A3_step=0.5,num_Ei=9,n_threads=1,use_res_sample=False,scan_title='',Ei_settings=False,A3_settings=False):
+		"""
 		Calculaetes full Q/E resolution ellipsoids around 
-		specified poidfnts in Q/E space given the frame of reference of the sample. 
+		specified poidfnts in Q/E space given the frame of reference of the sample. Supports 
+		only a single energy transfer. It is up to the user to determine if they are far enough apart to be well seperated. 
+		The same HKL points will be used for all energy transfers. 
 
-		May also use the provided resolution_sample to calculate arbitrary resolution ellipsoids
+		May also use the provided resolution_sample to calculate arbitrary resolution ellipsoids.
+		Warning: There is a bug in the McStas component that powers the inelastic_cystal sample type where allowing the full 360 degree rotation 
+		creates a 'ghost' reflection. This can be avoided by restricting the A3 range to be no larger than 180 degrees. 
 
-		inputs:
-			A3_step : step size of virtual A3 angle
-			num_Ei : number of energy transfers to calculate resolution function around.
-			hkl_list : Np array of format [[h,k,l],[h2,k2,l2], ...] of arbitrary length
-			omega : Energy transfer of point of interest. May either be a single float or a list of energy transfers. 
-			use_res_sample : Specifies whether use sample will be used or the provided resolution sample.
-			scan_name : Name of the scan, files will be appended with this to identify later. 
-			Ei_settings : Option to use specific Ei rather than automatically generating
-
-		Output:
-			ng0 files of each kidney scan and the net output will be written to the simulated_ng0 directory
-			csv files also output
-		'''
+		:param hkl_sq_list: Numpy matrix where each row represents a reflection. Each column represents the following:
+			H,K,L, Multiplicity (usually 1) and Structure factor squared. 
+		:type hkl_sq_list: Nx5 np.ndarray
+		:param A3_step : step size of virtual A3 angle in degrees. 
+		:type A3_step: float, default 0.5 deg
+		:param omega_list: List of energy transfers for resolution ellipsoids in meV. Take care to make sure that they are well separated. 
+		:type omega_list: np.ndarray of length N
+		:param Energy_step: Step size for energy transfer calculation. Default 0.1 meV, but all energy transfer points will be calculated by default
+			from the elastic line to the maximum resolution ellipsoid + 1 meV. Max Ei allowed for MACS is 17 meV.
+		:type Energy_step: float, default 0.1 meV
+		:param n_threads: Number of threads to parallelize A3 scan with. Default 1.
+		:type n_threads: int
+		:param use_res_sample: Specifies if the special resolution_sample should be used or not. Not currently operational.
+		:type use_res_sample: bool, default False
+		:param Ei_settings: Allows user to manually specify the Ei settings if desired. Ef is fixed.  
+		:type Ei_settings: List, np.ndarray or bool, default False
+		:param A3_settings: Allows user to manually specify A3 rotations of virtual sample. Default is -90 to 90 with step size of 0.5 deg. 
+			Max allowed A3 range is 180 degrees- any input with a larger range will throw an error. 
+		:type A3_settings: List/np.ndarray or bool, default is False.
+		"""
 		if use_res_sample==True:
 			#change the cif file to the false one
 			cifName = 'resolution_crystal.cif'
@@ -1167,39 +1189,119 @@ class virtualMACS(object):
 		self.sample.cif2lau()
 		Ei_ideal = self.kidney.Ef+omega
 		launame = self.sample.customlaufile
+
+		#Now prepare calculation over all A3 angles. 
+		if type(A3_settings) is bool:
+			A3_list = np.arange(-90,90,A3_step)
+		else:
+			if np.abs(np.min(A3_list)-np.max(A3_list))>180.0:
+				print('WARNING: This function does not support A3 ranges larger than 180 degrees due to a bug. Please change the A3 specification.')
+				return 0 
+			A3_list=A3_settings
+
 		#Need to recompile the instrument
-		self.data.data_matrix=False
+		if self.useOld==False:
+			self.data.data_matrix=False
 		self.prepare_expt_directory()
 		self.edit_instr_file()
-		if run_flag==True:
-			self.compileInstr()
-			self.compileMonochromator()
-			#Sample + instrument are prepared. Predict FWHM from MACS website observations:
-			excitation_Ei = self.kidney.Ef + omega
-			if type(Ei_settings) is not bool:
-				Ei_list = Ei_settings
-			else:
-				fwhm_approx = 0.1*excitation_Ei-0.16 #See https://www.ncnr.nist.gov/instruments/macs/EivsFWHM_res.jpg
-				if fwhm_approx<0.01:
-					fwhm_approx=0.05 #User has set the Ef to be too low, throw a warning:
-					print('WARNING: Ef setting of '+str(self.kidney.Ef)+' meV is too low to be reasonable. Check your \n \
-						parameters. Results probably not meaningful')
-				omega_max = omega+2.0*fwhm_approx
-				omega_min = omega-2.0*fwhm_approx
-				omega_step = np.abs(omega_max-omega_min)/num_Ei 
+		self.compileInstr()
+		self.compileMonochromator()
+		#Sample + instrument are prepared. Predict FWHM from MACS website observations:
+		excitation_Ei = self.kidney.Ef + omega
+		if type(Ei_settings) is not bool:
+			Ei_list = Ei_settings
+		else:
+			fwhm_approx = 0.1*excitation_Ei-0.16 #See https://www.ncnr.nist.gov/instruments/macs/EivsFWHM_res.jpg
+			if fwhm_approx<0.01:
+				fwhm_approx=0.05 #User has set the Ef to be too low, throw a warning:
+				print('WARNING: Ef setting of '+str(self.kidney.Ef)+' meV is too low to be reasonable. Check your \n \
+					parameters. Results probably not meaningful')
+			omega_max = omega+2.0*fwhm_approx
+			omega_min = omega-2.0*fwhm_approx
+			omega_step = np.abs(omega_max-omega_min)/num_Ei 
 
-				omega_list = [omega_min+i*omega_step for i in range(num_Ei)]
-				if omega not in omega_list:
-					omega_list.append(omega)
-				omega_list=np.array(omega_list)
-				omega_list=np.sort(omega_list)
-				Ei_list = omega_list + self.kidney.Ef
+			omega_list = [omega_min+i*omega_step for i in range(num_Ei)]
+			if omega not in omega_list:
+				omega_list.append(omega)
+			omega_list=np.array(omega_list)
+			omega_list=np.sort(omega_list)
+			Ei_list = omega_list + self.kidney.Ef
 
-			#Now run calculation over all A3 angles. 
-			A3_list = np.arange(-90,90,A3_step)
-			#Now simply call the script_scan method. 
-			self.script_scan(A3_list=A3_list,Ei_list=Ei_list,scan_title=scan_title,num_threads=n_threads)
+		#Now simply call the script_scan method. 
+		self.script_scan(A3_list=A3_list,Ei_list=Ei_list,scan_title=scan_title,num_threads=n_threads)
 		return 1
+
+	def calc_resfunc_multiomega(self,hkl_sq_list,omega_list,A3_step=0.5,Energy_step=0.1,n_threads=1,use_res_sample=False,Ei_settings=False,A3_settings=False):
+		"""
+		Calculaetes full Q/E resolution ellipsoids around 
+		specified poidfnts in Q/E space given the frame of reference of the sample. Unlike calc_resfunc, supports 
+		multiple energy transfers. It is up to the user to determine if they are far enough apart to be well seperated. 
+		The same HKL points will be used for all energy transfers. 
+
+		May also use the provided resolution_sample to calculate arbitrary resolution ellipsoids
+
+		:param hkl_sq_list: Numpy matrix where each row represents a reflection. Each column represents the following:
+			H,K,L, Multiplicity (usually 1) and Structure factor squared. 
+		:type hkl_sq_list: Nx5 np.ndarray
+		:param A3_step : step size of virtual A3 angle in degrees. 
+		:type A3_step: float, default 0.5 deg
+		:param omega_list: List of energy transfers for resolution ellipsoids in meV. Take care to make sure that they are well separated. 
+		:type omega_list: np.ndarray of length N
+		:param Energy_step: Step size for energy transfer calculation. Default 0.1 meV, but all energy transfer points will be calculated by default
+			from the elastic line to the maximum resolution ellipsoid + 1 meV. Max Ei allowed for MACS is 17 meV.
+		:type Energy_step: float, default 0.1 meV
+		:param n_threads: Number of threads to parallelize A3 scan with. Default 1.
+		:type n_threads: int
+		:param use_res_sample: Specifies if the special resolution_sample should be used or not. Not currently operational.
+		:type use_res_sample: bool, default False
+		:param Ei_settings: Allows user to manually specify the Ei settings if desired. Ef is fixed.  
+		:type Ei_settings: List, np.ndarray or bool, default False
+		:param A3_settings: Allows user to manually specify A3 rotations of virtual sample. Default is -180 to 180 with step size of 0.5 deg. 
+		:type A3_settings: List/np.ndarray or bool, default is False.
+		"""
+		#First need to determine Ei's that will be run.
+		if (type(Ei_settings) is list) or (type(Ei_settings) is np.ndarray):
+			#Ei's have been specified, easy case. 
+			Ei_list = Ei_settings
+		else:
+			#Run from Ef to max omega 
+			min_fwhm_approx = 0.1*self.kidney.Ef-0.16
+			min_Ei = self.kidney.Ef-2.0*min_fwhm_approx
+			max_fwhm_approx = 0.1*np.max(omega_list)-0.16
+			max_Ei = np.max(omega_list)+2.0*max_fwhm_approx+self.kidney.Ef
+			Ei_list = np.arange(min_Ei,max_Ei,Energy_step)
+			#Check if the omega values are in the list, if not add them. 
+			for omega in omega_list:
+				if omega+self.kidney.Ef not in Ei_list:
+					Ei_list=np.append(Ei_list,omega+self.kidney.Ef)
+		#Handle the default A3 arguments. 
+		#Sort the Ei list 
+		Ei_list = np.sort(Ei_list)
+		omega_i = 0 #Counter for which omega we are nearest. 
+		omega_list=np.sort(omega_list)
+		idealEi_list = omega_list+self.kidney.Ef 
+		self.useOld=False
+		for i in range(len(omega_list)):
+			runOmega = omega_list[i]
+			print('###############')
+			print(f'\n Current energy transfer: Omega = {runOmega:.2f} meV.\n')
+			print(f'On energy transfer {i}/{len(i)}')
+			print(f'Instrument will be recompiled at this point.')
+			print('###############')
+			if i>0:
+				self.useOld=True
+			#Determine the Ei's for which this omega is the closest.
+			runEi_list = []
+			for Ei_setting in Ei_list:
+				closest_i = np.argmin(np.abs(idealEi_list-Ei_setting))
+				closest_ideal_Ei = idealEi_list[closest_i]
+				if closest_ideal_Ei-self.kidney.Ef == runOmega:
+					runEi_list.append(Ei_setting)
+			#We have our incident energies, now we can simply run the scan. 
+			self.calc_resfunc(hkl_sq_list,omega=runOmega,A3_step=A3_step,num_Ei=9,n_threads=n_threads,use_res_sample=use_res_sample,Ei_settings=runEi_list,A3_settings=A3_settings)
+		#The instrument will need to recompile at each energy tranfer but it should result in a 4-dimensional grid with all of the desired resolution ellipsoids. 
+		return 1
+
 
 	def calc_resfunc_slice(self,q_list,e_range):
 		"""
