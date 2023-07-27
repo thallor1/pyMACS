@@ -197,7 +197,7 @@ class Data(object):
 			:param csv_file: Filename of data matrix stored in .csv file.
 			:type csv_file: str
 		"""
-		orig_frame = self.data.data_matrix
+		orig_frame = self.data_matrix
 		new_frame = pd.read_csv(self.kidney_result_dir+csv_file,header=0)
 		frames = [orig_frame,new_frame]
 		final_frame = pd.concat(frames)
@@ -286,8 +286,8 @@ class Data(object):
 			data_matrix.to_csv(self.kidney_result_dir+self.exptName+scan_prefix+file_suffix+self.csv_name,header=True)
 		else:
 			data_matrix.to_csv(self.kidney_result_dir+self.exptName+scan_prefix+file_suffix+self.csv_name,mode='a',header=False)
-
-		return 1
+		csvname = self.exptName+scan_prefix+file_suffix+self.csv_name
+		return csvname
 
 	def combine_csv_scans(self,preserve_old=False,flagstr=False):
 		"""Takes individual csvs which are the output of each scan and combines them into a master csv. 

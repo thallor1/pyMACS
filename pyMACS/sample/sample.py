@@ -63,13 +63,18 @@ class Sample(object):
 	:type ciffile: str
 	:param b_arr: Scattering lengths of ions in sample. Usually extracted from built in NIST tables.
 	:type b_arr: dict
-
+	:param scattering_def: McStas script instrument containing the relevant UNION scattering process from which the trace will be
+		extracted in the final instrument file. See example for how to build this. 
+	:type scattering_def: mcstasscript_instrument
+	:param geometry_def: Mcstasscript instrument containing the relevant UNION geometry objects that define the sample environment. 
+	:type geometry_def: mcstasscript_instrument
  
 	"""
 
 	def __init__(self,a=6.28,b=6.28,c=6.28,alpha=90.0,beta=90.0,gamma=90.0,cell_vol=None,V_recip=None,name='default_sample',sample_shape='cylinder',sample_diameter_d=0.02,sample_tilt=60.0,\
 		sample_length=0.04,sample_widx=0.003,sample_widy=0.003,sample_widz=0.003,symm_ops=None,space_group=None,ciffile=None,laufile=None,customlaufile=None,b_arr=False,orient_u=[1,1,0],orient_v=[0,0,1],orient_w=[1,0,1],\
-		rho_abs_fu=False,rho_abs=False,sigma_inc=False,sample_mosaic=30.0,delta_d=5E-4,abs_dict=False,crystal_axis_xrot=45.0,crystal_axis_yrot=0.0,crystal_axis_zrot=-15.0):
+		rho_abs_fu=False,rho_abs=False,sigma_inc=False,sample_mosaic=30.0,delta_d=5E-4,abs_dict=False,crystal_axis_xrot=45.0,crystal_axis_yrot=0.0,crystal_axis_zrot=-15.0,
+		scattering_definition=False,geometry_definition=False):
 		nist_data = os.path.dirname(__file__)+'/nist_scattering_table.txt' #Included in this directory
 		if b_arr==False:
 			scatt_dict = import_NIST_table(nist_data)

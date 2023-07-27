@@ -71,10 +71,8 @@ TRACE
 %{
     PROP_Z0;
     if (!(((radius == 0) && (x<xmin || x>xmax || y<ymin || y>ymax))
-    || ((radius != 0) && (x*x + y*y > radius*radius)))) {
-        SCATTER;
-    }
-    
+    || ((radius != 0) && (x*x + y*y > radius*radius))))
+      SCATTER;
       //ABSORB;
     //else
         //SCATTER;

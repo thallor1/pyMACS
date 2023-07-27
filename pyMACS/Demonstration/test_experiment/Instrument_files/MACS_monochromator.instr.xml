@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- IDF generated using McStas McDisplay and the Mantid backend -->
+<!-- For help on the notation used to specify an Instrument Definition File see http://www.mantidproject.org/IDF -->
+<instrument name="MACS_monochromator.out" valid-from   ="1900-01-31 23:59:59"
+valid-to     ="2100-01-31 23:59:59" last-modified="Fri Jul 21 15:12:58 2023">
+<defaults>
+	<length unit="meter"/>
+	<angle unit="degree"/>
+	<reference-frame>
+		<!-- The z-axis is set parallel to and in the direction of the beam. The y-axis points up and the coordinate system is right handed. -->
+		<along-beam axis="z"/>
+		<pointing-up axis="y"/>
+		<handedness val="right"/>
+	</reference-frame>
+		<default-view axis-view="z-"/>
+	</defaults>
+
+<!-- LIST OF PHYSICAL COMPONENTS (which the instrument consists of) -->
+
+<type name="Othercomp"></type>
+
+
+<type name="Arm0-type"  >
+</type>
+
+<type name="circular_plugin1-type"  >
+</type>
+
+<type name="circular_plugin2-type"  >
+</type>
+
+<type name="circular_plugin3-type"  >
+</type>
+
+<type name="tube1-type"  >
+</type>
+
+<type name="tube1A-type"  >
+</type>
+
+<type name="tube2-type"  >
+</type>
+
+<type name="tube3-type"  >
+</type>
+
+<type name="tube4-type"  >
+</type>
+</instrument>

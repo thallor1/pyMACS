@@ -6,14 +6,14 @@
 # Atom  Ti1                    0.00000   0.00000   0.00000   0.55270   0.12500   0.00000   0.00000
 # Atom  O1                     0.30490   0.30490   0.00000   0.44216   0.25000   0.00000   0.00000
 # COMMAND cif2hkl TiO2.cif --output TiO2.cif.hkl
-# CIF2HKL (c) ILL 2012 E. Farhi <farhi@ill.eu> based on CrysFML
-# DATE    03/11/2021 at 12:52:21
+# CIF2HKL (c) Synchrotron Soleil, based on CrysFML
+# DATE    27/07/2023 at 16:44:54
 #
 # Physical parameters:
 # sigma_coh        19.89746 coherent   scattering cross section in [barn]
 # sigma_inc         5.74320 incoherent scattering cross section in [barn]
 # sigma_abs        12.18076 absorption scattering cross section in [barn]
-# density           2.57731 in [g/cm^3]
+# density           4.27972 in [g/cm^3]
 # weight          159.73160 in [g/mol]
 # Vc               61.97610 volume of unit cell in [A^3]
 # STRUCTURE FACTORS(NEUTRONS)

@@ -203,8 +203,6 @@ TRACE
     else p = new_p;
     SCATTER;
   }
-  //else
-    //if (Type_Table) ABSORB;
 %}
 
 FINALLY
