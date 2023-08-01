@@ -1,0 +1,17 @@
+# 	lattice_a 6.86700
+# 	lattice_b 6.86700
+# 	lattice_c 19.80700
+# 	lattice_aa 90.00
+# 	lattice_bb 90.00
+# 	lattice_cc 120.00
+# 	temperature 2
+# 	field||a 0
+# 	field||b 0
+# 	field||c 0
+# 	column_h 1
+# 	column_k 2
+# 	column_l 3
+# 	column_E 4
+# 	column_S 5
+h k l En S(q,w)
+
