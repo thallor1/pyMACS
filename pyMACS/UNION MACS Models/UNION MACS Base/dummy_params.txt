@@ -1,0 +1,4 @@
+A3_angle=0
+kidney_angle=0
+EM=5.0
+EF_all=5.0

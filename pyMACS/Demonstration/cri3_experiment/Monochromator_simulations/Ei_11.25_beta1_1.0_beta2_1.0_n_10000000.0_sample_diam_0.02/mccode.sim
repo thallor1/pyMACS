@@ -1,0 +1,68 @@
+McStas simulation description file for dmtas.
+Date:    Sat Jul 29 13:03:49 2023
+Program: 
+
+begin instrument: dmtas
+  File: Ei_11.25_beta1_1.0_beta2_1.0_n_10000000.0_sample_diam_0.02/mccode
+  Source: MACS_monochromator.instr
+  Parameters:  EM(double) EF_all(double) HF(int) VF(int) sample_diameter_d(double) beta_1(double) beta_2(double) CPF(double) MPL(double) MPD(double) APE_h(double) APE_v(double) misalign_mono_deg(double) kidney_angle(double) DIRDEV(double) DIVSOU(double) L0_delta(double) L1_delta(double) mon_t(double) mon_e(double) monrot_delta(double) write_virtual_out(double)
+  Trace_enabled: yes
+  Default_main: yes
+  Embedded_runtime: yes
+end instrument
+
+begin simulation: Ei_11.25_beta1_1.0_beta2_1.0_n_10000000.0_sample_diam_0.02
+  Format: McCode with text headers
+  URL: http://www.mccode.org
+  Creator: 
+  Instrument: MACS_monochromator.instr
+  Ncount: 10000000
+  Trace: no
+  Gravitation: no
+  Seed: 1690650229210448
+  Directory: Ei_11.25_beta1_1.0_beta2_1.0_n_10000000.0_sample_diam_0.02
+  Param: EM=11.25
+  Param: EF_all=5
+  Param: HF=1
+  Param: VF=1
+  Param: sample_diameter_d=0.02
+  Param: beta_1=1
+  Param: beta_2=1
+  Param: CPF=0
+  Param: MPL=6.06
+  Param: MPD=0.775
+  Param: APE_h=0.35
+  Param: APE_v=0.35
+  Param: misalign_mono_deg=0.15
+  Param: kidney_angle=0
+  Param: DIRDEV=0
+  Param: DIVSOU=3
+  Param: L0_delta=-1.06
+  Param: L1_delta=0
+  Param: mon_t=0
+  Param: mon_e=0
+  Param: monrot_delta=0
+  Param: write_virtual_out=1
+end simulation
+
+begin data
+  Date: Sat Jul 29 13:07:42 2023 (1690650462)
+  type: array_2d(11, 999999)
+  Source: dmtas (MACS_monochromator.instr)
+  component: Virtual_out
+  position: 1.26081 0 6.50675
+  title:  Intensity Position Position Position Velocity Velocity Velocity Time_Of_Flight Spin Spin Spin Monitor (Square)
+  Ncount: 10000000
+  filename: E11.25meV_HF1_VF1_Sample0.020_b1_1.00_b2_1.00_mono_mis0.15_CPF0.00_MPL6.06_MPD0.78_dL0_-1.060_dL1_0.000_APE_h0.350_APE_v0.350.da
+  statistics: X0=0; dX=0; Y0=0; dY=0;
+  signal: Min=2009.82; Max=2009.82; Mean=0;
+  values: 0 0 0
+  xvar: Li
+  yvar: p 
+  xlabel: List of neutron events
+  ylabel: p x y z vx vy vz t sx sy sz 
+  zvar: I
+  zlabel: Signal per bin
+  xylimits: 1 999999 1 11
+  variables: p x y z vx vy vz t sx sy sz 
+end data

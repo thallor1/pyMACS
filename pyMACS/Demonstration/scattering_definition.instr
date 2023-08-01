@@ -1,0 +1,68 @@
+/********************************************************************************
+* 
+* McStas, neutron ray-tracing package
+*         Copyright (C) 1997-2008, All rights reserved
+*         Risoe National Laboratory, Roskilde, Denmark
+*         Institut Laue Langevin, Grenoble, France
+* 
+* This file was written by McStasScript, which is a 
+* python based McStas instrument generator written by 
+* Mads Bertelsen in 2019 while employed at the 
+* European Spallation Source Data Management and 
+* Software Centre
+* 
+* Instrument scattering_definition
+* 
+* %Identification
+* Written by: Python McStas Instrument Generator
+* Date: 16:27:27 on July 31, 2023
+* Origin: ESS DMSC
+* %INSTRUMENT_SITE: Generated_instruments
+* 
+* 
+* %Parameters
+* 
+* %End 
+********************************************************************************/
+
+DEFINE INSTRUMENT scattering_definition (
+)
+
+DECLARE 
+%{
+%}
+
+INITIALIZE 
+%{
+// Start of initialize for generated scattering_definition
+%}
+
+TRACE 
+COMPONENT inc_scatter = Incoherent_process(
+ sigma = 2.8716, packing_factor = 1,
+ unit_cell_volume = 62.74)
+AT (0,0,0) ABSOLUTE
+
+COMPONENT crystal_scatter = Single_crystal_process(
+ reflections = "TiO2.lau", delta_d_d = 0.005,
+ mosaic = 30, barns = 1,
+ ax = 3.25276, ay = -3.25276,
+ az = 0, bx = 3.25276,
+ by = 3.25276, bz = 0,
+ cx = 0, cy = 0,
+ cz = 2.9288, powder = 0,
+ PG = 0, interact_fraction = 0.8,
+ packing_factor = 1)
+AT (0,0,0) ABSOLUTE
+ROTATED (0,0,0) ABSOLUTE
+
+COMPONENT TiO2 = Union_make_material(
+ process_string = "crystal_scatter,inc_scatter", my_absorption = 12.1808)
+AT (0,0,0) ABSOLUTE
+
+FINALLY 
+%{
+// Start of finally for generated scattering_definition
+%}
+
+END

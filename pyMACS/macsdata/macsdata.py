@@ -197,7 +197,7 @@ class Data(object):
 			:param csv_file: Filename of data matrix stored in .csv file.
 			:type csv_file: str
 		"""
-		orig_frame = self.data.data_matrix
+		orig_frame = self.data_matrix
 		new_frame = pd.read_csv(self.kidney_result_dir+csv_file,header=0)
 		frames = [orig_frame,new_frame]
 		final_frame = pd.concat(frames)
@@ -286,8 +286,8 @@ class Data(object):
 			data_matrix.to_csv(self.kidney_result_dir+self.exptName+scan_prefix+file_suffix+self.csv_name,header=True)
 		else:
 			data_matrix.to_csv(self.kidney_result_dir+self.exptName+scan_prefix+file_suffix+self.csv_name,mode='a',header=False)
-
-		return 1
+		csvname = self.exptName+scan_prefix+file_suffix+self.csv_name
+		return csvname
 
 	def combine_csv_scans(self,preserve_old=False,flagstr=False):
 		"""Takes individual csvs which are the output of each scan and combines them into a master csv. 
@@ -370,8 +370,8 @@ class Data(object):
 		                  'DIFF12Err','DIFF13Err','DIFF14Err','DIFF15Err','DIFF16Err','DIFF17Err','DIFF18Err',\
 		                  'DIFF19Err','DIFF20Err']
 
-		spec_array = data_mat[spec_label_list].to_numpy()
-		diff_array = data_mat[diff_label_list].to_numpy()
+		spec_array = data_mat[spec_label_list].to_numpy().astype(float)
+		diff_array = data_mat[diff_label_list].to_numpy().astype(float)
 		ptai_array = data_mat['PTAI'].to_numpy()
 
 		#Error depends on type of matrix being projected
@@ -605,7 +605,7 @@ class Data(object):
 			bin_list = np.array([\
 				np.linspace(slice_limit1[0],slice_limit1[1],slice_limit1[2]),\
 				np.linspace(slice_limit2[0],slice_limit2[1],slice_limit2[2]),\
-				bin_limit])
+				bin_limit],dtype=object)
 			bindim_index = 2
 			slicedim_index1=0
 			slicedim_index2=1
@@ -618,7 +618,7 @@ class Data(object):
 			slice_limit2=omegabins 
 			bin_list = np.array([np.linspace(slice_limit1[0],slice_limit1[1],slice_limit1[2]),\
 				np.linspace(slice_limit2[0],slice_limit2[1],slice_limit2[2]),\
-				bin_limit])
+				bin_limit],dtype=object)
 			bindim_index=2
 			slicedim_index1=0
 			slicedim_index2=1
@@ -631,7 +631,7 @@ class Data(object):
 			slice_limit2=vbins 
 			bin_list = np.array([np.linspace(slice_limit1[0],slice_limit1[1],slice_limit1[2]),\
 				np.linspace(slice_limit2[0],slice_limit2[1],slice_limit2[2]),\
-				bin_limit])
+				bin_limit],dtype=object)
 			slicedim_index1=0
 			slicedim_index2=1
 			bindim_index=2

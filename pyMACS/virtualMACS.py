@@ -68,7 +68,9 @@ class virtualMACS(object):
 		self.instr_template_dir =None 
 		self.kidney_instr_dir=None
 		self.monochromator_instr_file = 'MACS_monochromator.instr'
+		self.instr_main_file = "MACS_sample_kidney.instr"
 		self.mono_param_dir=None 
+		self.file_dependencies=None
 		self.kidney_param_dir=None
 		self.useOld=useOld
 		self.mono_scanList=[] # Will keep track of the scans that have been run. 
@@ -127,14 +129,15 @@ class virtualMACS(object):
 		""" Unmounts the ramdisk. Should be done after simulation is over to free memory. 
 		"""
 		if os.path.exists(self.ramdisk_dir):
-			os.system('rm -rf '+self.ramdisk_dir)
+			shutil.rmtree(self.ramdisk_dir)
+			#os.system('rm -rf '+self.ramdisk_dir)
 		return 1
 
 	def unmount_ramdisk(self):
 		""" Unmounts the ramdisk. Should be done after simulation is over to free memory. 
 		"""
 		if os.path.exists(self.ramdisk_dir):
-			os.rmdir(self.ramdisk_dir)
+			shutil.rmtree(self.ramdisk_dir)
 		return 1
 
 
@@ -147,29 +150,16 @@ class virtualMACS(object):
 			self.clear_ramdisk()
 			self.instr_template_dir=os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Base/'
 			self.kidney_instr_dir = os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Kidney Files/'
-			if self.sample.sample_shape not in ['box','cylinder','powder','spot_box','spot_cylinder','box_inel_crystal']:
-				print('WARNING: Only allowed sample shapes are [box, cylinder, powder, spot_box, box_inel_crystal]')
-				print('Instr file not written. ')
-			if self.sample.sample_shape=='cylinder':
-				instr_main_file = 'MACS_sample_kidney_cylinder.instr'
-				self.instr_main_file=instr_main_file
-			if self.sample.sample_shape=='box':
-				instr_main_file = 'MACS_sample_kidney_box.instr'
-				self.instr_main_file=instr_main_file
-			if self.sample.sample_shape=='spot_box':
-				instr_main_file='MACS_sample_kidney_box_spot.instr'
-				self.instr_main_file=instr_main_file
-				#first make a copy of the template files and put them into a new experiment directory
-			if self.sample.sample_shape=='box_inel_crystal':
-				instr_main_file='MACS_sample_kidney_box_inel_crystal.instr'
-				self.instr_main_file=instr_main_file
+
+			instr_main_file = 'MACS_sample_kidney.instr'
+			self.instr_main_file=instr_main_file
 			self.instr_file_directory = cwd+'/'+self.exptName+'/Instrument_files/' 
 			self.instr_main_file = self.instr_file_directory+self.instr_main_file #This now points directly to the instr file that will be modified
 
 		return 1
 
 	def clean_expt_directory(self):
-		"""Removes old simulation files.
+		"""Removes old simulation files, use with care.
 		"""
 		cwd = self.cwd
 		files_in_kidsims = glob.glob(cwd+'/'+self.exptName+'/Kidney_simulations/*')
@@ -198,22 +188,8 @@ class virtualMACS(object):
 			cwd=self.cwd
 			self.instr_template_dir=os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Base/'
 			self.kidney_instr_dir = os.path.dirname(__file__)+'/UNION MACS Models/UNION MACS Kidney Files/'
-			if self.sample.sample_shape not in ['box','cylinder','powder','spot_box','spot_cylinder','box_inel_crystal']:
-				print('WARNING: Only allowed sample shapes are [box, cylinder, powder, spot_box, box_inel_crystal]')
-				print('Instr file not written. ')
-			if self.sample.sample_shape=='cylinder':
-				instr_main_file = 'MACS_sample_kidney_cylinder.instr'
-				self.instr_main_file=instr_main_file
-			if self.sample.sample_shape=='box':
-				instr_main_file = 'MACS_sample_kidney_box.instr'
-				self.instr_main_file=instr_main_file
-			if self.sample.sample_shape=='spot_box':
-				instr_main_file='MACS_sample_kidney_box_spot.instr'
-				self.instr_main_file=instr_main_file
-				#first make a copy of the template files and put them into a new experiment directory
-			if self.sample.sample_shape=='box_inel_crystal':
-				instr_main_file='MACS_sample_kidney_box_inel_crystal.instr'
-				self.instr_main_file=instr_main_file
+			instr_main_file = 'MACS_sample_kidney.instr'
+			self.instr_main_file=instr_main_file
 			while os.path.exists(cwd+'/'+self.exptName+'/Instrument_files'):
 				print('WARNING: Old instrument directory found. Older files deleted, instrument will need to be recompiled.')
 				os.system('rm -rf \"'+cwd+'/'+self.exptName+'\"')
@@ -227,6 +203,16 @@ class virtualMACS(object):
 			#Also need to move the lau file into the instrument directory
 			shutil.copy(cwd+'/'+self.sample.laufile,self.instr_file_directory)
 			shutil.copy(cwd+'/'+self.sample.ciffile,self.instr_file_directory)
+			#Finally, move any file dependencies into the instrument directory.
+			if self.file_dependencies is not None:
+				if isinstance(self.file_dependencies,str):
+					#only one file.
+					shutil.copy(cwd+'/'+self.file_dependencies,self.instr_file_directory)
+				else:
+					#list of strings.
+					for f_dep in self.file_dependencies:
+						shutil.copy(cwd+'/'+f_dep,self.instr_file_directory)
+
 			return 1
 
 	def edit_instr_file(self):
@@ -234,245 +220,73 @@ class virtualMACS(object):
 		a recompilation of the instrument."""
 		print('Generating sample parameters using file '+str(self.sample.ciffile))
 		print('Writing instrument file assuming scattering u='+str(self.sample.orient_u)+', v='+str(self.sample.orient_v))
-		#Generate the labframe for the sample 
-		self.sample.project_sample_realspace()
-		sampmat = np.copy(self.sample.labframe_mat)
-		#This is what is in the instr file by default and must be replaced by the relevant sample params. 
-		if self.sample.sample_shape=='cylinder':
-			blockstr='*/ \n'+\
-			  '   samp_ax = '+str(sampmat[0,0])+'; //can be calculated from lattice params and u v matrix \n'+\
-			  '   samp_ay = '+str(sampmat[0,1])+'; \n'+\
-			  '   samp_az = '+str(sampmat[0,2])+'; \n'+\
-			  '   samp_bx = '+str(sampmat[1,0])+'; \n'+\
-			  '   samp_by = '+str(sampmat[1,1])+'; \n'+\
-			  '   samp_bz = '+str(sampmat[1,2])+'; \n'+\
-			  '   samp_cx = '+str(sampmat[2,0])+'; \n'+\
-			  '   samp_cy = '+str(sampmat[2,1])+'; \n'+\
-			  '   samp_cz = '+str(sampmat[2,2])+'; \n'+\
-			  '   samp_abs_xc = '+str(self.sample.rho_abs)+'; \n'+\
-			  '   samp_mosaic = '+str(self.sample.sample_mosaic)+'; \n'+ \
-			  '   samp_delta_d = '+str(self.sample.delta_d)+'; \n'+\
-			  '   samp_inc_xc = '+str(self.sample.sigma_inc)+'; \n'+\
-			  '   samp_cell_vol = '+str(self.sample.cell_vol)+'; \n'+\
-			  '   samp_length = '+str(self.sample.sample_length)+'; \n'+\
-			  '   crystal_axis_xrot = '+str(self.sample.crystal_axis_xrot)+'; \n'+\
-			  '   crystal_axis_yrot = '+str(self.sample.crystal_axis_yrot)+' ; \n'+\
-			  '   crystal_axis_zrot = '+str(self.sample.crystal_axis_zrot)+'; \n'+\
-			  '/*'
-		elif 'box' in self.sample.sample_shape:
-			blockstr='*/ \n'+\
-			  '   samp_ax = '+str(sampmat[0,0])+'; //can be calculated from lattice params and u v matrix \n'+\
-			  '   samp_ay = '+str(sampmat[0,1])+'; \n'+\
-			  '   samp_az = '+str(sampmat[0,2])+'; \n'+\
-			  '   samp_bx = '+str(sampmat[1,0])+'; \n'+\
-			  '   samp_by = '+str(sampmat[1,1])+'; \n'+\
-			  '   samp_bz = '+str(sampmat[1,2])+'; \n'+\
-			  '   samp_cx = '+str(sampmat[2,0])+'; \n'+\
-			  '   samp_cy = '+str(sampmat[2,1])+'; \n'+\
-			  '   samp_cz = '+str(sampmat[2,2])+'; \n'+\
-			  '   samp_abs_xc = '+str(self.sample.rho_abs)+'; \n'+\
-			  '   samp_mosaic = '+str(self.sample.sample_mosaic)+'; \n'+ \
-			  '   samp_delta_d = '+str(self.sample.delta_d)+'; \n'+\
-			  '   samp_inc_xc = '+str(self.sample.sigma_inc)+'; \n'+\
-			  '   samp_cell_vol = '+str(self.sample.cell_vol)+'; \n'+\
-			  '   samp_xwidth = '+str(self.sample.sample_widx)+'; \n'+\
-			  '   samp_ywidth = '+str(self.sample.sample_widy)+'; \n'+\
-			  '   samp_zwidth = '+str(self.sample.sample_widz)+'; \n'+\
-			  '   crystal_axis_xrot = '+str(self.sample.crystal_axis_xrot)+'; \n'+\
-			  '   crystal_axis_yrot = '+str(self.sample.crystal_axis_yrot)+' ; \n'+\
-			  '   crystal_axis_zrot = '+str(self.sample.crystal_axis_zrot)+'; \n'+\
-			  '/*'
+		if self.sample.scattering_def is False:
+			print("Cannot generate instrument file before defining scattering processes!")
+			print("Define a mcstasscript objects with proper UNION scattering components using\nself.sample.scattering_def=mcstasscriptobj")
+			return 0 
+		if self.sample.geometry_def is False:
+			print("Cannot generate instrument file before defining scattering geometries!")
+			print("Define a mcstasscript objects with proper UNION scattering components using\nself.sample.geometry_def=mcstasscriptobj")
+			return 0 
+		else:
+			#We can write the instrument files:
+			scattering = self.sample.scattering_def
+			geometries = self.sample.geometry_def
+			scattering.write_full_instrument()
+			geometries.write_full_instrument()
+			scattering_f = scattering.name+'.instr'
+			geometry_f = geometries.name+".instr"
+			#We want the lines between TRACE and FINALLY
+			f = open(scattering_f)
+			lines = f.readlines()
+			f.close()
+			outline_scattering = ''
+			traceflag=0
+			finallyflag=0
+			for line in lines:
+				if traceflag==1 and finallyflag==0 and "FINALLY" not in line:
+					#Sometimes lines don't read in correctly with strings
+					outline_scattering=outline_scattering+line
+				if "TRACE" in line:
+					traceflag=1
+				elif "FINALLY" in line:
+					finallyflag=1
+			f = open(geometry_f)
+			lines_geo = f.readlines()
+			f.close()
+			outline_geo = ''
+			traceflag=0
+			finallyflag=0
+			for line in lines_geo:
+				if traceflag==1 and finallyflag==0 and "FINALLY" not in line:
+					outline_geo=outline_geo+line
+				if "TRACE" in line:
+					traceflag=1
+				elif "FINALLY" in line:
+					finallyflag=1
 		#Replace the block in the instrument file with this.
 		instr_f = open(self.instr_main_file,'r')
 		contents = instr_f.readlines()
 		instr_f.close()
-		
 		for i in range(len(contents)):
 			#Find the index of the string /* BEGIN INSERT BLOCK
-			if 'BEGIN INSERT BLOCK' in contents[i]:
-				insert_i = i+1
-				
+			if 'REPLACEUNIONSCATTERINGPROCESSESFLAG' in contents[i]:
+				insert_i_scattering = i+1
 		f=open(self.instr_main_file,'w')
-		contents.insert(insert_i,blockstr)
+		contents.insert(insert_i_scattering,outline_scattering)
 		f.writelines(contents)
 		f.close()
-		
-		#Also need to update the following strings : REPLACETHISSTRINGWITHLAUE , replacethiswithusersamplename
-		with open(self.instr_main_file) as f:
-			newText = f.read().replace('REPLACETHISSTRINGWITHLAUE',self.sample.laufile)
-		with open(self.instr_main_file,'w') as f:
-			f.write(newText)
-		with open(self.instr_main_file) as f:
-			newText = f.read().replace('replacethiswithusersamplename',self.sample.laufile.split('.')[0])
-		with open(self.instr_main_file,'w') as f:
-			f.write(newText)
-		
-		with open(self.instr_main_file,'r') as f:
-			filedata = f.read()
-		#Insert all of the values for the single crystal process
-		if self.sample.sample_shape=='cylinder':
-			filedata = filedata.replace('REPLACEsamp_delta_d',str(self.sample.delta_d))
-			filedata = filedata.replace('REPLACEsamp_mosaic',str(self.sample.sample_mosaic))
-			filedata = filedata.replace('REPLACEsamp_ax',str(sampmat[0,0]))
-			filedata = filedata.replace('REPLACEsamp_ay',str(sampmat[0,1]))
-			filedata = filedata.replace('REPLACEsamp_az',str(sampmat[0,2]))
-			filedata = filedata.replace('REPLACEsamp_bx',str(sampmat[1,0]))
-			filedata = filedata.replace('REPLACEsamp_by',str(sampmat[1,1]))
-			filedata = filedata.replace('REPLACEsamp_bz',str(sampmat[1,2]))
-			filedata = filedata.replace('REPLACEsamp_cx',str(sampmat[2,0]))
-			filedata = filedata.replace('REPLACEsamp_cy',str(sampmat[2,1]))
-			filedata = filedata.replace('REPLACEsamp_cz',str(sampmat[2,2]))
-			filedata = filedata.replace('REPLACEsamp_abs_xc',str(self.sample.rho_abs))
-			filedata = filedata.replace('REPLACEsamp_inc_xc',str(self.sample.sigma_inc))
-			filedata = filedata.replace('REPLACEsamp_cell_vol',str(self.sample.cell_vol))
-			filedata = filedata.replace('REPLACEsample_radius',str(self.sample.sample_diameter_d/2.0))
-			filedata = filedata.replace('REPLACEsamp_length',str(self.sample.sample_length))
-			filedata = filedata.replace('REPLACEcrystal_axis_xrot',str(self.sample.crystal_axis_xrot))
-			filedata = filedata.replace('REPLACEcrystal_axis_yrot',str(self.sample.crystal_axis_yrot))
-			filedata = filedata.replace('REPLACEcrystal_axis_zrot',str(self.sample.crystal_axis_zrot))
-		elif self.sample.sample_shape=='box':
-			filedata = filedata.replace('REPLACEsamp_delta_d',str(self.sample.delta_d))
-			filedata = filedata.replace('REPLACEsamp_mosaic',str(self.sample.sample_mosaic))
-			filedata = filedata.replace('REPLACEsamp_ax',str(sampmat[0,0]))
-			filedata = filedata.replace('REPLACEsamp_ay',str(sampmat[0,1]))
-			filedata = filedata.replace('REPLACEsamp_az',str(sampmat[0,2]))
-			filedata = filedata.replace('REPLACEsamp_bx',str(sampmat[1,0]))
-			filedata = filedata.replace('REPLACEsamp_by',str(sampmat[1,1]))
-			filedata = filedata.replace('REPLACEsamp_bz',str(sampmat[1,2]))
-			filedata = filedata.replace('REPLACEsamp_cx',str(sampmat[2,0]))
-			filedata = filedata.replace('REPLACEsamp_cy',str(sampmat[2,1]))
-			filedata = filedata.replace('REPLACEsamp_cz',str(sampmat[2,2]))
-			filedata = filedata.replace('REPLACEsamp_abs_xc',str(self.sample.rho_abs))
-			filedata = filedata.replace('REPLACEsamp_inc_xc',str(self.sample.sigma_inc))
-			filedata = filedata.replace('REPLACEsamp_cell_vol',str(self.sample.cell_vol))
-			filedata = filedata.replace('REPLACEsamp_xwidth',str(self.sample.sample_widx))
-			filedata = filedata.replace('REPLACEsamp_ywidth',str(self.sample.sample_widy))
-			filedata = filedata.replace('REPLACEsamp_zwidth',str(self.sample.sample_widz))
-			filedata = filedata.replace('REPLACEcrystal_axis_xrot',str(self.sample.crystal_axis_xrot))
-			filedata = filedata.replace('REPLACEcrystal_axis_yrot',str(self.sample.crystal_axis_yrot))
-			filedata = filedata.replace('REPLACEcrystal_axis_zrot',str(self.sample.crystal_axis_zrot))
-		elif self.sample.sample_shape=='spot_box':
-			#Prepare the sample object 
-			self.prepare_spot_sample(omega=self.sample.spot_omega,spot_HKL=self.sample.spot_HKL,spot_Qmag=self.sample.spot_Qmag,\
-				spot_twoTheta=self.sample.spot_twoTheta,spot_eideal=self.sample.spot_eideal)
-			#Check the size of the sample. Max allowed cubic dimension is 2 cm
-			if self.sample.sample_widx>=0.02:
-				print('Warning: Maximium allowed sample dimension exceeded. Max dimension is 2cm, setting to 1.9 cm')
-				self.sample.sample_widx=0.019
-			if self.sample.sample_widy>=0.02:
-				print('Warning: Maximium allowed sample dimension exceeded. Max dimension is 2cm, setting to 1 cm')
-				self.sample.sample_widy=0.019
-			if self.sample.sample_widz>=0.02:
-				print('Warning: Maximium allowed sample dimension exceeded. Max dimension is 2cm, setting to 1 cm')
-				self.sample.sample_widz=0.019			
-			if self.sample.spot_omega==None:
-				print('WARNING: To use spot_sample delta function energy transfer must be specified.')
-				print('Check the sample.spot_omega and try again.')
-				return 1
-			elif (self.sample.spot_HKL==None and self.sample.spot_Qmag==None and self.sample.spot_twoTheta==None):
-				print('WARNING: To use spot_sample delta function scattering angle must be specified.')
-				print('Assign sample.spot_HKL, sample.spot_Qmag, or sample.spot_twoTheta and try agian.')
-			filedata = filedata.replace('REPLACEsamp_delta_d',str(self.sample.delta_d))
-			filedata = filedata.replace('REPLACEsamp_mosaic',str(self.sample.sample_mosaic))
-			filedata = filedata.replace('REPLACEsamp_ax',str(sampmat[0,0]))
-			filedata = filedata.replace('REPLACEsamp_ay',str(sampmat[0,1]))
-			filedata = filedata.replace('REPLACEsamp_az',str(sampmat[0,2]))
-			filedata = filedata.replace('REPLACEsamp_bx',str(sampmat[1,0]))
-			filedata = filedata.replace('REPLACEsamp_by',str(sampmat[1,1]))
-			filedata = filedata.replace('REPLACEsamp_bz',str(sampmat[1,2]))
-			filedata = filedata.replace('REPLACEsamp_cx',str(sampmat[2,0]))
-			filedata = filedata.replace('REPLACEsamp_cy',str(sampmat[2,1]))
-			filedata = filedata.replace('REPLACEsamp_cz',str(sampmat[2,2]))
-			filedata = filedata.replace('REPLACEsamp_abs_xc',str(self.sample.rho_abs))
-			filedata = filedata.replace('REPLACEsamp_inc_xc',str(self.sample.sigma_inc))
-			filedata = filedata.replace('REPLACEsamp_cell_vol',str(self.sample.cell_vol))
-			filedata = filedata.replace('REPLACEsamp_xwidth',str(self.sample.sample_widx))
-			filedata = filedata.replace('REPLACEsamp_ywidth',str(self.sample.sample_widy))
-			filedata = filedata.replace('REPLACEsamp_zwidth',str(self.sample.sample_widz))
-			filedata = filedata.replace('REPLACEcrystal_axis_xrot',str(self.sample.crystal_axis_xrot))
-			filedata = filedata.replace('REPLACEcrystal_axis_yrot',str(self.sample.crystal_axis_yrot))
-			filedata = filedata.replace('REPLACEcrystal_axis_zrot',str(self.sample.crystal_axis_zrot))
-			filedata = filedata.replace('REPLACEspot_omega',str(self.sample.spot_omega))
-			filedata = filedata.replace('REPLACEspot_twoTheta',str(self.sample.spot_twoTheta))
-			filedata = filedata.replace('REPLACEspot_eideal',str(self.sample.spot_eideal))
-			print('\n##############')
-			print(' Spot sample successfully prepared. ')
-			print('##############\n')
-		elif self.sample.sample_shape=='box_inel_crystal':
-			#Check if the required arrays have been specified for this calculation
-			if self.sample.inel_HKL_Sq is None:
-				print('Cannot prepare experiment in box_inel_crystal mode.\nSpecifiy HKL_E_Sq list using expt.sample.inel_HKL_E_Sq first.')
-				return 0
-			#Prepare the requisite lau file for each omega
-			omega = self.sample.inel_omega
-			Ei_ideal = self.kidney.Ef + omega
-			launame = self.sample.gen_custom_lau(self.sample.inel_HKL_Sq,Ei_ideal,omega)
-			shutil.copy(self.cwd+'/'+launame,self.instr_file_directory)
-
-
-			#Check the size of the sample. Max allowed cubic dimension is 2 cm
-			if self.sample.sample_widx>=0.02:
-				print('Warning: Maximium allowed sample dimension exceeded. Max dimension is 2cm, setting to 1.9 cm')
-				self.sample.sample_widx=0.019
-			if self.sample.sample_widy>=0.02:
-				print('Warning: Maximium allowed sample dimension exceeded. Max dimension is 2cm, setting to 1 cm')
-				self.sample.sample_widy=0.019
-			if self.sample.sample_widz>=0.02:
-				print('Warning: Maximium allowed sample dimension exceeded. Max dimension is 2cm, setting to 1 cm')
-				self.sample.sample_widz=0.019	
-			filedata = filedata.replace('REPLACEsamp_delta_d',str(self.sample.delta_d))
-			filedata = filedata.replace('REPLACEsamp_mosaic',str(self.sample.sample_mosaic))
-			filedata = filedata.replace('REPLACEsamp_ax',str(sampmat[0,0]))
-			filedata = filedata.replace('REPLACEsamp_ay',str(sampmat[0,1]))
-			filedata = filedata.replace('REPLACEsamp_az',str(sampmat[0,2]))
-			filedata = filedata.replace('REPLACEsamp_bx',str(sampmat[1,0]))
-			filedata = filedata.replace('REPLACEsamp_by',str(sampmat[1,1]))
-			filedata = filedata.replace('REPLACEsamp_bz',str(sampmat[1,2]))
-			filedata = filedata.replace('REPLACEsamp_cx',str(sampmat[2,0]))
-			filedata = filedata.replace('REPLACEsamp_cy',str(sampmat[2,1]))
-			filedata = filedata.replace('REPLACEsamp_cz',str(sampmat[2,2]))
-			filedata = filedata.replace('REPLACEsamp_abs_xc',str(self.sample.rho_abs))
-			filedata = filedata.replace('REPLACEsamp_inc_xc',str(self.sample.sigma_inc))
-			filedata = filedata.replace('REPLACEsamp_cell_vol',str(self.sample.cell_vol))
-			filedata = filedata.replace('REPLACEsamp_xwidth',str(self.sample.sample_widx))
-			filedata = filedata.replace('REPLACEsamp_ywidth',str(self.sample.sample_widy))
-			filedata = filedata.replace('REPLACEsamp_zwidth',str(self.sample.sample_widz))
-			filedata = filedata.replace('REPLACEcrystal_axis_xrot',str(self.sample.crystal_axis_xrot))
-			filedata = filedata.replace('REPLACEcrystal_axis_yrot',str(self.sample.crystal_axis_yrot))
-			filedata = filedata.replace('REPLACEcrystal_axis_zrot',str(self.sample.crystal_axis_zrot))
-			#same as above but for the inelastic process
-			inel_template = "COMPONENT REPLACEexternal_inel_sample=Single_crystal_inelastic_custom(xwidth=REPLACEsamp_xwidth,yheight=REPLACEsamp_ywidth,zdepth=REPLACEsamp_zwidth,\n  delta_d_d=REPLACE_inel_crystal_delta_d,mosaic=REPLACE_inel_crystal_mosaic,barns=1,\n  ax=REPLACE_inel_crystal_ax, ay=REPLACE_inel_crystal_ay, az = REPLACE_inel_crystal_az,\n  bx=REPLACE_inel_crystal_bx, by=REPLACE_inel_crystal_by, bz = REPLACE_inel_crystal_bz,\n  cx=REPLACE_inel_crystal_cx, cy=REPLACE_inel_crystal_cy, cz = REPLACE_inel_crystal_cz,\n  reflections=REPLACE_inel_crystal_ref_fname, omega=REPLACEsamp_omega)\nAT (0,0,0) RELATIVE target\nROTATED (0,0,0) RELATIVE crystal_axis\n\n"
-			inel_sample_str = ""
-
-			inel_sample_str = inel_template.replace('REPLACE_inel_crystal_ax',str(sampmat[0,0]))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_ay',str(sampmat[0,1]))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_az',str(sampmat[0,2]))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_bx',str(sampmat[1,0]))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_by',str(sampmat[1,1]))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_bz',str(sampmat[1,2]))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_cx',str(sampmat[2,0]))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_cy',str(sampmat[2,1]))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_cz',str(sampmat[2,2]))
-			inel_sample_str = inel_sample_str.replace('REPLACEexternal_inel_sample','external_single_crystal_sqw')			
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_ref_fname','\"'+self.sample.customlaufile+'\"')
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_mosaic',str(self.sample.sample_mosaic))
-			inel_sample_str = inel_sample_str.replace('REPLACE_inel_crystal_delta_d',str(self.sample.delta_d))				
-			inel_sample_str = inel_sample_str.replace('REPLACEsamp_abs_xc',str(self.sample.rho_abs))
-			inel_sample_str = inel_sample_str.replace('REPLACEsamp_inc_xc',str(self.sample.sigma_inc))
-			inel_sample_str = inel_sample_str.replace('REPLACEsamp_cell_vol',str(self.sample.cell_vol))
-			inel_sample_str = inel_sample_str.replace('REPLACEsamp_xwidth',str(self.sample.sample_widx))
-			inel_sample_str = inel_sample_str.replace('REPLACEsamp_ywidth',str(self.sample.sample_widy))
-			inel_sample_str = inel_sample_str.replace('REPLACEsamp_zwidth',str(self.sample.sample_widz))
-			inel_sample_str = inel_sample_str.replace('REPLACEsamp_omega',str(self.sample.inel_omega))
-
-			filedata = filedata.replace('// INSERT EXTERNAL INEL SAMPLE STRING HERE',inel_sample_str)
-			print('\n##############\n')
-			print(' Inelastic Crystal sample successfully prepared. \n')
-			print('##############\n')
-		else:
-			print('WARNING: Invalid sample shape. Allowed values are currently cylinder, box, spot_box, box_inel_crystal, and spot_cylinder.')	
-		with open(self.instr_main_file,'w') as f:
-			f.write(filedata)
+		#Repeat for geometries
+		instr_f = open(self.instr_main_file,'r')
+		contents = instr_f.readlines()
+		instr_f.close()
+		for i in range(len(contents)):
+			if 'REPLACEUNIONGEOMETRIESSFLAG' in contents[i]:
+				insert_i_geo = i+1
+		contents.insert(insert_i_geo,outline_geo)
+		f=open(self.instr_main_file,'w')
+		f.writelines(contents)
+		f.close()
 		
 		print(' ')
 		print('Instrument file '+str(self.instr_main_file)+' successfully prepared.\n')
@@ -480,41 +294,6 @@ class virtualMACS(object):
 		print(' ')
 		self.modified_kidney_flag=1
 		return 1 
-
-	def prepare_spot_sample(self,omega=None,spot_HKL=None,spot_Qmag=None,spot_twoTheta=None,spot_eideal=None):
-		"""Prepares the sample for a spot calculation for spot_sample. Assigns necessary parameters to the sample before running the simulation. 
-		May either specify an HKL point, Q_magnitude, or scattering angle. In the end only omega and twoTheta (degrees) matter.
-		If scattering angle is specified through HKL, it is an array of form [H,K,L]
-
-		:param omega: Energy transfer at sample in meV. 
-		:type omega: float, required
-		:param spot_HKL: Reflection indices HKL in reciprocal lattice units. 
-		:type spot_HKL: list of shape [H,K,L], optional
-		:param spot_Qmag: Magnitude of momentum transfer for spot sample in Ang^-1
-		:type spot_Qmag: float, optional
-		:param spot_twoTheta: Scattering angle of reflection in degrees.
-		:type spot_twoTheta: float, optional
-		:param spot_eideal: Incident energy expected for the spot, Ei=omega+Ef
-		:type spot_eideal: float, optional
-		"""
-		if omega==None:
-			print("Warning: To use spot_sample configuration the delta function energy transfer must be specified.")
-			print('Assign sample.spot_omega=xx meV and try again.')
-			return 1
-		if spot_twoTheta!=None:
-			self.sample.spot_twoTheta=spot_twoTheta
-			return 1
-		if spot_HKL!=None:
-			twoTheta = self.sample.twotheta_hkl_omega(spot_HKL[0],spot_HKL[1],spot_HKL[2],Ei=self.monochromator.Ei,omega=omega)
-			self.sample.spot_twoTheta=twoTheta 
-			self.sample.spot_omega=omega 
-			return 1
-		if spot_Qmag!=None:
-			twoTheta = self.sample.QE_to_twotheta(Qmag=spot_Qmag,Ei=spot_eideal,omega=omega)
-			self.sample.spot_twoTheta=twoTheta
-			self.sample.spot_omega=omega 
-			return 1
-			
 
 
 	def compileInstr(self):
@@ -529,22 +308,15 @@ class virtualMACS(object):
 		out_filename = instr_filename.replace('.instr','.out')
 		original_directory = self.cwd
 		os.chdir(instr_dir)
-		shellcommand = ['mcstas','-o',c_filename,instr_filename]
-		shellcommandstr ='mcstas -o '+c_filename+' '+instr_filename
 		#shellcommandstr = 'mcrun -c '+instr_filename
-		p=subprocess.Popen(shellcommandstr,stdout=subprocess.PIPE,shell=True)
-		(output,err)=p.communicate()
-		p_status=p.wait()
-		#os.system(shellcommandstr)
-		#Give it a moment to make sure that code is written.
-		os.system('python2 generate_MACS_parts.py')
+		os.system('ipython generate_MACS_parts_mcstasscript.py')
+		#Give it a second to make sure that code is written.
 		time.sleep(0.3)
 		# Something like cc -O -o MACS_sample_kidney.out MACS_sample_kidney.c -lm
 
 		shellcommand=['cc','-O','-o',out_filename,\
 			c_filename,'-lm']
-		shellcommandstr='cc -O -o '+out_filename+' '+\
-			c_filename+' -lm'
+		shellcommandstr ='mcrun -c -n 10 --param=dummy_params.txt --dir=dummy_kidney '+instr_filename
 		#shellcommandstr='mcrun -c '+instr_filename
 		print('#################')
 		print('\nStarting compilation of sample kidney geometry. This will take a few minutes.\n')
@@ -555,6 +327,8 @@ class virtualMACS(object):
 		p_status=p.wait()
 		print('Compilation of sample kidney geometry successful.\n')
 		print('#################\n')
+		#Delete the dummy directory
+		shutil.rmtree("dummy_kidney")
 		os.chdir(original_directory)
 		self.modified_kidney_flag=0
 		#Wait for this to finish. 
@@ -570,18 +344,12 @@ class virtualMACS(object):
 		out_filename = instr_filename.replace('.instr','.out')
 		original_directory = self.cwd
 		os.chdir(instr_dir)
-		shellcommand = ['mcstas','-o',c_filename,instr_filename]
-		shellcommandstr ='mcstas -o '+c_filename+' '+instr_filename
+		shellcommandstr ='mcrun -c -n 10 --param=dummy_params_mono.txt --dir=mono_dummy_dir '+instr_filename
+		os.system('ipython generate_MACS_parts_mcstasscript.py')
 
-		os.system(shellcommandstr)
 		#Give it a moment to make sure that code is written.
 		time.sleep(0.5)
-		# Something like cc -O -o MACS_sample_kidney.out MACS_sample_kidney.c -lm
 
-		shellcommand=['cc','-O','-o',out_filename,\
-			c_filename,'-lm']
-		shellcommandstr='cc -O -o '+out_filename+' '+\
-			c_filename+' -lm'
 		#shellcommandstr= 'mcrun -c'+instr_filename
 		print('#################')
 		print('\nStarting compilation of monochromator. This will take about around 10 minutes. ')
@@ -593,7 +361,8 @@ class virtualMACS(object):
 		p_status=p.wait()
 		print('Compilation of monochromator geometry successful.\n')
 		print('#################\n')
-
+		#Remove the dummy directory
+		shutil.rmtree("mono_dummy_dir")
 		os.chdir(original_directory)
 		return 1
 
@@ -612,7 +381,7 @@ class virtualMACS(object):
 
 		#Correctly format the parameter file with the current parameters.
 
-		output_str='EM='+str(self.monochromator.Ei)+'\ndEM=0.1\nEF_all='+str(self.kidney.Ef)+'\nHF=1\nVF=1\nsample_diameter_d='+str(self.sample.sample_diameter_d)+'\nbeta_1='+str(self.monochromator.beta_1)+'\nbeta_2='+str(self.monochromator.beta_2)+'\nCPF=0\nMPL=6.06\nMPD=0.775\nAPE_h=0.35\nAPE_v=0.35\nmisalign_mono_deg=0.15\nkidney_angle=0\nDIRDEV=0\nDIVSOU=3.0\nL0_delta=-1.06\nL1_delta=0.0\nmon_t=0.0\nmon_e=0.0\nmonrot_delta=0\nwrite_virtual_out=1'
+		output_str='EM='+str(self.monochromator.Ei)+'\nEF_all='+str(self.kidney.Ef)+'\nHF=1\nVF=1\nsample_diameter_d='+str(self.sample.sample_diameter_d)+'\nbeta_1='+str(self.monochromator.beta_1)+'\nbeta_2='+str(self.monochromator.beta_2)+'\nCPF=0\nMPL=6.06\nMPD=0.775\nAPE_h=0.35\nAPE_v=0.35\nmisalign_mono_deg=0.15\nkidney_angle=0\nDIRDEV=0\nDIVSOU=3.0\nL0_delta=-1.06\nL1_delta=0.0\nmon_t=0.0\nmon_e=0.0\nmonrot_delta=0\nwrite_virtual_out=1'
 		param_file = open(out_name,'w')
 		param_file.write(output_str)
 		param_file.close()
@@ -682,48 +451,62 @@ class virtualMACS(object):
 		#Check if an output directory exists for monochromator scans
 		cwd = self.cwd
 		if not os.path.exists(self.exptdir+'/Monochromator_simulations/'):
-			os.mkdir(cwd+'/'+self.exptName+'/Monochromator_simulations/')
-
+			try:
+				os.mkdir(cwd+'/'+self.exptName+'/Monochromator_simulations/')
+			except:
+				#Sometimes two processes try to do this at the same time. 
+				pass
 		#Assign relevant parameters
-		if Ei_set==False:
+		if Ei_set is False:
 			Ei_set=self.monochromator.Ei 
-		if Ef_set==False:
+		if Ef_set is False:
 			Ef_set=self.kidney.Ef
-		if kidney_set==False:
+		if kidney_set is False:
 			kidney_set=self.kidney.kidney_angle
-		if A3_set==False:
+		if A3_set is False:
 			A3_set = self.A3_angle
-		if beta_1_set==False:
-			beta_1_set=self.monochromator.beta_1 
-		if beta_2_set==False:
-			beta_2_set=self.monochromator.beta_2
+		if beta_1_set is False:
+			dmbt = self.sample.sample_diameter_d
+			if dmbt<5e-3:
+				dmbt=5e-3 #Minimum allowed before interpolation gets wonky.
+			beta_1_set,beta_2_set = self.monochromator.calc_betas(ei=Ei_set,dmbt=self.sample.sample_diameter_d)
+			self.monochromator.beta_1=beta_1_set
+		if beta_2_set is False:
+			#Calculate the beta angles. 
+			dmbt = self.sample.sample_diameter_d
+			if dmbt<5e-3:
+				dmbt=5e-3 #Minimum allowed before interpolation gets wonky.
+			beta1_1_set,beta_2_set = self.monochromator.calc_betas(ei=Ei_set,dmbt=self.sample.sample_diameter_d)
+			self.monochromator.beta_2=beta_2_set
 
 		#Generate a parameter file for the current monochromator configuration
 		param_fname = self.write_mono_paramfile_from_current_params()
 		#Need to add the instrument directory for the imports to be recognized
 		os.chdir(cwd+'/'+self.exptName+'/Instrument_files/')
 		#Check if the file already exists. If it does, do not run the simulation.
-		mono_file_dat_start='E'+'{:.2f}'.format(Ei_set)+'meV_HF1_VF1_Sample'+'{:.3f}'.format(self.sample.sample_diameter_d)+'_'+\
+		mono_file_dat_start='E'+'{:.2f}'.format(Ei_set)+'meV_HF1_VF1_Sample'+f"{self.sample.sample_diameter_d:.3f}"+'_'+\
 			'b1_'+'{:.2f}'.format(beta_1_set)+'_b2_'+'{:.2f}'.format(beta_2_set)+'*'
 		try:
-			if len(glob.glob(mono_file_dat_start))==0:
+			print("Checking for: "+mono_file_dat_start)
+			if len(glob.glob(self.instr_file_directory+mono_file_dat_start))==0:
+				print(mono_file_dat_start+" is not found in \n"+str(glob.glob(mono_file_dat_start)))
 				mono_dir = 'Ei_'+str(Ei_set)+'_beta1_'+str(beta_1_set)\
 				+'_beta2_'+str(beta_2_set)+'_n_'+str(self.n_mono)+'_sample_diam_'+str(self.sample.sample_diameter_d)
 				#Run simulation and wait for it to end.
 
 				shellcommandstr='mcrun -d '+mono_dir+' -n '+str(self.n_mono)+\
-					' MACS_monochromator.instr EM='+str(Ei_set)+' dEM=0.1 EF_all='+str(Ef_set)+' HF=1 VF=1 sample_diameter_d='+str(self.sample.sample_diameter_d)+' beta_1='+str(beta_1_set)+\
+					' MACS_monochromator.instr EM='+str(Ei_set)+' EF_all='+str(Ef_set)+' HF=1 VF=1 sample_diameter_d='+str(self.sample.sample_diameter_d)+' beta_1='+str(beta_1_set)+\
 					' beta_2='+str(beta_2_set)+' misalign_mono_deg=0.15 CPF=0 MPL=6.06 MPD=0.775 APE_h=0.35 APE_v=0.35 misalign_mono_deg=0.15 '+\
 					'kidney_angle='+str(kidney_set)+' DIRDEV=0 DIVSOU=3.0 L0_delta=-1.06 L1_delta=0.0 mon_t=0.0 mon_e=0.0 monrot_delta=0 write_virtual_out=1'
-				print('Passing the following to mcstas:')
-				print(shellcommandstr)
+				#print('Passing the following to mcstas:')
+				#print(shellcommandstr)
 				p=subprocess.Popen(shellcommandstr,stdout=subprocess.PIPE,shell=True)
 				(output,err)=p.communicate()
 				p_status=p.wait()
 				#Move the output folder to the Monochromator_simulations directory
-				shutil.move(mono_dir,cwd+'/'+self.exptName+'/Monochromator_simulations/')
+				shutil.move(cwd+"/"+self.exptName+"/Instrument_files/"+mono_dir,cwd+'/'+self.exptName+'/Monochromator_simulations/')
 				#Delete the old simulation.
-				os.system('rm -rf '+str(mono_dir))
+				os.system('rm -rf '+str(cwd+"/"+self.exptName+mono_dir))
 				time.sleep(0.1)
 				os.chdir(cwd)
 				#Iterate through mono_dir and add the data file outputs to the main instrument directory
@@ -737,8 +520,7 @@ class virtualMACS(object):
 					shutil.move(mono_file_dat_name,self.instr_file_directory)
 					time.sleep(1)
 			else:
-				#print('Using previously run monochromator simulation that is already in the directory: ')
-				#print(glob.glob(mono_file_dat_start)[0])
+				print('Using previously run monochromator simulation that is already in the directory:\n'+str(glob.glob(mono_file_dat_start)[0]))
 				os.chdir(cwd)
 		except Exception as e:
 			print('Warning: Execution error in monochromator scan. ')
@@ -771,16 +553,23 @@ class virtualMACS(object):
 			kidney_set=self.kidney.kidney_angle
 		if A3_set==False:
 			A3_set = self.A3_angle
-		if beta_1_set==False:
-			beta_1_set=self.monochromator.beta_1 
-		if beta_2_set==False:
-			beta_2_set=self.monochromator.beta_2
+		if beta_1_set is False:
+			dmbt = self.sample.sample_diameter_d
+			if dmbt<5e-3:
+				dmbt=5e-3 #Minimum allowed before interpolation gets wonky.
+			beta_1_set,beta_2_set = self.monochromator.calc_betas(ei=Ei_set,dmbt=self.sample.sample_diameter_d)
+			self.monochromator.beta_1=beta_1_set
+		if beta_2_set is False:
+			#Calculate the beta angles. 
+			dmbt = self.sample.sample_diameter_d
+			if dmbt<5e-3:
+				dmbt=5e-3 #Minimum allowed before interpolation gets wonky.
+			beta1_1_set,beta_2_set = self.monochromator.calc_betas(ei=Ei_set,dmbt=self.sample.sample_diameter_d)
+			self.monochromator.beta_2=beta_2_set
+
 		self.monochromator.Ei=Ei_set
 		self.kidney.Ef=Ef_set
 		self.A3_angle=A3_set
-		self.monochromator.beta_1=beta_1_set
-		self.monochromator.beta_2=beta_2_set
-		param_fname = self.write_kidney_paramfile_from_current_params()
 
 		orig_dir = self.cwd
 		#Make an output directory for the results
@@ -799,7 +588,7 @@ class virtualMACS(object):
 		#Put this in a ramdisk to solve disk access problems large numbers of files for large simulations.
 		kidney_output_dir = self.exptName+ng0_string+'_kidney_angle_'+'{:.4f}'.format(kidney_set)+'_Ei_'+\
 			'{:.4f}'.format(Ei_set)+'_Ef_'+'{:.4f}'.format(Ef_set)+'_A3_angle_'+'{:.4f}'.format(A3_set)+\
-			'_sample_diameter_d_'+'{:.4f}'.format(self.sample.sample_diameter_d)+'_n_'+str(self.n_sample)
+			'_sample_diameter_d_'+'{:.4f}'.format(self.sample.sample_diameter_d)
 		#Mcstas does not like minus signs or . in directory names
 		kidney_output_dir=kidney_output_dir.replace('-','m')
 		kidney_output_dir=kidney_output_dir.replace('.','p')
@@ -836,11 +625,15 @@ class virtualMACS(object):
 			shellcommandstr='mcrun -d '+kidney_output_dir+' -n '+str(self.n_sample)+' '+self.instr_main_file.split('/')[-1]+' A3_angle='+str(A3_set)+' kidney_angle='+str(kidney_set)+' EM='+str(Ei_set)+' EF_all='+str(Ef_set)+\
 				' HF=1 VF=1 sample_diameter_d='+str(self.sample.sample_diameter_d)+' beta_1='+str(beta_1_set)+' beta_2='+str(beta_2_set)+' CPF=0 MPL=6.06 MPD=0.775 APE_h=0.35 APE_v=0.35 misalign_mono_deg=0.15 DIRDEV=0 DIVSOU=3.0 L0_delta=-1.06 L1_delta=0.0 mon_t=0.0 '+\
 				'mon_e=0.0 monrot_delta=0.0 slit_h=0.2 slit_v=0.2 resolution_mode=0 res_radius=0.01 res_height=0.03 repeat_count=1 E0_resolution=0 dE_resolution=1'
+			shellcommandstr+='2> /dev/null'
 			#print('Running the following command: ')
-			#print(shellcommandstr)
 			p=subprocess.Popen(shellcommandstr,stdout=subprocess.PIPE,shell=True)
 			(output,err)=p.communicate()
 			p_status=p.wait()
+			#print("Output")
+			#print(output)
+			#print("Err")
+			#print(err)
 			#Scan is run at this point and output files are in the kidney_output_dir
 			#Append the result to the data matrix if this is a single scan. Else wait to do this until later.
 			#Either way write the csv file
@@ -848,8 +641,11 @@ class virtualMACS(object):
 				suffix=''
 			else:
 				suffix=scan_suffix
-			self.data.scan_to_csv(kidney_output_dir,file_suffix=suffix)
-			time.sleep(0.01)
+			time.sleep(0.05) #some strange file io issues if we go too fast. 
+			csvname = self.data.scan_to_csv(kidney_output_dir,file_suffix=suffix)
+			#if append_data_matrix is True:
+				#self.data.load_data_matrix_from_csv(csvname)
+			time.sleep(0.05)
 			#Delete the directory after this
 			if self.preserve_kidney_scan_files==False:
 				while os.path.exists(kidney_output_dir):
@@ -885,9 +681,12 @@ class virtualMACS(object):
 		#Delete the parameter file unless otherwise specified. 
 		return 1
 
-	def runKidneyScan_scripting(self,A3,kidney_angle,Ei,Ef,beta1,beta2,append_data_matrix=True,scan_suffix=False):
-		#Run the simulation at this point 
-		self.runKidneyScan(append_data_matrix=append_data_matrix,Ei_set=Ei,Ef_set=Ef,kidney_set=kidney_angle,A3_set=A3,beta_1_set = beta1, beta_2_set = beta2,scan_suffix=scan_suffix)
+	def runKidneyScan_scripting(self,A3,kidney_angle,Ei,Ef,beta1=False,beta2=False,append_data_matrix=True,scan_suffix=False):
+		#Run the simulation at this point
+		try:
+			self.runKidneyScan(append_data_matrix=append_data_matrix,Ei_set=Ei,Ef_set=Ef,kidney_set=kidney_angle,A3_set=A3,beta_1_set = beta1, beta_2_set = beta2,scan_suffix=scan_suffix)
+		except Exception as e:
+			print(f"WARNING: {e}")
 		return 1
 	def runMonoScan_scripting(self,Ei,Ef,beta1,beta2):
 		#Run the simulation at this point 
@@ -928,9 +727,10 @@ class virtualMACS(object):
 		self.unmount_ramdisk()
 		self.mount_ramdisk()
 		#Run the relevant monochromator scans.
+
 		if num_threads>1:
 			print('Running these Ei values:'+str(Ei_list))
-			Parallel(n_jobs=num_threads)(delayed(self.runMonoScan_scripting)(Ei,self.kidney.Ef,self.monochromator.beta_1,self.monochromator.beta_2) for Ei in Ei_list)
+			Parallel(n_jobs=num_threads,backend="threading")(delayed(self.runMonoScan_scripting)(Ei,self.kidney.Ef,self.monochromator.beta_1,self.monochromator.beta_2) for Ei in Ei_list)
 		else:
 			for Ei in Ei_list:
 				self.monochromator.Ei = Ei 
@@ -950,10 +750,11 @@ class virtualMACS(object):
 				for k_index in tnrange(len(kid_angle_list),desc='Kidney Loop'):
 					kid_angle = kid_angle_list[k_index]
 					for a3_angle in A3_list:
-						self.runKidneyScan_scripting(a3_angle,kid_angle,energy,self.kidney.Ef,True,suffix)
+						self.runKidneyScan_scripting(a3_angle,kid_angle,energy,self.kidney.Ef,
+							self.monochromator.beta_1,self.monochromator.beta_2,scan_suffix=suffix)
 
 		fname_list = []
-		if num_threads>1:
+		if num_threads>1 or num_threads==-1:
 			#Now do the case of parallelized
 			for e_index in tnrange(len(Ei_list),desc='Total Scans'):
 				energy = Ei_list[e_index]
@@ -964,7 +765,8 @@ class virtualMACS(object):
 					kidsuffix = suffix+'_kidney_'+str(round(kid_angle,3))+'_Ei_'+str(round(energy,2))+'_Ef_'+str(round(self.kidney.Ef,2))
 					#Parallelization happens here
 					#A3,kidney_angle,Ei,Ef,beta1,beta2,append_data_matrix=True
-					Parallel(n_jobs=num_threads)(delayed(self.runKidneyScan_scripting)\
+
+					Parallel(n_jobs=num_threads,backend="threading")(delayed(self.runKidneyScan_scripting)\
 							(A3_list[i],kid_angle,energy,self.kidney.Ef,self.monochromator.beta_1,self.monochromator.beta_2,True,kidsuffix) \
 							for i in range(len(A3_list)))
 					#After each kidney angle combine the csv like in real MACS
@@ -1054,7 +856,7 @@ class virtualMACS(object):
 			#Parallelize this process, not necessary for monochromator
 			for i in range(len(A3_list)):
 				self.runMonoScan_scripting(Ei_list[i],Ef_list[i],beta_1_list[i],beta_2_list[i])
-			Parallel(n_jobs=n_threads)(delayed(self.runKidneyScan_scripting)\
+			Parallel(n_jobs=n_threads,backend="threading")(delayed(self.runKidneyScan_scripting)\
 							(A3_list[i],kid_list[i],Ei_list[i],Ef_list[i],beta_1_list[i],beta_2_list[i],True,\
 								'_'+ng0_file.split('/')[-1]) for i in range(len(A3_list)))
 		#Safely unmount ramdisk.
@@ -1119,14 +921,16 @@ class virtualMACS(object):
 					b1 = beta_1_list[i]
 					b2 = beta_2_list[i]
 					setting = [Ei,Ef,b1,b2]
+					print(setting)
 					if setting not in ei_ef_b1_b2_list:
 						ei_ef_b1_b2_list.append(setting)
 			print('Monochromator List to simulate:')
-			print('Ei, beta1, beta2 ='+str(ei_ef_b1_b2_list))
+			for config in ei_ef_b1_b2_list:
+				print(f"Ei={config[0]}, Ef={config[1]}, beta1={config[2]}, beta2={config[3]}")
 			#Run all of the relevant monochromator jobs
-			Parallel(n_jobs=n_threads)(delayed(self.runMonoScan_scripting)(ei_ef_b1_b2_list[i][0],ei_ef_b1_b2_list[i][1],ei_ef_b1_b2_list[i][2],\
+			Parallel(n_jobs=n_threads,backend="threading")(delayed(self.runMonoScan_scripting)(ei_ef_b1_b2_list[i][0],ei_ef_b1_b2_list[i][1],ei_ef_b1_b2_list[i][2],\
 				ei_ef_b1_b2_list[i][3]) for i in range(len(ei_ef_b1_b2_list)))
-			Parallel(n_jobs=n_threads)(delayed(self.simulate_ng0)(cwd+'/'+ng0_dir+file_list[i],in_scan=True) for i in range(len(file_list)))
+			Parallel(n_jobs=n_threads,backend="threading")(delayed(self.simulate_ng0)(cwd+'/'+ng0_dir+file_list[i],in_scan=True) for i in range(len(file_list)))
 			#After parellel jobs are done, iterate through the files and create matching ng0s as the measurements, but McStas
 
 			for ng0_file in file_list:
