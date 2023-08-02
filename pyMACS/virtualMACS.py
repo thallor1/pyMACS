@@ -487,9 +487,9 @@ class virtualMACS(object):
 		mono_file_dat_start='E'+'{:.2f}'.format(Ei_set)+'meV_HF1_VF1_Sample'+f"{self.sample.sample_diameter_d:.3f}"+'_'+\
 			'b1_'+'{:.2f}'.format(beta_1_set)+'_b2_'+'{:.2f}'.format(beta_2_set)+'*'
 		try:
-			print("Checking for: "+mono_file_dat_start)
+			#print("Checking for: "+mono_file_dat_start)
 			if len(glob.glob(self.instr_file_directory+mono_file_dat_start))==0:
-				print(mono_file_dat_start+" is not found in \n"+str(glob.glob(mono_file_dat_start)))
+				#print(mono_file_dat_start+" is not found in \n"+str(glob.glob(mono_file_dat_start)))
 				mono_dir = 'Ei_'+str(Ei_set)+'_beta1_'+str(beta_1_set)\
 				+'_beta2_'+str(beta_2_set)+'_n_'+str(self.n_mono)+'_sample_diam_'+str(self.sample.sample_diameter_d)
 				#Run simulation and wait for it to end.
@@ -520,7 +520,7 @@ class virtualMACS(object):
 					shutil.move(mono_file_dat_name,self.instr_file_directory)
 					time.sleep(1)
 			else:
-				print('Using previously run monochromator simulation that is already in the directory:\n'+str(glob.glob(mono_file_dat_start)[0]))
+				#print('Using previously run monochromator simulation that is already in the directory:\n'+str(glob.glob(mono_file_dat_start)[0]))
 				os.chdir(cwd)
 		except Exception as e:
 			print('Warning: Execution error in monochromator scan. ')
@@ -908,7 +908,7 @@ class virtualMACS(object):
 				#Need to do monochromator jobs FIRST, then kidney
 				#Accumulate all Ei, beta1, beta2 combinations and run.
 				data, column_names, file_params = import_ng0(ng0_dir+ng0_file)
-				A3_list = np.array(data[:,file_params['Columns'].index('A3')]).astype(float)
+				#A3_list = np.array(data[:,file_params['Columns'].index('A3')]).astype(float)
 				Ei_list = np.array(data[:,file_params['Columns'].index('Ei')]).astype(float)
 				Ef_list = np.array(data[:,file_params['Columns'].index('Ef')]).astype(float)
 				beta_1_list = np.array(data[:,file_params['Columns'].index('Beta1')]).astype(float)
@@ -921,7 +921,6 @@ class virtualMACS(object):
 					b1 = beta_1_list[i]
 					b2 = beta_2_list[i]
 					setting = [Ei,Ef,b1,b2]
-					print(setting)
 					if setting not in ei_ef_b1_b2_list:
 						ei_ef_b1_b2_list.append(setting)
 			print('Monochromator List to simulate:')

@@ -754,7 +754,7 @@ class Data(object):
 		#Rather than simply computing the mean, we need to compute the weighted mean and its error bar. 
 		bin_list = np.array([np.linspace(ubins[0],ubins[1],ubins[2]),\
 							np.linspace(vbins[0],vbins[1],vbins[2]),\
-							np.linspace(omegabins[0],omegabins[1],omegabins[2])])
+							np.linspace(omegabins[0],omegabins[1],omegabins[2])],dtype=object)
 
 		ret_weightvals = scipy.stats.binned_statistic_dd(sample=sampledat,values=values,statistic=weighted_mean,bins=bin_list)
 		sumweights = scipy.stats.binned_statistic_dd(sample=sampledat,values=weights,statistic='sum',bins=bin_list)
@@ -814,7 +814,7 @@ class Data(object):
 			bin_limit2 = omegabins
 			cut_list = ubins 
 			bin_list = np.array([np.linspace(ubins[0],ubins[1],ubins[2]),\
-				bin_limit1,bin_limit2])
+				bin_limit1,bin_limit2],dtype=object)
 			dim_index = 0
 		elif len(vbins)==3:
 			cut_axis='Qv'
@@ -825,7 +825,7 @@ class Data(object):
 			cut_list = vbins 
 			bin_list = np.array([np.linspace(vbins[0],vbins[1],vbins[2]),\
 				bin_limit1,\
-				bin_limit2])
+				bin_limit2],dtype=object)
 			dim_index=0
 		elif len(omegabins)==3:
 			cut_axis='DeltaE'
@@ -834,7 +834,8 @@ class Data(object):
 			bin_limit1 = ubins 
 			bin_limit2 = vbins 
 			cut_list = omegabins 
-			bin_list = np.array([np.linspace(omegabins[0],omegabins[1],omegabins[2]),bin_limit1,bin_limit2])
+			bin_list = np.array([np.linspace(omegabins[0],omegabins[1],omegabins[2]),
+				bin_limit1,bin_limit2],dtype=object)
 			dim_index=0
 		else:
 			print('Cut specification invalid')
@@ -992,7 +993,7 @@ class Data(object):
 			data_matrix.loc[:,specstr_mat_err]=np.sqrt(np.array(data[:,file_params['Columns'].index(specstr)]).astype(float))
 
 		#If there exists no expt data, we are done. 
-		if type(self.expt_data_matrix)==bool:
+		if type(self.expt_data_matrix) is bool:
 			self.expt_data_matrix=data_matrix
 		else:
 			prev_mat = self.expt_data_matrix.copy()
