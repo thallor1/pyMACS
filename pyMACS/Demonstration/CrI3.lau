@@ -7,7 +7,7 @@
 # Atom  I1                     0.31677   0.33453   0.41230   0.00000   1.00000   0.00000   0.00000
 # COMMAND cif2hkl CrI3.cif --output CrI3.cif.hkl
 # CIF2HKL (c) Synchrotron Soleil, based on CrysFML
-# DATE    29/07/2023 at 18:01:56
+# DATE    16/08/2023 at 12:30:29
 #
 # Physical parameters:
 # sigma_coh        73.02199 coherent   scattering cross section in [barn]

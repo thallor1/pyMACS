@@ -11,8 +11,6 @@ import mcstasscript as ms
 
 macs_instr = virtualMACS('cri3_experiment',cifName='CrI3.cif',useOld=False)
 macs_instr.sample.formula_weight=432.7
-#File I/O operations require sudo access. Update to your password below.
-macs_instr.sudo_password='password'
 numthreads=8
 
 '''

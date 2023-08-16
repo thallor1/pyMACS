@@ -7,7 +7,7 @@
 # Atom  O1                     0.30490   0.30490   0.00000   0.44216   0.25000   0.00000   0.00000
 # COMMAND cif2hkl TiO2.cif --output TiO2.cif.hkl
 # CIF2HKL (c) Synchrotron Soleil, based on CrysFML
-# DATE    31/07/2023 at 16:27:26
+# DATE    16/08/2023 at 11:48:56
 #
 # Physical parameters:
 # sigma_coh        19.89746 coherent   scattering cross section in [barn]

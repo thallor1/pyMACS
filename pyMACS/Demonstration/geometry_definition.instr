@@ -15,7 +15,7 @@
 * 
 * %Identification
 * Written by: Python McStas Instrument Generator
-* Date: 16:27:27 on July 31, 2023
+* Date: 11:48:57 on August 16, 2023
 * Origin: ESS DMSC
 * %INSTRUMENT_SITE: Generated_instruments
 * 
@@ -40,21 +40,21 @@ INITIALIZE
 TRACE 
 COMPONENT sample_cube = Union_box(
  material_string = "TiO2", priority = 100,
- xwidth = 0.005, yheight = 0.005,
- zdepth = 0.005, number_of_activations = number_of_activations_sample)
+ xwidth = 0.0043, yheight = 0.0013,
+ zdepth = 0.0033, number_of_activations = number_of_activations_sample)
 AT (0,0,0) RELATIVE crystal_assembly
 ROTATED (0,0,0) RELATIVE crystal_assembly
 
 COMPONENT sample_plate = Union_cylinder(
  material_string = "Al", priority = 40,
  radius = 0.006, yheight = 0.002)
-AT (0,0.007,0) RELATIVE target
+AT (0,0.0033,0) RELATIVE target
 ROTATED (0,0,0) RELATIVE target
 
 COMPONENT sample_plate_rod = Union_cylinder(
  material_string = "Al", priority = 41,
  radius = 0.00125, yheight = 0.0633)
-AT (0,0.039,0) RELATIVE target
+AT (0,0.0353,0) RELATIVE target
 ROTATED (0,0,0) RELATIVE target
 
 COMPONENT sample_base = Union_cylinder(

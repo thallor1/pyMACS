@@ -11,8 +11,6 @@ import mcstasscript as ms
 
 testobj = virtualMACS('ncrystal_experiment',cifName='TiO2.cif',useOld=False)
 testobj.sample.formula_weight=79.87
-#File I/O operations require sudo access. Update to your password below.
-testobj.sudo_password='password'
 numthreads=8
 
 testobj.sample.sample_shape='box'

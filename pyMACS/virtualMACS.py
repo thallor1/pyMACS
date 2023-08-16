@@ -529,7 +529,7 @@ class virtualMACS(object):
 
 
 	def runKidneyScan(self,append_data_matrix=True,Ei_set=False,Ef_set=False,kidney_set=False,A3_set=False,beta_1_set=False,beta_2_set=False,\
-		scan_suffix=False):
+		scan_suffix=False,PTAI_det=3):
 		"""For current parameters, runs a kidney scan. 
 
 		:param Ei_set: Ei setting for monochromator
@@ -641,8 +641,8 @@ class virtualMACS(object):
 				suffix=''
 			else:
 				suffix=scan_suffix
-			time.sleep(0.05) #some strange file io issues if we go too fast. 
-			csvname = self.data.scan_to_csv(kidney_output_dir,file_suffix=suffix)
+			time.sleep(0.05) #some file io issues if we go too fast. 
+			csvname = self.data.scan_to_csv(kidney_output_dir,file_suffix=suffix,PTAI_det=PTAI_det)
 			#if append_data_matrix is True:
 				#self.data.load_data_matrix_from_csv(csvname)
 			time.sleep(0.05)
@@ -681,10 +681,10 @@ class virtualMACS(object):
 		#Delete the parameter file unless otherwise specified. 
 		return 1
 
-	def runKidneyScan_scripting(self,A3,kidney_angle,Ei,Ef,beta1=False,beta2=False,append_data_matrix=True,scan_suffix=False):
+	def runKidneyScan_scripting(self,A3,kidney_angle,Ei,Ef,beta1=False,beta2=False,append_data_matrix=True,scan_suffix=False,PTAI_det=3):
 		#Run the simulation at this point
 		try:
-			self.runKidneyScan(append_data_matrix=append_data_matrix,Ei_set=Ei,Ef_set=Ef,kidney_set=kidney_angle,A3_set=A3,beta_1_set = beta1, beta_2_set = beta2,scan_suffix=scan_suffix)
+			self.runKidneyScan(append_data_matrix=append_data_matrix,Ei_set=Ei,Ef_set=Ef,kidney_set=kidney_angle,A3_set=A3,beta_1_set = beta1, beta_2_set = beta2,scan_suffix=scan_suffix,PTAI_det=PTAI_det)
 		except Exception as e:
 			print(f"WARNING: {e}")
 		return 1
@@ -851,7 +851,7 @@ class virtualMACS(object):
 			#The run the kidney / A3 jobs
 			for i in range(len(A3_list)):
 				self.runKidneyScan_scripting(A3_list[i],kid_list[i],Ei_list[i],Ef_list[i],beta_1_list[i],beta_2_list[i],append_data_matrix=True,\
-					scan_suffix='_'+ng0_file.split('/')[-1])
+					scan_suffix='_'+ng0_file.split('/')[-1],PTAI_det = ptai_det[0])
 		if n_threads>1 and in_scan==False:
 			#Parallelize this process, not necessary for monochromator
 			for i in range(len(A3_list)):
@@ -903,6 +903,7 @@ class virtualMACS(object):
 		else:
 			#Need to do monochromator jobs FIRST, then kidney
 			ei_ef_b1_b2_list = []
+			ptai_list = []
 			for f_index in tnrange(len(file_list),desc='Ng0 Files'):
 				ng0_file = file_list[f_index]
 				#Need to do monochromator jobs FIRST, then kidney

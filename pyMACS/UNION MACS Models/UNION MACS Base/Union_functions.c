@@ -34,7 +34,8 @@ enum process {
   IncoherentPhonon,
   NCrystal,
   Template,
-  Sqw4
+  Sqw4,
+  Sqw
 };
 
 struct intersection_time_table_struct {
@@ -473,6 +474,7 @@ union data_transfer_union{
     struct Non_physics_storage_struct *pointer_to_a_Non_physics_storage_struct;
     struct Template_physics_storage_struct *pointer_to_a_Template_physics_storage_struct;
     struct Sqw4_physics_storage_struct *pointer_to_a_Sqw4_physics_storage_struct;
+    struct Sqw_physics_storage_struct *pointer_to_a_Sqw_physics_storage_struct;
     // possible to add as many structs as wanted, without increasing memory footprint.
 };
 

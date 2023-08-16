@@ -205,7 +205,7 @@ class Data(object):
 		self.data_matrix=final_frame
 		return 1
 
-	def scan_to_csv(self,simulation_folder,file_suffix=''):
+	def scan_to_csv(self,simulation_folder,file_suffix='',PTAI_det=False):
 		#Given one folder containing a simulation for a particular configuration, appends the folder to the overall data matrix. 
 		col_labels=['A3','A2','A5','A6','H','K','L','Ei','Ef','DIFF','DIFF1','DIFF2','DIFF3','DIFF4','DIFF5','DIFF6','DIFF7','DIFF8','DIFF9','DIFF10','DIFF11',\
 					'DIFF12','DIFF13','DIFF14','DIFF15','DIFF16','DIFF17','DIFF18','DIFF19','DIFF20','SPEC','SPEC1','SPEC2','SPEC3','SPEC4','SPEC5','SPEC6','SPEC7','SPEC8','SPEC9','SPEC10','SPEC11',\
@@ -226,6 +226,8 @@ class Data(object):
 			diffiles.append(simulation_folder+'/diff_detector_'+str(det_ind)+'.dat')
 			specfiles.append(simulation_folder+'/spec_detector_'+str(det_ind)+'.dat')
 		index=0
+		if PTAI_det is False:
+			PTAI_det = self.PTAI_det
 		if len(diffiles)==20:
 			#Iterate through detectors 1-20
 			diff_arr = np.zeros(20)
@@ -240,7 +242,7 @@ class Data(object):
 				diff_err_arr[det_i]=Err_diff
 				spec_err_arr[det_i]=Err_spec 
 			params = self.getParams(diffiles[0])
-			PTAI_ind = self.PTAI_det-1
+			PTAI_ind = PTAI_det-1
 			data_matrix.loc[index,'DIFF']=diff_arr[PTAI_ind]
 			data_matrix.loc[index,'SPEC']=spec_arr[PTAI_ind]
 			for i in np.arange(1,21,1):
@@ -249,7 +251,7 @@ class Data(object):
 				data_matrix.loc[index,'DIFF'+str(i)+'Err']=diff_err_arr[i-1]
 				data_matrix.loc[index,'SPEC'+str(i)+'Err']=spec_err_arr[i-1]
 			#Intensities successfully extracted. 
-			data_matrix.loc[index,'PTAI']=self.PTAI_det
+			data_matrix.loc[index,'PTAI']=PTAI_det
 			#The rest of the params require the information in the header
 			A3_param = float(params['# Param: A3_angle'])
 			Ei_param = float(params['# Param: EM'])
@@ -764,8 +766,8 @@ class Data(object):
 		z = ret_weightvals.bin_edges[2]
 		print(np.shape(ret_weightvals.statistic))
 		X,Y,Z = np.meshgrid(x,y,z)
-		I = ret_weightvals.statistic[:,:,:,0]/sumweights.statistic[:,:,:,0]
-		Err = ret_errs.statistic[:,:,:,0]
+		I = ret_weightvals.statistic[:,:,:]/sumweights.statistic[:,:,:]
+		Err = ret_errs.statistic[:,:,:]
 		if type(smooth)!=bool:
 			#Smooth intensities, errors.
 			old_nani = [np.isnan(I)]
@@ -1032,11 +1034,12 @@ class Data(object):
 		for ind in self.data_matrix.index:
 			#This is the format of the string:
 			try:
-				template_str ='                    N/A           N/A           N/A           N/A      A4             2         MONITOR       A2      A3       A5       A6       37.9822       37.9822           OUT         ANA_1         ANA_2         ANA_3         ANA_4         ANA_5         ANA_6         ANA_7         ANA_8         ANA_9         ANA_10         ANA_11         ANA_12         ANA_13         ANA_14         ANA_15         ANA_16         ANA_17         ANA_18         ANA_19         ANA_20           OUT        -18.7415           OUT       BETA_1       BETA_2      -190.585           DIFF           DIFF1           DIFF2           DIFF3           DIFF4          DIFF5          DIFF6          DIFF7          DIFF8          DIFF9          DIFF10          DIFF11          DIFF12        DIFF13         DIFF14          DIFF15          DIFF16          DIFF17          DIFF18          DIFF19          DIFF20            10       EF           Ei             A          1642      -1.03874 [-1.039,-1.039,0.076]      -1.03874      KIDNEY     0.0762141        3.9738            BE           OUT       -22.814       -22.976        -23.14       -23.301       -23.465       -23.629       -23.795        -23.96       -24.124       -24.292       -24.457       -24.626       -24.793       -24.961       -25.129       -25.299       -25.468       -25.638        -25.81        -25.98       -26.151        62.441         0.359             3           OUT             0            SPEC            SPEC_1            SPEC_2            SPEC_3            SPEC_4           SPEC_5           SPEC_6           SPEC_7           SPEC_8           SPEC_9           SPEC_10           SPEC_11          SPEC_12         SPEC_13          SPEC_14           SPEC_15           SPEC_16           SPEC_17           SPEC_18           SPEC_19           SPEC_20          0.18        1.0101       -0.0008        0.0391       -15.001        359.99       360.008           OUT           OUT           OUT    1518'
+				template_str ='                    N/A           N/A           N/A           N/A      A4             2         MONITOR       A2      A3       A5       A6       37.9822       37.9822           OUT         ANA_1         ANA_2         ANA_3         ANA_4         ANA_5         ANA_6         ANA_7         ANA_8         ANA_9         ANA_10         ANA_11         ANA_12         ANA_13         ANA_14         ANA_15         ANA_16         ANA_17         ANA_18         ANA_19         ANA_20           OUT        -18.7415           OUT       BETA_1       BETA_2      -190.585           DIFF           DIFF1           DIFF2           DIFF3           DIFF4          DIFF5          DIFF6          DIFF7          DIFF8          DIFF9          DIFF10          DIFF11          DIFF12        DIFF13         DIFF14          DIFF15          DIFF16          DIFF17          DIFF18          DIFF19          DIFF20            10       EF           Ei             A          1642      -1.03874 [-1.039,-1.039,0.076]      -1.03874      KIDNEY     0.0762141        3.9738            BE           OUT       -22.814       -22.976        -23.14       -23.301       -23.465       -23.629       -23.795        -23.96       -24.124       -24.292       -24.457       -24.626       -24.793       -24.961       -25.129       -25.299       -25.468       -25.638        -25.81        -25.98       -26.151        62.441         0.359             PTAI        OUT             0            SPEC            SPEC_1            SPEC_2            SPEC_3            SPEC_4           SPEC_5           SPEC_6           SPEC_7           SPEC_8           SPEC_9           SPEC_10           SPEC_11          SPEC_12         SPEC_13          SPEC_14           SPEC_15           SPEC_16           SPEC_17           SPEC_18           SPEC_19           SPEC_20          0.18        1.0101       -0.0008        0.0391       -15.001        359.99       360.008           OUT           OUT           OUT    1518'
 				#All elements in caps are replaced by their respective simulated value.
 				diff_str_list = ['DIFF'+str(int(ii))+' ' for ii in np.arange(1,21,1)]
 				spec_str_list = ['SPEC_'+str(int(ii))+' ' for ii in np.arange(1,21,1)]
 				ana_str_list = ['ANA_'+str(int(ii))+' ' for ii in np.arange(0,20,1)]
+
 				#colstr = '{num:02d}'.format(num=i)
 				ana_theta_val_list = []
 
@@ -1054,7 +1057,7 @@ class Data(object):
 					*ana_theta_val_list,'{:.4f}'.format(self.beta_1),'{:.4f}'.format(self.beta_2),\
 					'{:.4f}'.format(self.data_matrix.loc[ind,'DIFF']),*diff_val_list,'{:.3f}'.format(self.data_matrix.loc[ind,'Ef']),\
 					'{:.3f}'.format(self.data_matrix.loc[ind,'Ei']),'{:.4f}'.format(self.data_matrix.loc[ind,'Kidney']),\
-					str(int(self.PTAI_det)),\
+					str(int(self.data_matrix.loc[ind,'PTAI'])),\
 					'{:.3f}'.format(self.data_matrix.loc[ind,'SPEC']),*spec_val_list]
 
 				for j in range(len(replace_elements)):

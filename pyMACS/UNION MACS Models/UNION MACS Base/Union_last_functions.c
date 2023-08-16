@@ -51,6 +51,11 @@ int physics_my(enum process choice, double *my,double *k_initial, union data_tra
             output = Sqw4_physics_my(my, k_initial, data_transfer, focus_data, _particle);
             break;
         #endif
+        #ifdef PROCESS_Sqw_DETECTOR
+        case Sqw:
+            output = Sqw_physics_my(my, k_initial, data_transfer, focus_data, _particle);
+            break;
+        #endif
         #ifdef PROCESS_NCRYSTAL_DETECTOR
         case NCrystal:
             output = NCrystal_physics_my(my, k_initial, data_transfer, focus_data, _particle);
@@ -113,6 +118,11 @@ int physics_scattering(enum process choice, double *k_final, double *k_initial, 
         #ifdef PROCESS_Sqw4_DETECTOR
         case Sqw4:
             output = Sqw4_physics_scattering(k_final, k_initial, weight, data_transfer, focus_data, _particle);
+            break;
+        #endif
+        #ifdef PROCESS_Sqw_DETECTOR
+        case Sqw:
+            output = Sqw_physics_scattering(k_final, k_initial, weight, data_transfer, focus_data, _particle);
             break;
         #endif
         #ifdef PROCESS_NCRYSTAL_DETECTOR
