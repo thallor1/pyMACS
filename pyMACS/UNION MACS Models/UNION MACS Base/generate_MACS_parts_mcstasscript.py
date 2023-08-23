@@ -563,7 +563,7 @@ for i in range(0,kidney_channels):
 
         logger_zy_spatial_2 = kidney.add_component("logger_zy_spatial_con_channel_" + str(i) + "_2","Union_logger_2D_space")
         logger_zy_spatial_2.filename='"logger_zy_spatial_con_channel_' + str(i) + '_2.dat"'
-        logger_zy_spatial_2.n2=zy_log_z_piyels
+        logger_zy_spatial_2.n2=zy_log_z_pixels
         logger_zy_spatial_2.D_direction_2='"z"'
         logger_zy_spatial_2.D2_min=zy_log_z_min
         logger_zy_spatial_2.D2_may=zy_log_z_max
@@ -590,7 +590,7 @@ for i in range(0,kidney_channels):
 
         logger_zy_spatial_2 = kidney.add_component("logger_zy_spatial_con_channel_" + str(i) + "_2","Union_logger_2D_space")
         logger_zy_spatial_2.filename='"logger_zy_spatial_con_channel_' + str(i) + '_2.dat"'
-        logger_zy_spatial_2.n2=zy_log_z_piyels
+        logger_zy_spatial_2.n2=zy_log_z_pixels
         logger_zy_spatial_2.D_direction_2='"z"'
         logger_zy_spatial_2.D2_min=zy_log_z_min
         logger_zy_spatial_2.D2_may=zy_log_z_max
@@ -616,7 +616,7 @@ for i in range(0,kidney_channels):
 
         logger_zy_spatial_3 = kidney.add_component("logger_zy_spatial_con_channel_" + str(i) + "_3","Union_logger_2D_space")
         logger_zy_spatial_3.filename='"logger_zy_spatial_con_channel_' + str(i) + '_3.dat"'
-        logger_zy_spatial_3.n3=zy_log_z_piyels
+        logger_zy_spatial_3.n3=zy_log_z_pixels
         logger_zy_spatial_3.D_direction_3='"z"'
         logger_zy_spatial_3.D3_min=zy_log_z_min
         logger_zy_spatial_3.D3_may=zy_log_z_max
@@ -642,7 +642,7 @@ for i in range(0,kidney_channels):
 
         logger_zy_spatial_4 = kidney.add_component("logger_zy_spatial_con_channel_" + str(i) + "_4","Union_logger_2D_space")
         logger_zy_spatial_4.filename='"logger_zy_spatial_con_channel_' + str(i) + '_4.dat"'
-        logger_zy_spatial_4.n4=zy_log_z_piyels
+        logger_zy_spatial_4.n4=zy_log_z_pixels
         logger_zy_spatial_4.D_direction_4='"z"'
         logger_zy_spatial_4.D4_min=zy_log_z_min
         logger_zy_spatial_4.D4_may=zy_log_z_max

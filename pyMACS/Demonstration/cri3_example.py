@@ -37,7 +37,7 @@ macs_instr.sample.cif2lau()
 
 #Sample is aligned in the HK0 plane
 macs_instr.sample.orient_u=[1,0,0]
-macs_instr.sample.orient_v=[-1,1,0]
+macs_instr.sample.orient_v=[-1,2,0]
 macs_instr.sample.project_sample_realspace()
 print('Real Space projection of lattice vectors [ax,ay,az; bx,by,bz;cx,cy,cz]')
 print(macs_instr.sample.labframe_mat)

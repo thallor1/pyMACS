@@ -377,11 +377,14 @@ class virtualMACS(object):
 		except Exception as e:
 			pass
 		self.mono_param_dir = self.exptdir+'/param_files_monochromator/'
-		out_name = self.mono_param_dir+'mono_params_ei'+'{:.2f}'.format(self.monochromator.Ei)+'_beta1_'+'{:.3f}'.format(self.monochromator.beta_1)+'_beta2_'+'{:.3f}'.format(self.monochromator.beta_2)+'_sample_diameter_d_'+'{:.4f}'.format(self.sample.sample_diameter_d)+'.txt'
+		out_name = self.mono_param_dir+'mono_params_ei'+'{:.2f}'.format(self.monochromator.Ei)+'_beta1_'+'{:.2f}'.format(self.monochromator.beta_1)+'_beta2_'+'{:.2f}'.format(self.monochromator.beta_2)+'_sample_diameter_d_'+'{:.4f}'.format(self.sample.sample_diameter_d)+'.txt'
 
 		#Correctly format the parameter file with the current parameters.
 
-		output_str='EM='+str(self.monochromator.Ei)+'\nEF_all='+str(self.kidney.Ef)+'\nHF=1\nVF=1\nsample_diameter_d='+str(self.sample.sample_diameter_d)+'\nbeta_1='+str(self.monochromator.beta_1)+'\nbeta_2='+str(self.monochromator.beta_2)+'\nCPF=0\nMPL=6.06\nMPD=0.775\nAPE_h=0.35\nAPE_v=0.35\nmisalign_mono_deg=0.15\nkidney_angle=0\nDIRDEV=0\nDIVSOU=3.0\nL0_delta=-1.06\nL1_delta=0.0\nmon_t=0.0\nmon_e=0.0\nmonrot_delta=0\nwrite_virtual_out=1'
+		output_str='EM='+str(self.monochromator.Ei)+'\nEF_all='+str(self.kidney.Ef)+\
+		'\nHF=1\nVF=1\nsample_diameter_d='+str(self.sample.sample_diameter_d)+\
+		'\nbeta_1='+f"{self.monochromator.beta_1:.2f}"+'\nbeta_2='+f"{self.monochromator.beta_2:.2f}"\
+		+'\nCPF=0\nMPL=6.06\nMPD=0.775\nAPE_h=0.35\nAPE_v=0.35\nmisalign_mono_deg=0.15\nkidney_angle=0\nDIRDEV=0\nDIVSOU=3.0\nL0_delta=-1.06\nL1_delta=0.0\nmon_t=0.0\nmon_e=0.0\nmonrot_delta=0\nwrite_virtual_out=1'
 		param_file = open(out_name,'w')
 		param_file.write(output_str)
 		param_file.close()
@@ -431,6 +434,10 @@ class virtualMACS(object):
 		param_file.write('repeat_count=2 \n')
 		param_file.write('E0_resolution=0 \n')
 		param_file.write('dE_resolution=1 \n')
+		# New params to handle sample multiple scattering
+		param_file.write('max_sample_scatter_N='+f"{self.sample.max_scattering_order}\n")
+		param_file.write('sample_scatter_N='+f"{self.sample.scattering_order}")
+
 		param_file.close()
 		return out_name
 
@@ -490,13 +497,13 @@ class virtualMACS(object):
 			#print("Checking for: "+mono_file_dat_start)
 			if len(glob.glob(self.instr_file_directory+mono_file_dat_start))==0:
 				#print(mono_file_dat_start+" is not found in \n"+str(glob.glob(mono_file_dat_start)))
-				mono_dir = 'Ei_'+str(Ei_set)+'_beta1_'+str(beta_1_set)\
-				+'_beta2_'+str(beta_2_set)+'_n_'+str(self.n_mono)+'_sample_diam_'+str(self.sample.sample_diameter_d)
+				mono_dir = 'Ei_'+f"{Ei_set:.3f}"+'_beta1_'+f"{beta_1_set:.2f}"\
+				+'_beta2_'+f"{beta_2_set:.2f}"+'_n_'+f"{self.n_mono:2e}"+'_sample_diam_'+str(self.sample.sample_diameter_d)
 				#Run simulation and wait for it to end.
 
 				shellcommandstr='mcrun -d '+mono_dir+' -n '+str(self.n_mono)+\
-					' MACS_monochromator.instr EM='+str(Ei_set)+' EF_all='+str(Ef_set)+' HF=1 VF=1 sample_diameter_d='+str(self.sample.sample_diameter_d)+' beta_1='+str(beta_1_set)+\
-					' beta_2='+str(beta_2_set)+' misalign_mono_deg=0.15 CPF=0 MPL=6.06 MPD=0.775 APE_h=0.35 APE_v=0.35 misalign_mono_deg=0.15 '+\
+					' MACS_monochromator.instr EM='+str(Ei_set)+' EF_all='+str(Ef_set)+' HF=1 VF=1 sample_diameter_d='+str(self.sample.sample_diameter_d)+' beta_1='+f"{beta_1_set:.2f}"+\
+					' beta_2='+f"{beta_2_set:.2f}"+' misalign_mono_deg=0.15 CPF=0 MPL=6.06 MPD=0.775 APE_h=0.35 APE_v=0.35 misalign_mono_deg=0.15 '+\
 					'kidney_angle='+str(kidney_set)+' DIRDEV=0 DIVSOU=3.0 L0_delta=-1.06 L1_delta=0.0 mon_t=0.0 mon_e=0.0 monrot_delta=0 write_virtual_out=1'
 				#print('Passing the following to mcstas:')
 				#print(shellcommandstr)
@@ -557,14 +564,14 @@ class virtualMACS(object):
 			dmbt = self.sample.sample_diameter_d
 			if dmbt<5e-3:
 				dmbt=5e-3 #Minimum allowed before interpolation gets wonky.
-			beta_1_set,beta_2_set = self.monochromator.calc_betas(ei=Ei_set,dmbt=self.sample.sample_diameter_d)
+			beta_1_set,dummy = self.monochromator.calc_betas(ei=Ei_set,dmbt=self.sample.sample_diameter_d)
 			self.monochromator.beta_1=beta_1_set
 		if beta_2_set is False:
 			#Calculate the beta angles. 
 			dmbt = self.sample.sample_diameter_d
 			if dmbt<5e-3:
 				dmbt=5e-3 #Minimum allowed before interpolation gets wonky.
-			beta1_1_set,beta_2_set = self.monochromator.calc_betas(ei=Ei_set,dmbt=self.sample.sample_diameter_d)
+			dummy,beta_2_set = self.monochromator.calc_betas(ei=Ei_set,dmbt=self.sample.sample_diameter_d)
 			self.monochromator.beta_2=beta_2_set
 
 		self.monochromator.Ei=Ei_set
@@ -623,7 +630,10 @@ class virtualMACS(object):
 			#Folder does not exist, run the simulation
 			#Run simulation and wait for it to end.
 			shellcommandstr='mcrun -d '+kidney_output_dir+' -n '+str(self.n_sample)+' '+self.instr_main_file.split('/')[-1]+' A3_angle='+str(A3_set)+' kidney_angle='+str(kidney_set)+' EM='+str(Ei_set)+' EF_all='+str(Ef_set)+\
-				' HF=1 VF=1 sample_diameter_d='+str(self.sample.sample_diameter_d)+' beta_1='+str(beta_1_set)+' beta_2='+str(beta_2_set)+' CPF=0 MPL=6.06 MPD=0.775 APE_h=0.35 APE_v=0.35 misalign_mono_deg=0.15 DIRDEV=0 DIVSOU=3.0 L0_delta=-1.06 L1_delta=0.0 mon_t=0.0 '+\
+				' HF=1 VF=1 sample_diameter_d='+\
+				str(self.sample.sample_diameter_d)+' beta_1='+f"{beta_1_set:.2f}"+\
+				' beta_2='+f"{beta_2_set:.2f}"+\
+				' CPF=0 MPL=6.06 MPD=0.775 APE_h=0.35 APE_v=0.35 misalign_mono_deg=0.15 DIRDEV=0 DIVSOU=3.0 L0_delta=-1.06 L1_delta=0.0 mon_t=0.0 '+\
 				'mon_e=0.0 monrot_delta=0.0 slit_h=0.2 slit_v=0.2 resolution_mode=0 res_radius=0.01 res_height=0.03 repeat_count=1 E0_resolution=0 dE_resolution=1'
 			shellcommandstr+='2> /dev/null'
 			#print('Running the following command: ')
@@ -721,7 +731,7 @@ class virtualMACS(object):
 			#This is good they did it right
 			Ei_list = np.array(Ei_list)
 		else:
-			print('Warning- Ei input in a strange format. Using '+str(self.monochromator.Ei)+' meV')
+			print('Warning- Ei input in a wrong format. Using '+str(self.monochromator.Ei)+' meV')
 			Ei_list = np.array([self.monochromator.Ei])
 		#Mount the ramdisk
 		self.unmount_ramdisk()
@@ -730,7 +740,7 @@ class virtualMACS(object):
 
 		if num_threads>1:
 			print('Running these Ei values:'+str(Ei_list))
-			Parallel(n_jobs=num_threads,backend="threading")(delayed(self.runMonoScan_scripting)(Ei,self.kidney.Ef,self.monochromator.beta_1,self.monochromator.beta_2) for Ei in Ei_list)
+			Parallel(n_jobs=num_threads,backend="threading")(delayed(self.runMonoScan_scripting)(Ei,self.kidney.Ef,False,False) for Ei in Ei_list)
 		else:
 			for Ei in Ei_list:
 				self.monochromator.Ei = Ei 
@@ -767,7 +777,7 @@ class virtualMACS(object):
 					#A3,kidney_angle,Ei,Ef,beta1,beta2,append_data_matrix=True
 
 					Parallel(n_jobs=num_threads,backend="threading")(delayed(self.runKidneyScan_scripting)\
-							(A3_list[i],kid_angle,energy,self.kidney.Ef,self.monochromator.beta_1,self.monochromator.beta_2,True,kidsuffix) \
+							(A3_list[i],kid_angle,energy,self.kidney.Ef,False,False,True,kidsuffix) \
 							for i in range(len(A3_list)))
 					#After each kidney angle combine the csv like in real MACS
 					filename = self.data.combine_csv_scans(preserve_old=False,flagstr=kidsuffix)

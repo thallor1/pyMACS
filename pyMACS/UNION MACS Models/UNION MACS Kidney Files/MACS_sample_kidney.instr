@@ -49,7 +49,8 @@
 DEFINE INSTRUMENT MACS_sample_kidney(A3_angle=0,kidney_angle=0, EM=5.0,EF_all=5.0 ,int HF=1, int VF=1, sample_diameter_d=0.02, 
   beta_1=1, beta_2=1, CPF=0, MPL=6.06, MPD=0.775, APE_h=0.35, APE_v=0.35, misalign_mono_deg=0.15,  DIRDEV=0, DIVSOU=3.0, 
   L0_delta=-1.06, L1_delta=0.0, mon_t=0.0, mon_e=0.0, monrot_delta=0,slit_h=0.2,slit_v=0.2,resolution_mode=0,
-  res_radius=0.01,res_height=0.03,int repeat_count=1,E0_resolution=0,dE_resolution=1,MAX_VOLUME_HISTORY_LENGTH=100,DOUBLE_MAX_VOLUME_HISTORY_LENGTH=100)
+  res_radius=0.01,res_height=0.03,int repeat_count=1,E0_resolution=0,dE_resolution=1,MAX_VOLUME_HISTORY_LENGTH=100,DOUBLE_MAX_VOLUME_HISTORY_LENGTH=100,
+  sample_scatter_N=0,max_sample_scatter_N=0)
 
 DECLARE
 %{
@@ -194,7 +195,8 @@ int channel_number;
 double stick_displacement;
 
 // Flags
-
+int sample_scatter_order;
+int max_sample_scatter_order;
 int scatter_events_in_sample;
 int scatter_events_in_sample_environment;
 int only_sample_scattering;
@@ -296,7 +298,9 @@ INITIALIZE
   slh_ymax= 0.181; 
   
   lambda=9.054/sqrt(EM);
-
+  sample_scatter_order=sample_scatter_N;
+  max_sample_scatter_order = max_sample_scatter_N;
+  
   //%include "splint.c"
   //%include "monochromator.c"
   %include "generated_includes/macs_monochromator_initialize.c"
@@ -794,14 +798,17 @@ AT (0,0,0) RELATIVE target
 
 
 
-COMPONENT sample_cryostat = Union_master(enable_conditionals=0)
+COMPONENT sample_cryostat = Union_master(enable_conditionals=0,verbal=0)
 AT(0,0,0) RELATIVE target
 EXTEND %{
   scatter_events_in_sample = scattered_flag[1];
   scatter_events_in_sample_environment = number_of_scattering_events - scatter_events_in_sample;
   if (scatter_events_in_sample_environment == 0) only_sample_scattering = 1;
   else only_sample_scattering = 0;
-  
+  // Flags to keep only certain order scattering processes:
+  if (scatter_events_in_sample>max_sample_scatter_order && max_sample_scatter_order>0 && scatter_events_in_sample>0) ABSORB;
+  if (scatter_events_in_sample!=sample_scatter_order && sample_scatter_order>0 && scatter_events_in_sample>0) ABSORB;
+   
   //number_of_volumes_sample_main = number_of_volumes;
   
   for (flag_index=0;flag_index<number_of_volumes;flag_index++) scattering_history_sample_master[flag_index] = scattered_flag[flag_index];

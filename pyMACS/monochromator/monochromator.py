@@ -73,7 +73,7 @@ class Monochromator(object):
 		taum=1.87325
 		ki = np.sqrt(ei/2.072)
 		ttc = np.arcsin(taum/(2.0*ki))*rad2deg
-		print(ttc)
+
 		weights1 = 1.0/dbeta1
 		weights2 = 1.0/dbeta2
 		for i in range(len(ttc_mat_b1)):

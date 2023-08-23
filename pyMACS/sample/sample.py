@@ -159,7 +159,8 @@ class Sample(object):
 		self.customlaufile_list = []
 		self.cif_dict = cif_obj
 		self.abs_dict=abs_dict
-
+		self.max_scattering_order=0
+		self.scattering_order=0
 
 		chem_sum = cif_obj['_chemical_formula_sum']
 		try:
