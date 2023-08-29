@@ -3,6 +3,7 @@ import os
 import pandas as pd
 import glob
 import scipy
+import time
 from scipy.stats import binned_statistic_2d
 
 class Data(object):
@@ -294,7 +295,10 @@ class Data(object):
 	def combine_csv_scans(self,preserve_old=False,flagstr=False):
 		"""Takes individual csvs which are the output of each scan and combines them into a master csv. 
 			Also updates the data matrix to reflect this."""
-		all_files = glob.glob(self.kidney_result_dir+'*.csv')
+		if flagstr is not False:
+			all_files = glob.glob(self.kidney_result_dir+'*'+flagstr+'*.csv')
+		else:
+			all_files = glob.glob(self.kidney_result_dir+'*.csv')
 
 		flist = []
 		for fname in all_files:
@@ -309,24 +313,28 @@ class Data(object):
 					flist.append(df)
 		data_matrix=pd.concat(flist,axis=0,ignore_index=True)
 		#delete all of the previous files
-		if preserve_old==False and flagstr==False:
+		if preserve_old is False and flagstr is False:
 			num_csv = len(glob.glob(self.kidney_result_dir+'*.csv'))
 			while num_csv>0:
 				try:
-					os.system('rm -rf '+str(self.kidney_result_dir+'*.csv'))
+					for f in all_files:
+						#print("Removing "+f)
+						os.remove(f)				
 				except Exception as e:
-					print('Warning: \n'+str(e))
+					print('\n\nWarning: \n'+str(e)+'\n')
 					time.sleep(0.01)
 				num_csv = len(glob.glob(self.kidney_result_dir+'*.csv'))
-		if preserve_old==False and type(flagstr)!=bool:
+		if preserve_old is False and type(flagstr) is str:
 			num_csv = len(glob.glob(self.kidney_result_dir+'*'+flagstr+'*.csv'))
 			while num_csv>0:
 				try:
-					os.system('rm -rf '+str(self.kidney_result_dir+'*'+flagstr+'*.csv'))
+					for f in all_files:
+						#print("Removing "+f)
+						os.remove(f)
 				except Exception as e:
-					print('Warning: \n'+str(e))
+					print('\n\nWarning: \n'+str(e)+'\n')
 					time.sleep(0.01)
-				num_csv = len(glob.glob(self.kidney_result_dir+os.path.join(self.kidney_result_dir+'*'+flagstr+'*.csv')))
+				num_csv = len(glob.glob(self.kidney_result_dir+'*'+flagstr+'*.csv'))
 		#Save the data matrix at this point after removing duplicate rows.
 		data_matrix = data_matrix.drop_duplicates(subset=['A3','Ei','Ef','Kidney'],keep='last')
 		#In the case of specific names, data file should just be overwritten if it already exists.
@@ -764,7 +772,7 @@ class Data(object):
 		x = ret_weightvals.bin_edges[0]
 		y = ret_weightvals.bin_edges[1]
 		z = ret_weightvals.bin_edges[2]
-		print(np.shape(ret_weightvals.statistic))
+		#print(np.shape(ret_weightvals.statistic))
 		X,Y,Z = np.meshgrid(x,y,z)
 		I = ret_weightvals.statistic[:,:,:]/sumweights.statistic[:,:,:]
 		Err = ret_errs.statistic[:,:,:]

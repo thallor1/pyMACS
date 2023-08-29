@@ -504,7 +504,8 @@ class virtualMACS(object):
 				shellcommandstr='mcrun -d '+mono_dir+' -n '+str(self.n_mono)+\
 					' MACS_monochromator.instr EM='+str(Ei_set)+' EF_all='+str(Ef_set)+' HF=1 VF=1 sample_diameter_d='+str(self.sample.sample_diameter_d)+' beta_1='+f"{beta_1_set:.2f}"+\
 					' beta_2='+f"{beta_2_set:.2f}"+' misalign_mono_deg=0.15 CPF=0 MPL=6.06 MPD=0.775 APE_h=0.35 APE_v=0.35 misalign_mono_deg=0.15 '+\
-					'kidney_angle='+str(kidney_set)+' DIRDEV=0 DIVSOU=3.0 L0_delta=-1.06 L1_delta=0.0 mon_t=0.0 mon_e=0.0 monrot_delta=0 write_virtual_out=1'
+					'kidney_angle='+str(kidney_set)+' DIRDEV=0 DIVSOU=3.0 L0_delta=-1.06 L1_delta=0.0 mon_t=0.0 mon_e=0.0 monrot_delta=0 write_virtual_out=1'+\
+					'> /dev/null 2>&1'
 				#print('Passing the following to mcstas:')
 				#print(shellcommandstr)
 				p=subprocess.Popen(shellcommandstr,stdout=subprocess.PIPE,shell=True)
@@ -635,7 +636,7 @@ class virtualMACS(object):
 				' beta_2='+f"{beta_2_set:.2f}"+\
 				' CPF=0 MPL=6.06 MPD=0.775 APE_h=0.35 APE_v=0.35 misalign_mono_deg=0.15 DIRDEV=0 DIVSOU=3.0 L0_delta=-1.06 L1_delta=0.0 mon_t=0.0 '+\
 				'mon_e=0.0 monrot_delta=0.0 slit_h=0.2 slit_v=0.2 resolution_mode=0 res_radius=0.01 res_height=0.03 repeat_count=1 E0_resolution=0 dE_resolution=1'
-			shellcommandstr+='2> /dev/null'
+			shellcommandstr+='> /dev/null 2>&1'
 			#print('Running the following command: ')
 			p=subprocess.Popen(shellcommandstr,stdout=subprocess.PIPE,shell=True)
 			(output,err)=p.communicate()
@@ -763,13 +764,14 @@ class virtualMACS(object):
 						self.runKidneyScan_scripting(a3_angle,kid_angle,energy,self.kidney.Ef,
 							self.monochromator.beta_1,self.monochromator.beta_2,scan_suffix=suffix)
 
-		fname_list = []
 		if num_threads>1 or num_threads==-1:
 			#Now do the case of parallelized
 			for e_index in tnrange(len(Ei_list),desc='Total Scans'):
 				energy = Ei_list[e_index]
 				kid_angle_list = self.kidney.generate_kidney_positions(self.kidney_angle_resolution,energy)
 				num_operations = len(kid_angle_list)*len(Ei_list)
+				fname_list = []
+
 				for k_index in tnrange(len(kid_angle_list),desc='Ei='+str(energy)+' meV'):
 					kid_angle = kid_angle_list[k_index]
 					kidsuffix = suffix+'_kidney_'+str(round(kid_angle,3))+'_Ei_'+str(round(energy,2))+'_Ef_'+str(round(self.kidney.Ef,2))
@@ -781,18 +783,16 @@ class virtualMACS(object):
 							for i in range(len(A3_list)))
 					#After each kidney angle combine the csv like in real MACS
 					filename = self.data.combine_csv_scans(preserve_old=False,flagstr=kidsuffix)
+					self.data.load_data_matrix_from_csv(csv_file=filename)
+					Ei = np.mean(self.data.data_matrix['Ei'].tolist())
+					Ef = np.mean(self.data.data_matrix['Ef'].tolist())
+					numA3 = np.size(self.data.data_matrix['A3'].tolist())
+					kid = np.mean(self.data.data_matrix['Kidney'].tolist())
+					fstr = f"Ei_{Ei:.2f}_Ef{Ef:.2f}_numA3_{numA3:3d}_kid_{kid:.2f}_".replace(' ','0')
+					self.data.write_data_to_ng0(filename='McStas_'+self.exptName+'_'+fstr+scan_title+'.ng0')
 					fname_list.append(filename)
-			#After all of the scans are done, write them all to MACS style ng0 files.
-			for fname in fname_list:
-				#Load the combination into the data matrix
-				self.data.load_data_matrix_from_csv(csv_file=fname)
-				#Write this to an ng0 file
-				Ei = np.mean(self.data.data_matrix['Ei'].tolist())
-				Ef = np.mean(self.data.data_matrix['Ef'].tolist())
-				numA3 = np.size(self.data.data_matrix['A3'].tolist())
-				kid = np.mean(self.data.data_matrix['Kidney'].tolist())
-				fstr = 'Ei_{:.2f}_Ef{:.2f}_numA3_{:4d}_kid_{:.2f}'.format(Ei,Ef,numA3,kid)
-				self.data.write_data_to_ng0(filename='McStas_'+self.exptName+'_'+fstr+'.ng0')
+
+				fname_list=[]
 			#Now create a combined version of all of the csv files.
 			totfname=self.data.combine_csv_scans(preserve_old=True,flagstr=suffix)
 			#Load this file.
