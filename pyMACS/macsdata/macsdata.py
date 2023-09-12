@@ -342,13 +342,14 @@ class Data(object):
 		data_matrix.to_csv(self.kidney_result_dir+self.exptName+outfilename,header=True)
 		return outfilename
 
-	def project_data_QE(self,which_data='mcstas',PTAI=False):
+	def project_data_QE(self,which_data='mcstas',PTAI=False,viewing_axes=False):
 		"""Project the results stored in the data matrix into QE space- requires information from the sample object
 		
 		:param which_data: Determines if experimental or simulated data should be used, 
 			'mcstas' to use calculated scattering and 'macs' for experimental. Allowed value 'mcstas' and 'macs'
 		:type which_data: str
 		"""
+		self.sample.project_sample_realspace()
 		if which_data=='mcstas':
 			data_mat = self.data_matrix
 		elif which_data=='macs':
@@ -357,6 +358,13 @@ class Data(object):
 			data_mat = self.data_matrix
 		orient_u=self.sample.orient_u
 		orient_v=self.sample.orient_v
+		if viewing_axes is False:
+			u1 = orient_u
+			u2 = orient_v
+		else:
+			#Viewing axes specified in HKL
+			u1 = viewing_axes[0]
+			u2 = viewing_axes[1]
 		num_configs = len(data_mat.index)
 		data_indices = np.arange(0,num_configs*20,1)
 		col_labels = ['H','K','L','Qu','Qv','|Q|','Qx','Qz','Ei','DeltaE','DIFF','DIFFErr','SPEC','SPECErr','PTAI','Err','Det_index']
@@ -441,9 +449,21 @@ class Data(object):
 
 		udir_list = np.zeros((len(det_angle_list),2)) # direction in x-z plane
 		vdir_list = np.zeros((len(det_angle_list),2))
+		#Also build list of viewing axes
+		u1dir_list = np.zeros((len(det_angle_list),2))
+		u2dir_list = np.zeros((len(det_angle_list),2))
 		udir_list[:,1]+=1
 		vdir_list[:,0]+=1 
 
+		u1dir_0 = np.array(self.sample.astar_vec_labframe*u1[0]+\
+						self.sample.bstar_vec_labframe*u1[1]+\
+						self.sample.cstar_vec_labframe*u1[2])
+		u2dir_0 = np.array(self.sample.astar_vec_labframe*u2[0]+\
+						self.sample.bstar_vec_labframe*u2[1]+\
+						self.sample.cstar_vec_labframe*u2[2])
+		for i in range(len(u1dir_list)):
+			u1dir_list[i]=u1dir_0[0],u1dir_0[2]
+			u2dir_list[i]=u2dir_0[0],u2dir_0[2]
 		#Rotate every row by its respective A3
 		A3_out_list_rad= A3_out_list*np.pi/180.0
 		R = np.array([[np.cos(A3_out_list_rad),-np.sin(A3_out_list_rad)],\
@@ -455,8 +475,12 @@ class Data(object):
 		    R_mat = R[:,:,i]
 		    u_dir_rot = np.matmul(R_mat,u_dir_0)
 		    v_dir_rot = np.matmul(R_mat,v_dir_0)
+		    u1dir_rot = np.matmul(R_mat,u1dir_list[i,:])
+		    u2dir_rot = np.matmul(R_mat,u2dir_list[i,:])
 		    udir_list[i,:]=u_dir_rot
 		    vdir_list[i,:]=v_dir_rot
+		    u1dir_list[i,:]=u1dir_rot
+		    u2dir_list[i,:]=u2dir_rot
 		#Crystal axes are now properly rotated- get the projection of each detector onto the vector
 		xdet_list = np.cos(det_angle_list*np.pi/180.0)
 		ydet_list = np.sin(det_angle_list*np.pi/180.0)
@@ -487,24 +511,25 @@ class Data(object):
 		Q_list = np.sqrt(ki_mag_list[:,0]**2 + kf_mag_list[:,0]**2 - 2.0*ki_mag_list[:,0]*kf_mag_list[:,0]*np.cos(twoTheta_list))
 
 		Q_dir_list = Q_vec_list / Q_list[:,None]
-		Qu_proj_dir_list = udir_list[:,0]*Q_dir_list[:,0]+udir_list[:,1]*Q_dir_list[:,1]
-		Qv_proj_dir_list = vdir_list[:,0]*Q_dir_list[:,0]+vdir_list[:,1]*Q_dir_list[:,1]#Now have directions of Q and U.
+		#Qu_proj_dir_list = udir_list[:,0]*Q_dir_list[:,0]+udir_list[:,1]*Q_dir_list[:,1]
+		#Qv_proj_dir_list = vdir_list[:,0]*Q_dir_list[:,0]+vdir_list[:,1]*Q_dir_list[:,1]#Now have directions of Q and U.
+		Qu_proj_dir_list = u1dir_list[:,0]*Q_dir_list[:,0]+u1dir_list[:,1]*Q_dir_list[:,1]
+		Qv_proj_dir_list = u2dir_list[:,0]*Q_dir_list[:,0]+u2dir_list[:,1]*Q_dir_list[:,1]#Now have directions of Q and U.
 
 		#This can go in the output matrix now. 
 		proj_mat['|Q|']=Q_list
-		u_vec_mag=self.sample.Qmag_HKL(self.sample.orient_u[0],self.sample.orient_u[1],self.sample.orient_u[2])
-		v_vec_mag=self.sample.Qmag_HKL(self.sample.orient_v[0],self.sample.orient_v[1],self.sample.orient_v[2])
+		u_vec_mag=self.sample.Qmag_HKL(u1[0],u1[1],u1[2])
+		v_vec_mag=self.sample.Qmag_HKL(u2[0],u2[1],u2[2])
 		#The projection of kf onto each direction gives the scattering plane
 		U_proj = -1.0*Qu_proj_dir_list*Q_list/u_vec_mag
 		V_proj = -1.0*Qv_proj_dir_list*Q_list/v_vec_mag #For some reason a minus sign is required here...
-
-
 
 		#Get the HKL values from this
 		HKL_list = np.outer(U_proj,orient_u) + np.outer(V_proj,orient_v)
 		H_list = HKL_list[:,0]*-1.0
 		K_list = HKL_list[:,1]*-1.0
 		L_list = HKL_list[:,2]*-1.0
+
 
 		proj_mat['Det_index']=det_index_list
 		#Save to the projected matrix. 

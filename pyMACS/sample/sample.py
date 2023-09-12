@@ -161,7 +161,8 @@ class Sample(object):
 		self.abs_dict=abs_dict
 		self.max_scattering_order=0
 		self.scattering_order=0
-
+		self.scattering_def=None
+		self.geometry_def=None
 		chem_sum = cif_obj['_chemical_formula_sum']
 		try:
 			formula_weight = float(cif_obj['_chemical_formula_weight'])
