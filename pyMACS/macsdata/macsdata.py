@@ -4,6 +4,7 @@ import pandas as pd
 import glob
 import scipy
 import time
+import matplotlib.pyplot as plt
 from scipy.stats import binned_statistic_2d
 
 class Data(object):
@@ -365,6 +366,9 @@ class Data(object):
 			#Viewing axes specified in HKL
 			u1 = viewing_axes[0]
 			u2 = viewing_axes[1]
+		
+
+		#u1,u2 = u2,u1
 		num_configs = len(data_mat.index)
 		data_indices = np.arange(0,num_configs*20,1)
 		col_labels = ['H','K','L','Qu','Qv','|Q|','Qx','Qz','Ei','DeltaE','DIFF','DIFFErr','SPEC','SPECErr','PTAI','Err','Det_index']
@@ -412,7 +416,7 @@ class Data(object):
 
 
 		det_index_list = np.arange(1,21,1) #List of detector indices
-		det_angle_list_k0 = -76.0+(det_index_list-1.0)*8.0 #Detector angles if kidney=0
+		det_angle_list_k0 = -76.0+np.arange(0,19.1,1)*8.0 #Detector angles if kidney=0
 
 		#Generate a matrix of detector angles for every pointin the matrix of intensities. 
 		# Incoming intensity matrix is an Nx20 matrix where each row is a configuration and each column is a detector
@@ -430,7 +434,7 @@ class Data(object):
 		det_index_mat+=det_index_list
 
 		det_angle_mat += det_angle_list_k0 #Assumes kidney=0 for all rows, fix now
-		det_angle_mat += kid_array[:,None] # Take the beam direction to be horizontal
+		det_angle_mat += kid_array[:,None] # Take the beam direction to be +z direction
 		#All points now have an assosciated angle. Reshape both the angle matrix and the intensity matrix
 		# to be of the shape of the output matrix
 		det_angle_list = np.reshape(det_angle_mat,(np.shape(out_mat)[0],1))
@@ -452,83 +456,88 @@ class Data(object):
 		#Also build list of viewing axes
 		u1dir_list = np.zeros((len(det_angle_list),2))
 		u2dir_list = np.zeros((len(det_angle_list),2))
-		udir_list[:,1]+=1
-		vdir_list[:,0]+=1 
-
-		u1dir_0 = np.array(self.sample.astar_vec_labframe*u1[0]+\
-						self.sample.bstar_vec_labframe*u1[1]+\
-						self.sample.cstar_vec_labframe*u1[2])
-		u2dir_0 = np.array(self.sample.astar_vec_labframe*u2[0]+\
-						self.sample.bstar_vec_labframe*u2[1]+\
-						self.sample.cstar_vec_labframe*u2[2])
-		for i in range(len(u1dir_list)):
-			u1dir_list[i]=u1dir_0[0],u1dir_0[2]
-			u2dir_list[i]=u2dir_0[0],u2dir_0[2]
+		u1dir_init = np.dot(u1,[self.sample.astar_vec_labframe,self.sample.bstar_vec_labframe,self.sample.cstar_vec_labframe])
+		u2dir_init = np.dot(u2,[self.sample.astar_vec_labframe,self.sample.bstar_vec_labframe,self.sample.cstar_vec_labframe])
+		u1dir_init = np.array([u1dir_init[0],u1dir_init[2]])
+		u2dir_init = np.array([u2dir_init[0],u2dir_init[2]])
 		#Rotate every row by its respective A3
 		A3_out_list_rad= A3_out_list*np.pi/180.0
 		R = np.array([[np.cos(A3_out_list_rad),-np.sin(A3_out_list_rad)],\
 		              [np.sin(A3_out_list_rad),np.cos(A3_out_list_rad)]])
 		R = R[:,:,:,0] #Remove extra dim at the end
-		for i in range(len(spec_out_list)):
-		    u_dir_0 = udir_list[i,:]
-		    v_dir_0 = vdir_list[i,:]
-		    R_mat = R[:,:,i]
-		    u_dir_rot = np.matmul(R_mat,u_dir_0)
-		    v_dir_rot = np.matmul(R_mat,v_dir_0)
-		    u1dir_rot = np.matmul(R_mat,u1dir_list[i,:])
-		    u2dir_rot = np.matmul(R_mat,u2dir_list[i,:])
-		    udir_list[i,:]=u_dir_rot
-		    vdir_list[i,:]=v_dir_rot
-		    u1dir_list[i,:]=u1dir_rot
-		    u2dir_list[i,:]=u2dir_rot
+		#Changed from rotating the sample frame to rotating the lab frame
+		# Lines below are a relic of this and not using a proper IDE
 		#Crystal axes are now properly rotated- get the projection of each detector onto the vector
-		xdet_list = np.cos(det_angle_list*np.pi/180.0)
-		ydet_list = np.sin(det_angle_list*np.pi/180.0)
+		xdet_list = np.sin(det_angle_list*np.pi/180.0)
+		ydet_list = np.cos(det_angle_list*np.pi/180.0)
 		det_dir_mat = np.zeros((len(spec_out_list),2))
 		det_dir_mat[:,0]=xdet_list[:,0]
 		det_dir_mat[:,1]=ydet_list[:,0]
-
 		#Get the total Q for each scattering event based on twotheta and energy
 		lami_out_list = 9.045/np.sqrt(Ei_out_list)
 		lamf_out_list = 9.045/np.sqrt(Ef_out_list)
+		lamf_out_list=lamf_out_list[:,0]
 		ki_dir_list = np.ones((len(spec_out_list),2))
-		ki_dir_list[:,1]=0 #Define x-direction as beam direction
-		ki_mag_list = 2.0*np.pi/lami_out_list
-		ki_vec_list=ki_mag_list*ki_dir_list
+		ki_dir_list[:,0]=0 #Define z-direction as beam direction
+		ki_mag_list = 2.0*np.pi/lami_out_list[:,0]
+		for i in range(len(spec_out_list)):
+		    detdir = det_dir_mat[i,:]
+		    #R_mat = R[:,:,i]
+		    #detrot = #np.matmul(R_mat,detdir)
+		    #det_dir_mat[i,:]=detrot 
+		    ki_dir = ki_dir_list[i,:]
+		    #kirot = #np.matmul(R_mat,ki_dir)
+		    #ki_dir_list[i,:]=kirot
+		ki_vec_list=ki_mag_list[:,np.newaxis]*ki_dir_list
 		kf_mag_list = 2.0*np.pi/lamf_out_list
 		kf_vec_list = np.copy(det_dir_mat)
-		kf_vec_list[:,0]*=kf_mag_list[:,0]
-		kf_vec_list[:,1]*=kf_mag_list[:,0]
+		kf_vec_list=kf_mag_list[:,np.newaxis]*det_dir_mat
+		#The Q below is in the sample frame. 
 		Q_vec_list = ki_vec_list-kf_vec_list
-
+		#Rotate these by A3.
+		for i in range(len(Q_vec_list)):
+			R_mat = R[:,:,i]
+			qvec = Q_vec_list[i]
+			qrot = np.matmul(R_mat,qvec)
+			Q_vec_list[i]=qrot
 		#Recalling Q^2 = ki^2 + kf^2 - 2kikfcos2theta, need to get 2theta from ki kf directions first
 		num = ki_vec_list[:,0]*kf_vec_list[:,0]+ki_vec_list[:,1]*kf_vec_list[:,1]
 		denom = ki_mag_list*kf_mag_list
-		denom=denom[:,0]
-		value = num/denom.T
-		value=value.T
+		value = num/denom
+		value=value
 		twoTheta_list = np.arccos(value)
-		Q_list = np.sqrt(ki_mag_list[:,0]**2 + kf_mag_list[:,0]**2 - 2.0*ki_mag_list[:,0]*kf_mag_list[:,0]*np.cos(twoTheta_list))
-
+		Q_list = np.sqrt(ki_mag_list**2 + kf_mag_list**2 - 2.0*ki_mag_list*kf_mag_list*np.cos(twoTheta_list))
 		Q_dir_list = Q_vec_list / Q_list[:,None]
-		#Qu_proj_dir_list = udir_list[:,0]*Q_dir_list[:,0]+udir_list[:,1]*Q_dir_list[:,1]
-		#Qv_proj_dir_list = vdir_list[:,0]*Q_dir_list[:,0]+vdir_list[:,1]*Q_dir_list[:,1]#Now have directions of Q and U.
-		Qu_proj_dir_list = u1dir_list[:,0]*Q_dir_list[:,0]+u1dir_list[:,1]*Q_dir_list[:,1]
-		Qv_proj_dir_list = u2dir_list[:,0]*Q_dir_list[:,0]+u2dir_list[:,1]*Q_dir_list[:,1]#Now have directions of Q and U.
+		#Now project onto the basis defined by the viewing axis
+		Qx_samp = Q_vec_list[:,0]
+		Qz_samp = Q_vec_list[:,1]
+		U1_proj = np.zeros(np.shape(Qx_samp))
+		U2_proj = np.zeros(np.shape(Qz_samp))
+		#Should properly vectorize this using einsum
 
+		u1dir_lab = u1dir_init #Doesn't change in the sample frame.
+		u2dir_lab = u2dir_init
+		M = np.array([[u1dir_lab[0],u2dir_lab[0]],[u1dir_lab[1],u2dir_lab[1]]])
+		B_mat = np.matmul(np.linalg.inv(np.matmul(M.T,M)),M.T)
+		for i in range(len(spec_out_list)):
+			qvec = Q_vec_list[i]
+			Q_u1u2 = np.matmul(B_mat,qvec)
+			U1_proj[i] = Q_u1u2[0]
+			U2_proj[i] = Q_u1u2[1]
 		#This can go in the output matrix now. 
 		proj_mat['|Q|']=Q_list
 		u_vec_mag=self.sample.Qmag_HKL(u1[0],u1[1],u1[2])
 		v_vec_mag=self.sample.Qmag_HKL(u2[0],u2[1],u2[2])
 		#The projection of kf onto each direction gives the scattering plane
-		U_proj = -1.0*Qu_proj_dir_list*Q_list/u_vec_mag
-		V_proj = -1.0*Qv_proj_dir_list*Q_list/v_vec_mag #For some reason a minus sign is required here...
+		#I am unsure of why these minus signs are required. Handedness issue somewhere. 
+		U_proj = -U1_proj
+		V_proj = -U2_proj
 
 		#Get the HKL values from this
-		HKL_list = np.outer(U_proj,orient_u) + np.outer(V_proj,orient_v)
-		H_list = HKL_list[:,0]*-1.0
-		K_list = HKL_list[:,1]*-1.0
-		L_list = HKL_list[:,2]*-1.0
+		HKL_list = np.outer(U_proj,u1) + np.outer(V_proj,u2)
+		H_list = HKL_list[:,0]*1.0
+		K_list = HKL_list[:,1]*1.0
+		L_list = HKL_list[:,2]*1.0
 
 
 		proj_mat['Det_index']=det_index_list
@@ -684,8 +693,8 @@ class Data(object):
 		df_copy = df_copy.loc[(df_copy[slice_axis2]<=slice_limit2[1]) & (df_copy[slice_axis2]>=slice_limit2[0])]
 		#Data now restricted to the relevant region of Q-E space. Now bin:
 		sampledat = np.array([df_copy[slice_axis1].to_numpy(),df_copy[slice_axis2].to_numpy(),df_copy[bin_axis].to_numpy()]).T
-		values = df_copy['SPEC'].to_numpy().T
-		errs = df_copy['SPECErr'].to_numpy().T 
+		values = df_copy['SPEC'].to_numpy()
+		errs = df_copy['SPECErr'].to_numpy()
 		errs[errs==0]=np.nan
 		weights = 1.0/errs 
 		weights[np.isinf(weights)]=np.nan
@@ -766,8 +775,8 @@ class Data(object):
 		df_copy = df_copy.loc[(df_copy['DeltaE']<=omegabins[1]) & (df_copy['DeltaE']>=omegabins[0])]
 		#Data now restricted to the relevant region of Q-E space. Now bin:
 		sampledat = np.array([df_copy['Qu'].to_numpy(),df_copy['Qv'].to_numpy(),df_copy['DeltaE'].to_numpy()]).T
-		values = df_copy['SPEC'].to_numpy().T
-		errs = df_copy['SPECErr'].to_numpy().T 
+		values = df_copy['SPEC'].to_numpy()
+		errs = df_copy['SPECErr'].to_numpy() 
 		errs[errs==0]=np.nan
 		weights = 1.0/errs 
 		weights[np.isinf(weights)]=np.nan
@@ -886,8 +895,8 @@ class Data(object):
 		df_copy = df_copy.loc[(df_copy[bin_axis2]<=bin_limit2[1]) & (df_copy[bin_axis2]>=bin_limit2[0])]
 		#Data now restricted to the relevant region of Q-E space. Now bin:
 		sampledat = np.array([df_copy[cut_axis].to_numpy(),df_copy[bin_axis1].to_numpy(),df_copy[bin_axis2].to_numpy()]).T
-		values = df_copy['SPEC'].to_numpy().T
-		errs = df_copy['SPECErr'].to_numpy().T 
+		values = df_copy['SPEC'].to_numpy()
+		errs = df_copy['SPECErr'].to_numpy() 
 		errs[errs==0]=np.nan
 		weights = 1.0/errs 
 		weights[np.isinf(weights)]=np.nan
