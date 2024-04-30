@@ -518,6 +518,18 @@ class Sample(object):
 		index = np.argmin(np.abs(H-HKL[:,0])+np.abs(K-HKL[:,1])+np.abs(L-HKL[:,2]))
 		#print('|F|^2 for ['+str(H)+str(K)+str(L)+'] ='+str(HKL[index][3])+' (fm^2/sr)')
 		return HKL[index]
+
+	def HKL_to_QxQz(self,h,k,l):
+		# provided rlu indices and a macs object, returns the Qx (Q_perp) and Qy (Q_parallel) components in Ang^-1
+		Qu_vec = self.sample.astar_vec_labframe*h 
+		Qv_vec = self.sample.bstar_vec_labframe*k  
+		Qw_vec = self.sample.cstar_vec_labframe*l
+		Qnet = Qu_vec+Qv_vec+Qw_vec
+		if np.linalg.norm(Qnet[1])>0.2:
+			print("WARNING: Specified lattice vector does not lie in the scattering plane of the instrument.")
+		Qx,Qz = Qnet[0],Qnet[2]
+		return Qx,Qz
+
 	
 	def Qmag_HKL(self,H,K,L):
 		"""For a specfied reflection in H, K, L, returns the magnitude of its momentum transfer. 
