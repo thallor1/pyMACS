@@ -1,14 +1,14 @@
 import sys,os
 import numpy as np
-import sample
-import monochromator
-import kidney
-import macsdata
+from . import sample
+from . import monochromator
+from . import kidney
+from . import macsdata
 import shutil
 import subprocess
 import time
 import glob
-from scripting import import_ng0
+from .scripting import import_ng0
 from joblib import Parallel, delayed
 from tqdm.auto import tqdm
 
