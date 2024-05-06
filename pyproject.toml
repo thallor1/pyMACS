@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=58.0.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyMACS"
+version = "0.1.0"
+description = "reliable interface between MACS measurements at NCNR in Gaithursburg, MD to Monte-Carlo simulations produced by a McStas simulation originally written by Mads Bertelsen"
+authors = [
+  {name = "Thomas Halloran", email = "thomas.halloran@nist.gov" },
+]
+dependencies = [
+  "numpy",
+  "lmfit",
+  "matplotlib",
+  "scipy",
+  "PyCIFRW",
+  "pandas",
+  "joblib",
+  "tqdm",
+]
+
+[project.urls]
+Homepage = "https://github.com/thallor1/pyMACS"
+Documentation = "https://thallor1.github.io/pyMACS/"
