@@ -9,8 +9,10 @@ import subprocess
 import time
 import glob
 from scripting import import_ng0
+from scripting import resfunc
 from joblib import Parallel, delayed
 from tqdm.auto import tqdm
+import pickle
 
 
 class VirtualMACS(object):
@@ -1000,3 +1002,69 @@ class VirtualMACS(object):
                 self.data.write_data_to_ng0(filename=ng0_file.split('/')[-1].replace('.ng0', '_mcStas.ng0'))
         # At this point generate the data matrix. all files should be in the ramdisk. Information cannot be allowed to sit in the ramdisk.
         return 1
+
+    def resmat(self,h,k,l,E,sampleFrame=True,gen_plot=False,verbose=False,figdir="Calculated_ellipsoid_pngs/"):
+        """
+        Using a previously tabulated list of resolution ellipsoid calculations, returns the closest resolution ellipsoid to the input h,k,l,E point. 
+        More granular execution of this method is available in the scripting subclass, but for almost all use cases this should be enough. The only configurations that have been
+        pre-calculated are the double-focusing Ef=3.7 and Ef=5.0 modes. There are some minor bugs, such as a few missing ellipsoids where one would expect one and some poorly fitted ellipsoids at low momentum transfers,
+        but overall it behaves well. The ellipsoid is always returned in the (Qx, Qz, E) frame, in units of Ang^-1, Ang^-1, meV. This function also returns the same reslevant FWHM's, 
+        which is what most users probably want. 
+
+        :param h: Miller h index. Non-integer values allowed.
+        :type h: float, required
+        :param k: Miller k index.
+        :type k: float, required
+        :param l: Miller l index.
+        :type l: float, required
+        :param E: Energy transfer (meV)
+        :type E: float, required
+        :param gen_plot: Flag to trigger creation of figure summarizing the MACS resolution ellipsoid.
+        :type gen_plot: bool, optional.
+        :param sampleFrame: If true, the input sample coordinate system of the virtualMACS object will be used rather than the Qx, Qz frame in Ang^-1. 
+        :type sampleFrame: bool, optional
+        :param verbose: Flag to print resoultion ellipsoid information to terminal.
+        :type verbose: bool, optional.
+        :param calc_mode: There are three options, "default", "load_cov", and "Covariance". Users should only use "load_cov", or "default" if they have the correct csv files available. "Covariance" was a developer option, and returns just the covariance matrix.
+        :type calc_mode: str, optional.
+        :return: M, M_diag, Q_hkw. The resolution matrix, the diagonal elements / fwhm in Qx, Qz, E, and the (Qx, Qz, E) position of the closest tabulated point.
+        :rtype: np.ndarray, np.ndarray, np.ndarray
+        """ 
+        if sampleFrame is True:
+            macsobj = self
+        else: 
+            macsobj=False
+        M,M_diag,Q_hkw = resfunc.macs_resfunc(h,k,l,E,self.kidney.Ef,macsobj=macsobj,gen_plot=gen_plot,verbose=verbose,calc_mode="load_cov",figdir=figdir)
+        return M,M_diag,Q_hkw
+
+    def load_res_fwhm_interp_objects(self):
+        """
+        Using a previously tabulated list of resolution ellipsoid calculations, returns the closest resolution ellipsoid to the input h,k,l,E point. 
+        This variant uses a linear interpolation between the tabulated points to quickly get the FWHM in the principle axes, Qx, Qz, E, in (Ang^-1, Ang^-1, meV)
+        The returned objects are scipy interpolators, which take input such as 
+            - dE = interp_dE(h,k,l,E)
+        The interpolation objects is a RegularGridInterpolator, and also accepts np.ndarrays of shape (N,4), where N is the number of points. 
+
+        :return: interp_dQx, interp_dQz, interp_dE, scipy.interpolate.RegularGridInterpolator obejcts that return the macs Bragg widhths in the respective directions for arbitrary h,k,l,E, for the Ef=3.7 or Ef=5.0 settings.
+        :rtype: scipy.interpolate.RegularGridInterpolator, scipy.interpolate.RegularGridInterpolator, scipy.interpolate.RegularGridInterpolator 
+        """ 
+        interp_dir = os.path.dirname(__file__) + '/scripting/interp_fwhm/'
+        if np.min(np.abs(np.array([5.0,3.7])-self.kidney.Ef))>0.1:
+            #Check if the instrumental configruation is valid.
+            print("Macs Ef hasn't been tabulated. Use Ef=3.7 or Ef=5.0")
+            return 0,0,0
+        if np.abs(5.0-self.kidney.Ef)<0.1:
+            f_dE = interp_dir+"MACS_Ef_5p0_interp_dE.pck"
+            f_dQx = interp_dir+"MACS_Ef_5p0_interp_dQx.pck"
+            f_dQz = interp_dir+"MACS_Ef_5p0_interp_dQz.pck"
+        if np.abs(3.7-self.kidney.Ef)<0.1:
+            f_dE = interp_dir+"MACS_Ef_3p7_interp_dE.pck"
+            f_dQx = interp_dir+"MACS_Ef_3p7_interp_dQx.pck"
+            f_dQz = interp_dir+"MACS_Ef_3p7_interp_dQz.pck"
+        with open(f_dQx, "rb") as input_file:
+            interp_dQx = pickle.load(input_file)
+        with open(f_dQz, "rb") as input_file:
+            interp_dQz = pickle.load(input_file)
+        with open(f_dE, "rb") as input_file:
+            interp_dE = pickle.load(input_file)
+        return interp_dQx,interp_dQz,interp_dE
