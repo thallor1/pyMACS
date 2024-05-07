@@ -36,7 +36,6 @@ class VirtualMACS(object):
 	:param A3_angle: Current sample A3 rotation angle.
 	:type A3_angle: float
 	
-	
 	"""
 
     def __init__(self, exptName, cifName=None, useOld=False):
