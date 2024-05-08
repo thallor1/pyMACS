@@ -590,9 +590,7 @@ def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_m
 	:return: M, M_diag, Q_hkw. The resolution matrix, the diagonal elements / fwhm in Qx, Qz, E, and the (Qx, Qz, E) position of the closest tabulated point.
 	:rtype: np.ndarray, np.ndarray, np.ndarray
 	"""	
-	pymacs_path = os.path.dirname(__file__).replace('scripting','')
-	sys.path.append(pymacs_path)
-	from virtualMACS import VirtualMACS
+	from pyMACS.virtualMACS import VirtualMACS
 	# Remove this to avoid 
 	macs_dirac = VirtualMACS('resolution_calculation',cifName=os.path.dirname(__file__)+'/dirac.cif',useOld=False)
 	macs_dirac.sample.orient_u=[1,0.0,0]

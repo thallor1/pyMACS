@@ -72,7 +72,7 @@ class Sample(object):
 	"""
 
 	def __init__(self,a=6.28,b=6.28,c=6.28,alpha=90.0,beta=90.0,gamma=90.0,cell_vol=None,V_recip=None,name='default_sample',sample_shape='cylinder',sample_diameter_d=0.02,sample_tilt=60.0,\
-		sample_length=0.04,sample_widx=0.003,sample_widy=0.003,sample_widz=0.003,symm_ops=None,space_group=None,ciffile=None,laufile=None,customlaufile=None,b_arr=False,orient_u=[1,1,0],orient_v=[0,0,1],orient_w=[1,0,1],\
+		sample_length=0.04,sample_widx=0.003,sample_widy=0.003,sample_widz=0.003,symm_ops=None,space_group=None,ciffile=None,laufile=None,customlaufile=None,b_arr=False,orient_u=[1,0,0],orient_v=[0,1,0],orient_w=[0,0,1],\
 		rho_abs_fu=False,rho_abs=False,sigma_inc=False,sample_mosaic=30.0,delta_d=5E-4,abs_dict=False,crystal_axis_xrot=45.0,crystal_axis_yrot=0.0,crystal_axis_zrot=-15.0,
 		scattering_definition=False,geometry_definition=False):
 		nist_data = os.path.dirname(__file__)+'/nist_scattering_table.txt' #Included in this directory
@@ -85,8 +85,8 @@ class Sample(object):
 			self.b_arr=True
 			self.scatt_dict=b_arr
 		if ciffile is None:
-			print("WARNING: No cif file found. Importing sample parameters from a cif file is the preferred method to initialize the sample. Defaulting to TiO2.cif")
-			ciffile=os.path.dirname(__file__+'/TiO2.cif')
+			print("WARNING: No cif file found. Importing sample parameters from a cif file is the preferred method to initialize the sample. Defaulting to dirac.cif")
+			ciffile=os.path.dirname(__file__+'/dirac.cif')
 			self.ciffile=ciffile
 		
 		if ciffile is not None:

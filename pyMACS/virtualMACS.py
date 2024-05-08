@@ -15,6 +15,7 @@ from .scripting import resfunc
 from joblib import Parallel, delayed
 from tqdm.auto import tqdm
 import pickle
+#from importlib.resources import files
 
 
 class VirtualMACS(object):
