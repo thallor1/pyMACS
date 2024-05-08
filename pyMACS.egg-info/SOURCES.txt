@@ -1,0 +1,186 @@
+MANIFEST.in
+README.md
+pyproject.toml
+docs/_sources/index.rst.txt
+docs/_sources/kidney.rst.txt
+docs/_sources/macsdata.rst.txt
+docs/_sources/monochromator.rst.txt
+docs/_sources/sample.rst.txt
+docs/_sources/usage.rst.txt
+docs/_sources/virtualMACS.rst.txt
+docs/_static/vendor/fontawesome/5.13.0/LICENSE.txt
+pyMACS/__init__.py
+pyMACS/virtualMACS.py
+pyMACS-docs/build/html/_sources/index.rst.txt
+pyMACS-docs/build/html/_sources/kidney.rst.txt
+pyMACS-docs/build/html/_sources/macsdata.rst.txt
+pyMACS-docs/build/html/_sources/monochromator.rst.txt
+pyMACS-docs/build/html/_sources/sample.rst.txt
+pyMACS-docs/build/html/_sources/usage.rst.txt
+pyMACS-docs/build/html/_sources/virtualMACS.rst.txt
+pyMACS-docs/build/html/_static/vendor/fontawesome/5.13.0/LICENSE.txt
+pyMACS.egg-info/PKG-INFO
+pyMACS.egg-info/SOURCES.txt
+pyMACS.egg-info/dependency_links.txt
+pyMACS.egg-info/requires.txt
+pyMACS.egg-info/top_level.txt
+pyMACS/.ipynb_checkpoints/Demonstration of Virtual MACS expt object-checkpoint.ipynb
+pyMACS/Demonstration/CrI3 Plotting.ipynb
+pyMACS/Demonstration/CrI3 Simulation.ipynb
+pyMACS/Demonstration/CrI3.cif
+pyMACS/Demonstration/Demonstration of Virtual MACS expt object.ipynb
+pyMACS/Demonstration/Test of pyMACS resolution methods.ipynb
+pyMACS/Demonstration/TiO2.cif
+pyMACS/Demonstration/cri3_example.py
+pyMACS/Demonstration/example_script.py
+pyMACS/Demonstration/spinw_CrI3_full.sqw4
+pyMACS/Demonstration/.ipynb_checkpoints/CrI3 Plotting-checkpoint.ipynb
+pyMACS/Demonstration/.ipynb_checkpoints/CrI3 Simulation-checkpoint.ipynb
+pyMACS/Demonstration/.ipynb_checkpoints/Demonstration of Virtual MACS expt object-checkpoint.ipynb
+pyMACS/Demonstration/.ipynb_checkpoints/Test of pyMACS resolution methods-checkpoint.ipynb
+pyMACS/Demonstration/.ipynb_checkpoints/Troubleshooting-checkpoint.ipynb
+pyMACS/Demonstration/CrI3_spinw/CrI3.cif
+pyMACS/Demonstration/CrI3_spinw/out.sqw4
+pyMACS/Demonstration/CrI3_spinw/spinw_CrI3.sqw4
+pyMACS/Demonstration/CrI3_spinw/spinw_CrI3_full.sqw4
+pyMACS/Demonstration/cri3_experiment/Instrument_files/CrI3.cif
+pyMACS/Demonstration/cri3_experiment/Instrument_files/append_vertical_crystal_array.py
+pyMACS/Demonstration/cri3_experiment/Instrument_files/append_vertical_crystal_mono_array.py
+pyMACS/Demonstration/cri3_experiment/Instrument_files/dummy_params.txt
+pyMACS/Demonstration/cri3_experiment/Instrument_files/dummy_params_mono.txt
+pyMACS/Demonstration/cri3_experiment/Instrument_files/generate_MACS_parts_mcstasscript.py
+pyMACS/Demonstration/cri3_experiment/Instrument_files/make_sample.py
+pyMACS/Demonstration/cri3_experiment/Instrument_files/spinw_CrI3_full.sqw4
+pyMACS/Demonstration/cri3_experiment/param_files_monochromator/mono_params_ei5.00_beta1_1.000_beta2_1.000_sample_diameter_d_0.0200.txt
+pyMACS/Demonstration/test_experiment/Instrument_files/TiO2.cif
+pyMACS/Demonstration/test_experiment/Instrument_files/append_vertical_crystal_array.py
+pyMACS/Demonstration/test_experiment/Instrument_files/append_vertical_crystal_mono_array.py
+pyMACS/Demonstration/test_experiment/Instrument_files/dummy_params.txt
+pyMACS/Demonstration/test_experiment/Instrument_files/dummy_params_mono.txt
+pyMACS/Demonstration/test_experiment/Instrument_files/generate_MACS_parts_mcstasscript.py
+pyMACS/Demonstration/test_experiment/Instrument_files/make_sample.py
+pyMACS/Demonstration/test_experiment/param_files_kidney/test_experiment_kidney_params_Ei_5.0_kid_angle_m10.0_A3_angle_m35.8386_Ef_5.0.txt
+pyMACS/Demonstration/test_experiment/param_files_kidney/test_experiment_kidney_params_Ei_5.0_kid_angle_m10.0_A3_angle_m39.7998_Ef_5.0.txt
+pyMACS/Demonstration/test_experiment/param_files_kidney/test_experiment_kidney_params_Ei_5.0_kid_angle_m10.0_A3_angle_m41.1179_Ef_5.0.txt
+pyMACS/Demonstration/test_experiment/param_files_kidney/test_experiment_kidney_params_Ei_5.0_kid_angle_m10.0_A3_angle_m42.4175_Ef_5.0.txt
+pyMACS/Demonstration/test_experiment/param_files_kidney/test_experiment_kidney_params_Ei_5.0_kid_angle_m10.0_A3_angle_m45.0003_Ef_5.0.txt
+pyMACS/Demonstration/test_experiment/param_files_kidney/test_experiment_kidney_params_Ei_5.0_kid_angle_m10.0_A3_angle_m60.25_Ef_5.0.txt
+pyMACS/Demonstration/test_experiment/param_files_kidney/test_experiment_kidney_params_Ei_5.0_kid_angle_m10.0_A3_angle_m61.75_Ef_5.0.txt
+pyMACS/Demonstration/test_experiment/param_files_monochromator/mono_params_ei5.00_beta1_0.270_beta2_0.000_sample_diameter_d_0.0200.txt
+pyMACS/Demonstration/test_experiment/param_files_monochromator/mono_params_ei5.00_beta1_0.270_beta2_2.414_sample_diameter_d_0.0200.txt
+pyMACS/UNION MACS Models/UNION MACS Base/Al.laz
+pyMACS/UNION MACS Models/UNION MACS Base/Be.trm
+pyMACS/UNION MACS Models/UNION MACS Base/C_graphite.lau
+pyMACS/UNION MACS Models/UNION MACS Base/Filter_gen_no_absorb.comp
+pyMACS/UNION MACS Models/UNION MACS Base/Guide_gravity_MACS.comp
+pyMACS/UNION MACS Models/UNION MACS Base/Guide_parabolic.comp
+pyMACS/UNION MACS Models/UNION MACS Base/MACS_monochromator.c
+pyMACS/UNION MACS Models/UNION MACS Base/MACS_monochromator.exe
+pyMACS/UNION MACS Models/UNION MACS Base/MACS_monochromator.instr
+pyMACS/UNION MACS Models/UNION MACS Base/MACS_monochromator.instr.xml
+pyMACS/UNION MACS Models/UNION MACS Base/MACS_monochromator.out
+pyMACS/UNION MACS Models/UNION MACS Base/Sqw4_process.comp
+pyMACS/UNION MACS Models/UNION MACS Base/Sqw_process.comp
+pyMACS/UNION MACS Models/UNION MACS Base/Union_functions.c
+pyMACS/UNION MACS Models/UNION MACS Base/Union_last_functions.c
+pyMACS/UNION MACS Models/UNION MACS Base/Union_stop.comp
+pyMACS/UNION MACS Models/UNION MACS Base/aperture_h.comp
+pyMACS/UNION MACS Models/UNION MACS Base/aperture_v.comp
+pyMACS/UNION MACS Models/UNION MACS Base/append_vertical_crystal_array.py
+pyMACS/UNION MACS Models/UNION MACS Base/append_vertical_crystal_mono_array.py
+pyMACS/UNION MACS Models/UNION MACS Base/attenuator.comp
+pyMACS/UNION MACS Models/UNION MACS Base/dummy_params.txt
+pyMACS/UNION MACS Models/UNION MACS Base/dummy_params_mono.txt
+pyMACS/UNION MACS Models/UNION MACS Base/extend_monitor.comp
+pyMACS/UNION MACS Models/UNION MACS Base/generate_MACS_parts_mcstasscript.py
+pyMACS/UNION MACS Models/UNION MACS Base/gobetas.pro
+pyMACS/UNION MACS Models/UNION MACS Base/make_sample.py
+pyMACS/UNION MACS Models/UNION MACS Base/monochromator.c
+pyMACS/UNION MACS Models/UNION MACS Base/python_monochromator
+pyMACS/UNION MACS Models/UNION MACS Base/slit_MACS.comp
+pyMACS/UNION MACS Models/UNION MACS Base/splint.c
+pyMACS/UNION MACS Models/UNION MACS Base/tube.comp
+pyMACS/UNION MACS Models/UNION MACS Base/__pycache__/append_vertical_crystal_array.cpython-38.pyc
+pyMACS/UNION MACS Models/UNION MACS Base/__pycache__/append_vertical_crystal_mono_array.cpython-38.pyc
+pyMACS/UNION MACS Models/UNION MACS Base/generated_includes/kidney_component_trace.c
+pyMACS/UNION MACS Models/UNION MACS Base/generated_includes/kidney_declare.c
+pyMACS/UNION MACS Models/UNION MACS Base/generated_includes/kidney_initialize.c
+pyMACS/UNION MACS Models/UNION MACS Base/generated_includes/kidney_trace.c
+pyMACS/UNION MACS Models/UNION MACS Base/generated_includes/macs_monochromator_component_trace.c
+pyMACS/UNION MACS Models/UNION MACS Base/generated_includes/macs_monochromator_declare.c
+pyMACS/UNION MACS Models/UNION MACS Base/generated_includes/macs_monochromator_initialize.c
+pyMACS/UNION MACS Models/UNION MACS Base/generated_includes/macs_monochromator_trace.c
+pyMACS/UNION MACS Models/UNION MACS Kidney Files/MACS_sample_kidney.instr
+pyMACS/kidney/__init__.py
+pyMACS/kidney/kidney.py
+pyMACS/kidney/macs_kidneylimit_new.txt
+pyMACS/macsdata/TiO2.cif
+pyMACS/macsdata/__init__.py
+pyMACS/macsdata/macsdata.py
+pyMACS/macsdata/macsdata_validation.ipynb
+pyMACS/macsdata/.ipynb_checkpoints/macsdata_validation-checkpoint.ipynb
+pyMACS/monochromator/__init__.py
+pyMACS/monochromator/monochromator.py
+pyMACS/reslib/ResLibCal.txt
+pyMACS/reslib/rescal.txt
+pyMACS/sample/Aluminum.cif
+pyMACS/sample/Ba4NbRu3O12_refined-structure.cif
+pyMACS/sample/Test of Cif import script.ipynb
+pyMACS/sample/Test of Sample Class and individual Methods.ipynb
+pyMACS/sample/__init__.py
+pyMACS/sample/dirac.cif
+pyMACS/sample/import_NIST_table.py
+pyMACS/sample/nist_scattering_table.txt
+pyMACS/sample/parseCif.py
+pyMACS/sample/sample.py
+pyMACS/sample/.ipynb_checkpoints/Test of Cif import script-checkpoint.ipynb
+pyMACS/sample/.ipynb_checkpoints/Test of Sample Class and individual Methods-checkpoint.ipynb
+pyMACS/scripting/__init__.py
+pyMACS/scripting/dirac.cif
+pyMACS/scripting/ellipsoid_note.txt
+pyMACS/scripting/get_kidney_params.py
+pyMACS/scripting/get_mono_params.py
+pyMACS/scripting/import_ng0.py
+pyMACS/scripting/macs_to_mcstas.py
+pyMACS/scripting/mcstas_to_MACS_spot.py
+pyMACS/scripting/resfunc.py
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_10.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_10.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_10.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_11.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_11.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_11.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_12.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_12.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_12.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_13.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_13.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_13.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_14.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_14.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_14.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_15.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_16.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_17.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_18.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_19.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_3.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_4.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_4.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_5.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_5.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_5.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_6.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_6.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_6.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_7.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_7.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_7.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_8.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_8.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_8.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_9.00_Ef_5.00.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_9.20_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/resfunc_Ei_9.70_Ef_3.70.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/.ipynb_checkpoints/resfunc_Ei_10.70_Ef_3.70-checkpoint.sqw4
+pyMACS/scripting/ellipsoid_sqw4_files/.ipynb_checkpoints/resfunc_Ei_13.20_Ef_3.70-checkpoint.sqw4

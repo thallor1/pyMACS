@@ -1,2 +1,2 @@
 graft pyMACS/UNION?MACS?Models/
-recursive-include **/ *.txt *.ipynb *.sqw4
+recursive-include **/ *.txt *.ipynb *.sqw4 *.cif

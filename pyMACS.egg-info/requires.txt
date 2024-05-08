@@ -1,0 +1,9 @@
+numpy
+lmfit
+matplotlib
+scipy
+PyCIFRW
+pandas
+joblib
+tqdm
+mcstasscript
