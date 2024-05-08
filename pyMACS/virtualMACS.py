@@ -370,7 +370,7 @@ class VirtualMACS(object):
         # shellcommandstr= 'mcrun -c'+instr_filename
         if verbose is True:
             print('#################')
-            print('\nStarting compilation of monochromator. This will take about around 10 minutes. \n')
+            print('\nStarting compilation of monochromator.\n')
         # shellcommandstr='mcrun -c '+instr_filename
         p = subprocess.Popen(shellcommandstr, stdout=subprocess.PIPE, shell=True)
         (output, err) = p.communicate()
@@ -962,6 +962,7 @@ class VirtualMACS(object):
             ei_ef_b1_b2_list = []
             ptai_list = []
             for f_index in tqdm(range(len(file_list)), desc='Ng0 Files'):
+
                 ng0_file = file_list[f_index]
                 # Need to do monochromator jobs FIRST, then kidney
                 # Accumulate all Ei, beta1, beta2 combinations and run.
