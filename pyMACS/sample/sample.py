@@ -168,7 +168,7 @@ class Sample(object):
 			formula_weight = float(cif_obj['_chemical_formula_weight'])
 		except:
 			#Need to calculate from chemsum, not implemented. yet..
-			print("WARNING: Chemical weight not in cif file. Placeholder value used but should be updated manually using: \n Material.formula_weight=(val)")
+			#print("WARNING: Chemical weight not in cif file. Placeholder value used but should be updated manually using: \n Material.formula_weight=(val)")
 			formula_weight = 100.0
 
 		formula_units = int(cif_obj['_cell_formula_units_Z'])

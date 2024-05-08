@@ -27,10 +27,12 @@ class Data(object):
 	:type projected_expt_matrix: pd.Dataframe
 	:param PTAI_det: If PTAI is being used, specifies the detector. 
 	:type PTAI_det: int
+	:param datamode: String specifying if the scattering is from a single crystalline or powder sample. 
+	:type datamode: str, optional
 	:param csv_name: Specifies the name of the .csv file where the cumulative data matrix is stored. 
 	:type csv_name: str
 	"""
-	def __init__(self,sample,exptName=None,kidney_result_dir=None,compile_mode='all',beta_1=1.0,beta_2=1.0,PTAI_det=3):
+	def __init__(self,sample,exptName=None,kidney_result_dir=None,compile_mode='all',beta_1=1.0,beta_2=1.0,PTAI_det=3,datamode="single_crystal"):
 		#Note the sample object is defined in the same module.
 		self.compile_mode=compile_mode #Specifies if output ng0 files should be combined, individual, etc
 		self.kidney_sim_dir=None
