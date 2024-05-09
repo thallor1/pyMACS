@@ -623,12 +623,15 @@ def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_m
 
 def res_ellipses(M,Qmean,macsobj=None,n_phi=361):
 	"""
-	Shortcut function to return resollution ellipsoids for a given resolution matrix. Essentially automates the step of projection of the resolutoin matrix.
+	Shortcut function to return resollution ellipsoids for a given resolution matrix. Essentially automates the step of projection of the resolution matrix. The projection is in the sample Qx, Qz, E frame.
+	The value of the center of the ellipsoid must be specified, Qmean, which is in units of u, v. For example, if u=[1,1,0], v=[0,0,1], and one wants the (1,1,0) reflection, use Qmean=[1,0,0]. If one wants the resolution at the (1,1,0) position and 1 meV transfer, use Qmean = [1,0,1]. If no virtualmacs object is provided, it is assumed that we are using the lab frame. 
 
-	:param M: 3x3 Resolution matrix
+	:param M: 3x3 Resolution matrix of the specified point. 
 	:type M: np.ndarray, required
-	:param n_phi: Prints output with resolution info to terminal. 
-	:type n_phi: bool, optional.
+	:param Qmean: Center of the resolution ellipsoid, in format [Qu, Qv, E]. This is in terms of the viewing axes U and V. 
+	:type Qmean: np.ndarray, required.
+	:param macsobj: Virtualmacs object containing sample information and orientation. If not provided, will default to the lab frame and results will be in Ang^-1
+	:type macsobj: virtualMACS, optional.
 	:return ellip_list,proj_ellip_list: Returns a list contiaining np arrays for each ellipse. The arrays are structured as [[Qxpts,Qzpts],[Qxpts,Epts],[Qzpts,Epts]]
 	:rtype: list, list
 	"""

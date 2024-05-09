@@ -18,7 +18,6 @@ from tqdm.auto import tqdm
 import pickle
 #from importlib.resources import files
 
-
 class VirtualMACS(object):
     """
 	This class encompasses the virtual MACS experiment and contains various subclasses to handle 
