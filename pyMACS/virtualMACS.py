@@ -4,6 +4,7 @@ from . import sample
 from . import monochromator
 from . import kidney
 from . import macsdata
+from . import scripting
 import shutil
 import subprocess
 import time
@@ -721,8 +722,9 @@ class VirtualMACS(object):
                         # os.system('rm '+param_fname)
                         os.remove(param_fname)
                     except Exception as e:
-                        print('Warning when trying to remove paramter file:')
-                        print(e)
+                        pass
+                        #print('Warning when trying to remove paramter file:')
+                        #print(e)
             #print('Found previous identical kidney simulation. If this is a mistake, ')
             #print('delete the scan from the data matrix and try again. ')
             #print(kidney_output_dir)

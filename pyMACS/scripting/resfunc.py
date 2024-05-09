@@ -259,10 +259,11 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	#Now, recover the nearest calculated resolution ellipsoids, then rotate by phi. 
 	calc_pts = np.array(list(itertools.product(h_calc_pts,E_calc_pts)))
 	#Load the data matrixes for the Ei's assosciated with these points.
-	csvdir = os.path.dirname(__file__)+"ellipsoid_csv_files/"
+	csvdir = os.path.dirname(__file__)+"/ellipsoid_csv_files/"
 	macs.data.kidney_result_dir=''
 	macs.data.exptName=''
 	csvnames = glob.glob(csvdir+"*.csv")
+
 	#Find the files with the correct Ei, Ef
 	num_f = 0 
 	load_f_dict = {}
@@ -312,6 +313,7 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	hpt_0, wpt_0 = np.copy(hpt),np.copy(wpt)
 	fkey = f"Ef_{macsEf:.2f}_omega_{wpt:.2f}"
 	if calc_mode == "default":
+		print(load_f_dict)
 		f_load = load_f_dict[fkey]
 	if macs.data.data_matrix is False and calc_mode != "load_cov":
 		macs.data.load_data_matrix_from_csv(f_load)
@@ -591,7 +593,7 @@ def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_m
 	:rtype: np.ndarray, np.ndarray, np.ndarray
 	"""	
 	from pyMACS.virtualMACS import VirtualMACS
-	# Remove this to avoid 
+
 	macs_dirac = VirtualMACS('resolution_calculation',cifName=os.path.dirname(__file__)+'/dirac.cif',useOld=False)
 	macs_dirac.sample.orient_u=[1,0.0,0]
 	macs_dirac.sample.orient_v=[0,1,0]

@@ -1003,7 +1003,7 @@ class Data(object):
 		#Need to normalize spec, diff to monitor
 		monitor_list = np.array(data[:,file_params['Columns'].index('Monitor')]).astype(int)
 
-		data_matrix = pd.DataFrame(index=np.arange(0,len(Ei_list),1),columns=col_labels)
+		data_matrix = pd.DataFrame(index=np.arange(0,len(Ei_list),1),columns=col_labels,dtype=float)
 		data_matrix['Ei']=Ei_list
 		data_matrix['Ef']=Ef_list
 		data_matrix['A3']=A3_list 
@@ -1032,11 +1032,25 @@ class Data(object):
 			specstr_mat = 'SPEC'+str(i)
 			diffstr_mat_err = 'DIFF'+str(i)+'Err'
 			specstr_mat_err = 'SPEC'+str(i)+'Err'
-			data_matrix.loc[:,diffstr_mat]=np.array(data[:,file_params['Columns'].index(diffstr)]).astype(float)
-			data_matrix.loc[:,anastr_mat]=np.array(data[:,file_params['Columns'].index(anastr)]).astype(float)
-			data_matrix.loc[:,specstr_mat]=np.array(data[:,file_params['Columns'].index(specstr)]).astype(float)
-			data_matrix.loc[:,diffstr_mat_err]=np.sqrt(np.array(data[:,file_params['Columns'].index(diffstr)]).astype(float))
-			data_matrix.loc[:,specstr_mat_err]=np.sqrt(np.array(data[:,file_params['Columns'].index(specstr)]).astype(float))
+
+			diffarray=data[:,file_params['Columns'].index(diffstr)].astype(float)
+			anaarray=data[:,file_params['Columns'].index(anastr)].astype(float)
+			specarray=data[:,file_params['Columns'].index(specstr)].astype(float)
+			differrarray=np.sqrt(data[:,file_params['Columns'].index(diffstr)].astype(float))
+			specerrarray=np.sqrt(data[:,file_params['Columns'].index(specstr)].astype(float))
+			
+			data_matrix.loc[:,diffstr_mat]=diffarray
+			data_matrix.loc[:,anastr_mat]=anaarray
+			data_matrix.loc[:,specstr_mat]=specarray
+			data_matrix.loc[:,diffstr_mat_err]=differrarray
+			data_matrix.loc[:,specstr_mat_err]=specerrarray
+			'''
+			data_matrix[:,diffstr_mat]=diffarray
+			data_matrix[:,anastr_mat]=anaarray
+			data_matrix[:,specstr_mat]=specarray
+			data_matrix[:,diffstr_mat_err]=differrarray
+			data_matrix[:,specstr_mat_err]=specerrarray
+			'''
 
 		#If there exists no expt data, we are done. 
 		if type(self.expt_data_matrix) is bool:
