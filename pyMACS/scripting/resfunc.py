@@ -78,6 +78,7 @@ def hkl_to_labframe(h,k,l,macs):
 	Qv_vec = macs.sample.bstar_vec_labframe*k  
 	Qw_vec = macs.sample.cstar_vec_labframe*l
 	Qnet = Qu_vec+Qv_vec+Qw_vec
+	print(f"Qnet = {Qnet}")
 	if np.linalg.norm(Qnet[1])>0.2:
 		print("WARNING: Specified lattice vector does not lie in the scattering plane of the instrument.")
 	Qx,Qz = Qnet[0],Qnet[2]
@@ -250,9 +251,12 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	#At the end we will re-translate into the sample hkl frame. 
 	h_calc_pts = hpts[h_i]
 	E_calc_pts = wpts[w_i]
+	qxpt,qzpt = hkl_to_labframe(h,k,l,macs)
+
 	macs = macs_dirac_obj
 	#Also need to find the rotation required in the Qx/Qz plane.
-	qxpt,qzpt = hkl_to_labframe(h,k,l,macs)
+	if verbose is True:
+		print(f"\n Qx, Qz, for hkl = {[qxpt,qzpt]}")
 	h0,k0 = qxpt,qzpt
 	phi_hkl = np.arctan2(qzpt,qxpt)
 
@@ -615,3 +619,63 @@ def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_m
 			macs_obj=macs,verbose=verbose,macs_dirac_obj=macs_dirac,calc_mode=calc_mode)
 		M_diag = np.copy(M_diag)
 	return M,M_diag,Q_hkw
+
+
+def res_ellipses(M,Qmean,macsobj=None,n_phi=361):
+	"""
+	Shortcut function to return resollution ellipsoids for a given resolution matrix. Essentially automates the step of projection of the resolutoin matrix.
+
+	:param M: 3x3 Resolution matrix
+	:type M: np.ndarray, required
+	:param n_phi: Prints output with resolution info to terminal. 
+	:type n_phi: bool, optional.
+	:return ellip_list,proj_ellip_list: Returns a list contiaining np arrays for each ellipse. The arrays are structured as [[Qxpts,Qzpts],[Qxpts,Epts],[Qzpts,Epts]]
+	:rtype: list, list
+	"""
+	sig2hwhm = np.sqrt(2. * np.log(2.))
+	sig2fwhm = 2.*sig2hwhm
+
+	results,Qres_proj = calc_ellipses(M,verbose=False)
+	# Ellipsoids were originally calculated in the Qx, Qz, E lab frame. Need to rescale to sample, if one is provided.
+	if macsobj is not None:
+		Uvec = macsobj.sample.orient_u 
+		Vvec = macsobj.sample.orient_v
+		magU = macsobj.sample.Qmag_HKL(Uvec[0],Uvec[1],Uvec[2])
+		magV = macsobj.sample.Qmag_HKL(Vvec[0],Vvec[1],Vvec[2])
+		Qxscale = 1.0/magU
+		Qzscale = 1.0/magV
+		Escale = 1.0
+	else:
+		Qxscale = 1.0
+		Qzscale =1.0
+		Escale =1.0
+	ellfkt = lambda rad, rot, phi, xscale,yscale, Qmean2d : \
+	    np.dot(rot, np.array([ rad[0]*xscale*np.cos(phi), rad[1]*yscale*np.sin(phi) ])) + Qmean2d
+
+
+	# 2d plots
+	#fig = plot.figure()
+	ellis = results
+	num_ellis = len(ellis)
+	coord_axes = [[0,1], [1,2], [0,2]]
+
+	coord_axes = [[0,1], [0,2], [1,2]]
+	ellip_list = []
+	proj_ellip_list = []
+	ellip_scales = [[Qxscale,Qzscale],[Qxscale,Escale],[Qzscale,Escale]]
+	for ellidx in [0,1,2]:
+	    # centre plots on zero or mean Q vector ?
+	    QxE = np.array([[Qmean[coord_axes[ellidx][0]]],
+	                    [Qmean[coord_axes[ellidx][1]]]])
+
+	    phi = np.linspace(0, 2.*np.pi, n_phi)
+
+	    ell_QxE = ellfkt(ellis[ellidx]["fwhms"]*0.5, ellis[ellidx]["rot"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
+	    ell_QxE_proj = ellfkt(ellis[ellidx]["fwhms_proj"]*0.5, ellis[ellidx]["rot_proj"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
+
+	    ellippts = np.array([ell_QxE[0], ell_QxE[1]])
+	    ellip_list.append(ellippts)
+	    projpts=np.array([ell_QxE_proj[0], ell_QxE_proj[1]])
+	    proj_ellip_list.append(projpts)
+
+	return np.array(ellip_list),np.array(proj_ellip_list)

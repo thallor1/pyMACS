@@ -4,3 +4,4 @@ from .resfunc import proj_quad
 from .resfunc import hkl_to_labframe
 from .resfunc import calc_ellipses
 from .resfunc import macs_resfunc
+from .resfunc import res_ellipses
