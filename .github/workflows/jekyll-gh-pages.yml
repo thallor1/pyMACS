@@ -6,6 +6,12 @@ jobs:
   sphinx-build:
     runs-on: ubuntu-latest
     steps:
+    - name: Install prerequisits
+      run: |
+        pip install numpy lmfit matplotlib scipy PyCIFRW pandas joblib tqdm mcstasscript
+    - name: Instally pyMACS
+      run: |
+       pip install git+https://github.com/thallor1/pyMACS
     - uses: actions/checkout@v3
     - name: Install prerequisites
       run: |
