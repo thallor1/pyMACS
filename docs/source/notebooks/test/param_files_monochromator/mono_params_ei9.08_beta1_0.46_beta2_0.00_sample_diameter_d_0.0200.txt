@@ -1,5 +1,5 @@
 EM=9.078
-EF_all=9.078
+EF_all=5.0
 HF=1
 VF=1
 sample_diameter_d=0.02

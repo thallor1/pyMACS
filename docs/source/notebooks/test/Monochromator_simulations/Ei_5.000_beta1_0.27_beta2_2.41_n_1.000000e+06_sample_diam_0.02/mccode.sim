@@ -1,5 +1,5 @@
 McStas simulation description file for dmtas.
-Date:    Mon May 13 14:26:08 2024
+Date:    Mon May 13 14:38:00 2024
 Program: 
 
 begin instrument: dmtas
@@ -19,7 +19,7 @@ begin simulation: Ei_5.000_beta1_0.27_beta2_2.41_n_1.000000e+06_sample_diam_0.02
   Ncount: 1000000
   Trace: no
   Gravitation: no
-  Seed: 1715624768868191
+  Seed: 1715625480621695
   Directory: Ei_5.000_beta1_0.27_beta2_2.41_n_1.000000e+06_sample_diam_0.02
   Param: EM=5
   Param: EF_all=5
@@ -46,8 +46,8 @@ begin simulation: Ei_5.000_beta1_0.27_beta2_2.41_n_1.000000e+06_sample_diam_0.02
 end simulation
 
 begin data
-  Date: Mon May 13 14:26:16 2024 (1715624776)
-  type: array_2d(11, 32015)
+  Date: Mon May 13 14:38:08 2024 (1715625488)
+  type: array_2d(11, 32045)
   Source: dmtas (MACS_monochromator.instr)
   component: Virtual_out
   position: 1.40992 0 6.2402
@@ -55,7 +55,7 @@ begin data
   Ncount: 2000000
   filename: E5.00meV_HF1_VF1_Sample0.020_b1_0.27_b2_2.41_mono_mis0.15.dat
   statistics: X0=0; dX=0; Y0=0; dY=0;
-  signal: Min=37364.3; Max=37364.3; Mean=0;
+  signal: Min=36299.9; Max=36299.9; Mean=0;
   values: 0 0 0
   xvar: Li
   yvar: p 
@@ -63,6 +63,6 @@ begin data
   ylabel: p x y z vx vy vz t sx sy sz 
   zvar: I
   zlabel: Signal per bin
-  xylimits: 1 32015 1 11
+  xylimits: 1 32045 1 11
   variables: p x y z vx vy vz t sx sy sz 
 end data

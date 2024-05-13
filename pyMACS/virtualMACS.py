@@ -718,8 +718,9 @@ class VirtualMACS(object):
                         # os.system('rm \"'+param_fname+'\"')
                         os.remove(param_fname)
                     except Exception as e:
-                        print('Warning when trying to remove paramter file:')
-                        print(e)
+                        pass
+                        #print('Warning when trying to remove paramter file:')
+                        #print(e)
             os.chdir(orig_dir)
 
         else:

@@ -26,7 +26,7 @@ Installation
 
    <hr>
 
-Notebook Examples
+Notebook Tutorials
 -------------------
 
 .. toctree::
