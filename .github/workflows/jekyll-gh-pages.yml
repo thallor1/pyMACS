@@ -8,14 +8,14 @@ jobs:
     steps:
     - name: Install prerequisites
       run: |
-        pipx install numpy lmfit matplotlib scipy PyCIFRW pandas joblib tqdm mcstasscript
+        pip3 install numpy lmfit matplotlib scipy PyCIFRW pandas joblib tqdm mcstasscript
     - name: Install pyMACS
       run: |
-       pipx install git+https://github.com/thallor1/pyMACS
+       pip3 install git+https://github.com/thallor1/pyMACS
     - uses: actions/checkout@v3
     - name: Install prerequisites
       run: |
-        pipx install sphinx furo nbsphinx sphinx-gallery pandoc
+        pip3 install sphinx furo nbsphinx sphinx-gallery pandoc
     - name: Sphinx build
       run: |
         sphinx-build docs/source docs/build
