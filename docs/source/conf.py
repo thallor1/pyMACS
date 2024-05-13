@@ -6,6 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import pyMACS
+from pyMACS.virtualMACS import VirtualMACS
 project = 'pyMACS'
 copyright = '2024, Thomas Halloran'
 author = 'Thomas Halloran'
