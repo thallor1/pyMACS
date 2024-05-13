@@ -3,6 +3,7 @@
 !pyMACS/scripting/covariance_matrices/*.dat
 param_files_kidney/
 Kidney_simulations/
+docs/test/
 pyMACS/Demonstration/cri3_experiment/Kidney_simluations
 pyMACS/Demonstration/cri3_experiment/Simulated ng0 files
 *.csv

@@ -1,0 +1,783 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pyMACS.scripting package &#8212; pyMACS documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="_static/documentation_options.js?v=e1a75a79"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'pyMACS.scripting';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/MACS1.png" class="logo__image only-light" alt="pyMACS documentation - Home"/>
+    <script>document.write(`<img src="_static/MACS1.png" class="logo__image only-dark" alt="pyMACS documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    Welcome to pyMACS’s documentation!
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/introduction_notebook.html">pyMACS Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/emulate_MACS_data.html">Emulate a MACS ng0 file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/resolution_example.html">Resolution function demonstration</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="virtualMACS.html">virtualMACS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sample.html">Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kidney.html">kidney</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monochromator.html">monochromator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="macsdata.html">macsdata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripting.html">scripting</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/thallor1/pyMACS" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/pyMACS.scripting.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>pyMACS.scripting package</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.get_kidney_params">pyMACS.scripting.get_kidney_params module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.get_kidney_params.get_kidney_params"><code class="docutils literal notranslate"><span class="pre">get_kidney_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.get_mono_params">pyMACS.scripting.get_mono_params module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.get_mono_params.get_mono_params"><code class="docutils literal notranslate"><span class="pre">get_mono_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.import_ng0">pyMACS.scripting.import_ng0 module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.import_ng0.import_ng0"><code class="docutils literal notranslate"><span class="pre">import_ng0()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.macs_to_mcstas">pyMACS.scripting.macs_to_mcstas module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar"><code class="docutils literal notranslate"><span class="pre">ProgressBar</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.DEFAULT"><code class="docutils literal notranslate"><span class="pre">ProgressBar.DEFAULT</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.FULL"><code class="docutils literal notranslate"><span class="pre">ProgressBar.FULL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.done"><code class="docutils literal notranslate"><span class="pre">ProgressBar.done()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.getParams"><code class="docutils literal notranslate"><span class="pre">getParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.speed_writeScriptLine"><code class="docutils literal notranslate"><span class="pre">speed_writeScriptLine()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.speed_writeScriptLine_monochromator"><code class="docutils literal notranslate"><span class="pre">speed_writeScriptLine_monochromator()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.writeParams"><code class="docutils literal notranslate"><span class="pre">writeParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.writeParams_mono"><code class="docutils literal notranslate"><span class="pre">writeParams_mono()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.mcstas_to_MACS_spot">pyMACS.scripting.mcstas_to_MACS_spot module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.resfunc">pyMACS.scripting.resfunc module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.calc_ellipses"><code class="docutils literal notranslate"><span class="pre">calc_ellipses()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.descr_ellipse"><code class="docutils literal notranslate"><span class="pre">descr_ellipse()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.hkl_to_labframe"><code class="docutils literal notranslate"><span class="pre">hkl_to_labframe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.macs_resfunc"><code class="docutils literal notranslate"><span class="pre">macs_resfunc()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.nearest_MACS_resfunc"><code class="docutils literal notranslate"><span class="pre">nearest_MACS_resfunc()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.proj_quad"><code class="docutils literal notranslate"><span class="pre">proj_quad()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.res_ellipses"><code class="docutils literal notranslate"><span class="pre">res_ellipses()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting">Module contents</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="pymacs-scripting-package">
+<h1>pyMACS.scripting package<a class="headerlink" href="#pymacs-scripting-package" title="Link to this heading">#</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-pyMACS.scripting.get_kidney_params">
+<span id="pymacs-scripting-get-kidney-params-module"></span><h2>pyMACS.scripting.get_kidney_params module<a class="headerlink" href="#module-pyMACS.scripting.get_kidney_params" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.get_kidney_params.get_kidney_params">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.get_kidney_params.</span></span><span class="sig-name descname"><span class="pre">get_kidney_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.get_kidney_params.get_kidney_params" title="Link to this definition">#</a></dt>
+<dd><p>Input - filename of MACS data</p>
+<dl class="simple">
+<dt>Output - Relevant parameters to the simulation:</dt><dd><p>A3 angles
+Incident energies
+Final energies
+beta1 angles
+beta2 angles</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyMACS.scripting.get_mono_params">
+<span id="pymacs-scripting-get-mono-params-module"></span><h2>pyMACS.scripting.get_mono_params module<a class="headerlink" href="#module-pyMACS.scripting.get_mono_params" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.get_mono_params.get_mono_params">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.get_mono_params.</span></span><span class="sig-name descname"><span class="pre">get_mono_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.get_mono_params.get_mono_params" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-pyMACS.scripting.import_ng0">
+<span id="pymacs-scripting-import-ng0-module"></span><h2>pyMACS.scripting.import_ng0 module<a class="headerlink" href="#module-pyMACS.scripting.import_ng0" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.import_ng0.import_ng0">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.import_ng0.</span></span><span class="sig-name descname"><span class="pre">import_ng0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.import_ng0.import_ng0" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-pyMACS.scripting.macs_to_mcstas">
+<span id="pymacs-scripting-macs-to-mcstas-module"></span><h2>pyMACS.scripting.macs_to_mcstas module<a class="headerlink" href="#module-pyMACS.scripting.macs_to_mcstas" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.ProgressBar">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.macs_to_mcstas.</span></span><span class="sig-name descname"><span class="pre">ProgressBar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">width=40</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt='Progress:</span> <span class="pre">%(bar)s</span> <span class="pre">%(percent)3d%%'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symbol='='</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output=&lt;_io.TextIOWrapper</span> <span class="pre">name='&lt;stderr&gt;'</span> <span class="pre">mode='w'</span> <span class="pre">encoding='utf-8'&gt;</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.ProgressBar.DEFAULT">
+<span class="sig-name descname"><span class="pre">DEFAULT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'Progress:</span> <span class="pre">%(bar)s</span> <span class="pre">%(percent)3d%%'</span></em><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.DEFAULT" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.ProgressBar.FULL">
+<span class="sig-name descname"><span class="pre">FULL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'%(bar)s</span> <span class="pre">%(current)d/%(total)d</span> <span class="pre">(%(percent)3d%%)</span> <span class="pre">%(remaining)d</span> <span class="pre">to</span> <span class="pre">go'</span></em><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.FULL" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.ProgressBar.done">
+<span class="sig-name descname"><span class="pre">done</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.done" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.getParams">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.macs_to_mcstas.</span></span><span class="sig-name descname"><span class="pre">getParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ng0file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.getParams" title="Link to this definition">#</a></dt>
+<dd><p>EM=2.7
+EF_all=2.5
+HF=1
+VF=1
+sample_diameter_d=0.02
+beta_1=1
+beta_2=1
+CPF=0
+MPL=6.06
+MPD=0.775
+APE_h=0.35
+APE_v=0.35
+misalign_mono_deg=0.15
+DIRDEV=0
+DIVSOU=3.0
+L0_delta=-1.06
+L1_delta=0.0
+mon_t=0.0
+mon_e=0.0
+monrot_delta=0</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.speed_writeScriptLine">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.macs_to_mcstas.</span></span><span class="sig-name descname"><span class="pre">speed_writeScriptLine</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ei_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ef</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">N</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A3min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">A3max</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.speed_writeScriptLine" title="Link to this definition">#</a></dt>
+<dd><p>Function to properly write Mcstas call in script. Specifically for Kidney.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.speed_writeScriptLine_monochromator">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.macs_to_mcstas.</span></span><span class="sig-name descname"><span class="pre">speed_writeScriptLine_monochromator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">script_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ei</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseName</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">speed_param</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_mono</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000000.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.speed_writeScriptLine_monochromator" title="Link to this definition">#</a></dt>
+<dd><p>Function to properly write McStas call in script. Specifically for Monochromator.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.writeParams">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.macs_to_mcstas.</span></span><span class="sig-name descname"><span class="pre">writeParams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.writeParams" title="Link to this definition">#</a></dt>
+<dd><p>Function to write a parameter file for a kidney sim.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.macs_to_mcstas.writeParams_mono">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.macs_to_mcstas.</span></span><span class="sig-name descname"><span class="pre">writeParams_mono</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">param_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">param_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.macs_to_mcstas.writeParams_mono" title="Link to this definition">#</a></dt>
+<dd><p>Function to write a parameter file for a monochromator sim</p>
+</dd></dl>
+
+</section>
+<section id="module-pyMACS.scripting.mcstas_to_MACS_spot">
+<span id="pymacs-scripting-mcstas-to-macs-spot-module"></span><h2>pyMACS.scripting.mcstas_to_MACS_spot module<a class="headerlink" href="#module-pyMACS.scripting.mcstas_to_MACS_spot" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-pyMACS.scripting.resfunc">
+<span id="pymacs-scripting-resfunc-module"></span><h2>pyMACS.scripting.resfunc module<a class="headerlink" href="#module-pyMACS.scripting.resfunc" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.resfunc.calc_ellipses">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.resfunc.</span></span><span class="sig-name descname"><span class="pre">calc_ellipses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Qres_Q</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.resfunc.calc_ellipses" title="Link to this definition">#</a></dt>
+<dd><p>Helper function for resolution function calculation, Requires a resolution ellipsoid.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h</strong> (<em>float</em><em>, </em><em>required</em>) – Miller h index. Non-integer values allowed.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional.</em>) – Prints output with resolution info to terminal.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>results,M_proj, these are the results dictionary containing the resolution ellipsoid info for the Qx-Qz plane, the Qx-E plane, and the Qz-E plane. M_proj is the projected resolution matrix on each plane.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.resfunc.descr_ellipse">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.resfunc.</span></span><span class="sig-name descname"><span class="pre">descr_ellipse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">quadric</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.resfunc.descr_ellipse" title="Link to this definition">#</a></dt>
+<dd><p>Helper function for resolution function calculation. Projects resolution matrix to ellipsoids.
+:param _E: Resolution matrix.
+:type _E: np.ndarray, required
+:param idx: Axis index.
+:type idx: int, required
+:return: [fwhms, angles, eigenvectors], The resolution ellipsoid full width at half maximum, polar angle, and eigenvectors associated with the covariance matrix.
+:rtype: [np.ndarray,np.ndarray,list]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.resfunc.hkl_to_labframe">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.resfunc.</span></span><span class="sig-name descname"><span class="pre">hkl_to_labframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.resfunc.hkl_to_labframe" title="Link to this definition">#</a></dt>
+<dd><p>Helper function for resolution function calculation, takes the h,k,l indices and a macs instrument object and converts to Qx, Qz.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h</strong> (<em>float</em><em>, </em><em>required</em>) – Miller h index. Non-integer values allowed.</p></li>
+<li><p><strong>k</strong> (<em>float</em><em>, </em><em>required</em>) – Miller k index.</p></li>
+<li><p><strong>l</strong> (<em>float</em><em>, </em><em>required</em>) – Miller l index.</p></li>
+<li><p><strong>macs</strong> (<em>virtualMacs</em><em>, </em><em>required</em>) – pyMACS instrument object.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Qx, Qz, where x is defined as perpendicular to beam and z is along beam.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float,float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.resfunc.macs_resfunc">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.resfunc.</span></span><span class="sig-name descname"><span class="pre">macs_resfunc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macsEf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macsobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'load_cov'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Calculated_ellipsoid_pngs/'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.resfunc.macs_resfunc" title="Link to this definition">#</a></dt>
+<dd><p>Main function that recovers the MACS resolution ellipsoid from a pre-calculated set of ellipsoids.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>h</strong> (<em>float</em><em>, </em><em>required</em>) – Miller h index. Non-integer values allowed.</p></li>
+<li><p><strong>k</strong> (<em>float</em><em>, </em><em>required</em>) – Miller k index.</p></li>
+<li><p><strong>l</strong> (<em>float</em><em>, </em><em>required</em>) – Miller l index.</p></li>
+<li><p><strong>E</strong> (<em>float</em><em>, </em><em>required</em>) – Energy transfer (meV)</p></li>
+<li><p><strong>macsEf</strong> (<em>float</em><em>, </em><em>required.</em>) – MACS final energy setting, only 3.7 and 5.0 meV are currently supported.</p></li>
+<li><p><strong>gen_plot</strong> (<em>bool</em><em>, </em><em>optional.</em>) – Flag to trigger creation of figure summarizing the MACS resolution ellipsoid.</p></li>
+<li><p><strong>macs_obj</strong> (<em>virtualMACS</em><em>, </em><em>optional</em>) – If the user supplies a pyMACS object, the input sample coordinate system will be used rather than the Qx, Qz frame in Ang^-1.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional.</em>) – Flag to print resoultion ellipsoid information to terminal.</p></li>
+<li><p><strong>calc_mode</strong> (<em>str</em><em>, </em><em>optional.</em>) – There are three options, “default”, “load_cov”, and “Covariance”. Users should only use “load_cov”, or “default” if they have the correct csv files available. “Covariance” was a developer option, and returns just the covariance matrix.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>M, M_diag, Q_hkw. The resolution matrix, the diagonal elements / fwhm in Qx, Qz, E, and the (Qx, Qz, E) position of the closest tabulated point.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray, np.ndarray, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.resfunc.nearest_MACS_resfunc">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.resfunc.</span></span><span class="sig-name descname"><span class="pre">nearest_MACS_resfunc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macsEf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gen_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Calculated_ellipsoid_pngs/'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macs_obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macs_dirac_obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">calc_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.resfunc.nearest_MACS_resfunc" title="Link to this definition">#</a></dt>
+<dd><p>Using a prevoiusly calculated database of resolution ellipsoids, returns the nearest ellipsoid to the input h,k,l,energy point. Can optionally 
+:param h: Miller h index. Non-integer values allowed.
+:type h: float, required
+:param k: Miller k index.
+:type k: float, required
+:param l: Miller l index.
+:type l: float, required
+:param E: Energy transfer (meV)
+:type E: float, required
+:param macsEf: MACS final energy setting, only 3.7 and 5.0 meV are currently supported.
+:type macsEf: float, required.
+:param gen_plot: Flag to trigger creation of figure summarizing the MACS resolution ellipsoid.
+:type gen_plot: bool, optional.
+:param figdir: Output folder to save summary of resolution ellipsoid. 
+:type figdir: str, optional
+:param macs_obj: If the user supplies a pyMACS object, the input sample coordinate system will be used rather than the Qx, Qz frame in Ang^-1. 
+:type macs_obj: virtualMACS, optional
+:param verbose: Flag to print resoultion ellipsoid information to terminal.
+:type verbose: bool, optional.
+:param macs_dirac_obj: Input virtualMACS object using the Qx, Qz frame. User shouldn’t touch this. 
+:type macs_dirac_obj: virtualMACS, optional
+:param calc_mode: There are three options, “default”, “load_cov”, and “Covariance”. Users should only use “load_cov”, or “default” if they have the correct csv files available. “Covariance” was a developer option, and returns just the covariance matrix.
+:type calc_mode: str, optional.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Qres_Q,[fwhm_M[0],fwhm_M[1],fwhm_M_Eres],[hpt,kpt,wpt]. A list of the resolution ellipsoid M, The Bragg fwhms in Qx (Ang^-1), Qz (Ang^-1), E (meV), and the value of the closest tabulated point in (Qx,Qz,E).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.resfunc.proj_quad">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.resfunc.</span></span><span class="sig-name descname"><span class="pre">proj_quad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">_E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.resfunc.proj_quad" title="Link to this definition">#</a></dt>
+<dd><p>Helper function for resolution function calculation. Projects resolution matrix to ellipsoids.
+:param _E: Resolution matrix.
+:type _E: np.ndarray, required
+:param idx: Axis index.
+:type idx: int, required
+:return: E, projected ellipsoid
+:rtype: np.ndarray</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.scripting.resfunc.res_ellipses">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.scripting.resfunc.</span></span><span class="sig-name descname"><span class="pre">res_ellipses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">M</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Qmean</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">macsobj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_phi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">361</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.scripting.resfunc.res_ellipses" title="Link to this definition">#</a></dt>
+<dd><p>Shortcut function to return resollution ellipsoids for a given resolution matrix. Essentially automates the step of projection of the resolution matrix. The projection is in the sample Qx, Qz, E frame.
+The value of the center of the ellipsoid must be specified, Qmean, which is in units of u, v. For example, if u=[1,1,0], v=[0,0,1], and one wants the (1,1,0) reflection, use Qmean=[1,0,0]. If one wants the resolution at the (1,1,0) position and 1 meV transfer, use Qmean = [1,0,1]. If no virtualmacs object is provided, it is assumed that we are using the lab frame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>M</strong> (<em>np.ndarray</em><em>, </em><em>required</em>) – 3x3 Resolution matrix of the specified point.</p></li>
+<li><p><strong>Qmean</strong> (<em>np.ndarray</em><em>, </em><em>required.</em>) – Center of the resolution ellipsoid, in format [h, k, l, E]. Note that if the input point is not in the scattering plane, this will give wrong results.</p></li>
+<li><p><strong>macsobj</strong> (<em>virtualMACS</em><em>, </em><em>optional.</em>) – Virtualmacs object containing sample information and orientation. If not provided, will default to the lab frame and results will be in Ang^-1</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return ellip_list,proj_ellip_list<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns a list contiaining np arrays for each ellipse. The arrays are structured as [[Qxpts,Qzpts],[Qxpts,Epts],[Qzpts,Epts]]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list, list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-pyMACS.scripting">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyMACS.scripting" title="Link to this heading">#</a></h2>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.get_kidney_params">pyMACS.scripting.get_kidney_params module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.get_kidney_params.get_kidney_params"><code class="docutils literal notranslate"><span class="pre">get_kidney_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.get_mono_params">pyMACS.scripting.get_mono_params module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.get_mono_params.get_mono_params"><code class="docutils literal notranslate"><span class="pre">get_mono_params()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.import_ng0">pyMACS.scripting.import_ng0 module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.import_ng0.import_ng0"><code class="docutils literal notranslate"><span class="pre">import_ng0()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.macs_to_mcstas">pyMACS.scripting.macs_to_mcstas module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar"><code class="docutils literal notranslate"><span class="pre">ProgressBar</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.DEFAULT"><code class="docutils literal notranslate"><span class="pre">ProgressBar.DEFAULT</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.FULL"><code class="docutils literal notranslate"><span class="pre">ProgressBar.FULL</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.ProgressBar.done"><code class="docutils literal notranslate"><span class="pre">ProgressBar.done()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.getParams"><code class="docutils literal notranslate"><span class="pre">getParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.speed_writeScriptLine"><code class="docutils literal notranslate"><span class="pre">speed_writeScriptLine()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.speed_writeScriptLine_monochromator"><code class="docutils literal notranslate"><span class="pre">speed_writeScriptLine_monochromator()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.writeParams"><code class="docutils literal notranslate"><span class="pre">writeParams()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.macs_to_mcstas.writeParams_mono"><code class="docutils literal notranslate"><span class="pre">writeParams_mono()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.mcstas_to_MACS_spot">pyMACS.scripting.mcstas_to_MACS_spot module</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting.resfunc">pyMACS.scripting.resfunc module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.calc_ellipses"><code class="docutils literal notranslate"><span class="pre">calc_ellipses()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.descr_ellipse"><code class="docutils literal notranslate"><span class="pre">descr_ellipse()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.hkl_to_labframe"><code class="docutils literal notranslate"><span class="pre">hkl_to_labframe()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.macs_resfunc"><code class="docutils literal notranslate"><span class="pre">macs_resfunc()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.nearest_MACS_resfunc"><code class="docutils literal notranslate"><span class="pre">nearest_MACS_resfunc()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.proj_quad"><code class="docutils literal notranslate"><span class="pre">proj_quad()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.scripting.resfunc.res_ellipses"><code class="docutils literal notranslate"><span class="pre">res_ellipses()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.scripting">Module contents</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Thomas Halloran
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Thomas Halloran.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

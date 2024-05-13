@@ -1,0 +1,718 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>macsdata &#8212; pyMACS documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="_static/documentation_options.js?v=e1a75a79"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'macsdata';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="scripting" href="scripting.html" />
+    <link rel="prev" title="monochromator" href="monochromator.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/MACS1.png" class="logo__image only-light" alt="pyMACS documentation - Home"/>
+    <script>document.write(`<img src="_static/MACS1.png" class="logo__image only-dark" alt="pyMACS documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    Welcome to pyMACS’s documentation!
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/introduction_notebook.html">pyMACS Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/emulate_MACS_data.html">Emulate a MACS ng0 file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/resolution_example.html">Resolution function demonstration</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="virtualMACS.html">virtualMACS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sample.html">Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kidney.html">kidney</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monochromator.html">monochromator</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">macsdata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripting.html">scripting</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/thallor1/pyMACS" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/macsdata.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>macsdata</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.append_data_matrix_from_csv"><code class="docutils literal notranslate"><span class="pre">Data.append_data_matrix_from_csv()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.bin_constE_slice"><code class="docutils literal notranslate"><span class="pre">Data.bin_constE_slice()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.combine_all_csv"><code class="docutils literal notranslate"><span class="pre">Data.combine_all_csv()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.combine_csv_scans"><code class="docutils literal notranslate"><span class="pre">Data.combine_csv_scans()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.fake_A3_scan"><code class="docutils literal notranslate"><span class="pre">Data.fake_A3_scan()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.get_QE_FWHM"><code class="docutils literal notranslate"><span class="pre">Data.get_QE_FWHM()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.import_ng0_to_matrix"><code class="docutils literal notranslate"><span class="pre">Data.import_ng0_to_matrix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.load_data_matrix_from_csv"><code class="docutils literal notranslate"><span class="pre">Data.load_data_matrix_from_csv()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.project_data_QE"><code class="docutils literal notranslate"><span class="pre">Data.project_data_QE()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.take_cut"><code class="docutils literal notranslate"><span class="pre">Data.take_cut()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.take_slice"><code class="docutils literal notranslate"><span class="pre">Data.take_slice()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.take_volume"><code class="docutils literal notranslate"><span class="pre">Data.take_volume()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.write_data_to_ng0"><code class="docutils literal notranslate"><span class="pre">Data.write_data_to_ng0()</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="macsdata">
+<h1>macsdata<a class="headerlink" href="#macsdata" title="Link to this heading">#</a></h1>
+<p>This is a python object that is the main wrapper for all of the methods of pyMACS. It requires only a few details to initialize - a .cif file to specify the sample being simulated, and a few instrumental settings.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyMACS.macsdata.</span></span><span class="sig-name descname"><span class="pre">Data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exptName</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kidney_result_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compile_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PTAI_det</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'single_crystal'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to handle the results of McStas simulations and compare to 
+experimental data. Also used to convert to ng0 format for Mslice.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>exptName</strong> (<em>str</em>) – Name assosciated with the experiment.</p></li>
+<li><p><strong>data_matrix</strong> (<em>pd.Dataframe</em>) – Huge pandas matrix containing all of the previous results. Store all results in memory to be quickly referenced.
+Gone into in more detail elsewhere in individual functions, but can technically also be accessed directly by users.</p></li>
+<li><p><strong>projected_matrix</strong> (<em>pd.Dataframe</em>) – Results after being projected into Q/E space the viewing axis specified by the sample alignment. 
+Also a pandas dataframe.</p></li>
+<li><p><strong>expt_data_matrix</strong> (<em>pd.Dataframe</em>) – Pandas Dataframe containing all imported experimental results. Convenient to compare to the normal data_matrix
+directly.</p></li>
+<li><p><strong>projected_expt_matrix</strong> (<em>pd.Dataframe</em>) – Experimental data projected into Q/E space using the specified sample orientation.</p></li>
+<li><p><strong>PTAI_det</strong> (<em>int</em>) – If PTAI is being used, specifies the detector.</p></li>
+<li><p><strong>datamode</strong> (<em>str</em><em>, </em><em>optional</em>) – String specifying if the scattering is from a single crystalline or powder sample.</p></li>
+<li><p><strong>csv_name</strong> (<em>str</em>) – Specifies the name of the .csv file where the cumulative data matrix is stored.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.append_data_matrix_from_csv">
+<span class="sig-name descname"><span class="pre">append_data_matrix_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.append_data_matrix_from_csv" title="Link to this definition">#</a></dt>
+<dd><p>Loads a csv_file containing a data matrix and appends it to the data matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>csv_file</strong> (<em>str</em>) – Filename of data matrix stored in .csv file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.bin_constE_slice">
+<span class="sig-name descname"><span class="pre">bin_constE_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">num_ubins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_vbins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">urange</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrange</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcstas'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.bin_constE_slice" title="Link to this definition">#</a></dt>
+<dd><p>If the data matrix has already been projection into Q-space, returns a constant energy slice based on the specified bins.
+The directions are specified by the crystal orientation, i.e. the u-v vectors.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>num_ubins</strong> (<em>int</em>) – Number of bins along the u-direction.</p></li>
+<li><p><strong>num_vbins</strong> (<em>int</em>) – number of bins along the v-direction.</p></li>
+<li><p><strong>urange</strong> (<em>list</em>) – List of min and max values along u-axis in format of [umin, umax]</p></li>
+<li><p><strong>vrange</strong> (<em>list</em>) – list of min and max values along v-axis in format of [vmin, vmax]</p></li>
+<li><p><strong>omega_range</strong> (<em>[</em><em>float</em><em>, </em><em>float</em><em>]</em>) – List of min and max values in energy transfer to average over in format of [Emin, Emax]</p></li>
+<li><p><strong>which_data</strong> (<em>str</em>) – Determines if experimental or simulated data should be used, 
+‘mcstas’ to use calculated scattering and ‘macs’ for experimental. Allowed value ‘mcstas’ and ‘macs’</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return X,Y,Z<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrices of U-coordinates, V-coordinates, and intensities. Suitable to plot in plt.pcolormesh.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,np.ndarray,np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.combine_all_csv">
+<span class="sig-name descname"><span class="pre">combine_all_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'_total.csv'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.combine_all_csv" title="Link to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>Combines all of the .csv files in the result directory and saves into a composite large one. This can be slow. </dt><dd><p>Preserves old files.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fname</strong> – Suffix to append output csv filename with. Total filename is (result_dir + exptName + fname).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.combine_csv_scans">
+<span class="sig-name descname"><span class="pre">combine_csv_scans</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">preserve_old</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flagstr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.combine_csv_scans" title="Link to this definition">#</a></dt>
+<dd><p>Takes individual csvs which are the output of each scan and combines them into a master csv. 
+Also updates the data matrix to reflect this.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.fake_A3_scan">
+<span class="sig-name descname"><span class="pre">fake_A3_scan</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">A3_angles</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.fake_A3_scan" title="Link to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>Function that fakes the rotation of the sample and simply copies the intensity at one angle over many.</dt><dd><p>Will throw an error if multiple A3 angles exist in the data matrix already.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>A3_angles</strong> (<em>list</em>) – List of A3_angles to imitate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.get_QE_FWHM">
+<span class="sig-name descname"><span class="pre">get_QE_FWHM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hkl_pt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Q_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.get_QE_FWHM" title="Link to this definition">#</a></dt>
+<dd><p>Gets FWHM values in Q and energy in Ang^-1 for a specified (h,k,l,omega) position. Requires a cut direction (longitudinal).
+The transverse direction is defined by the cross product of the +z vector and the cut direction. Returns a FWHM for the longitudinal, 
+transverse, and energy axes. A Q-resolution can also be specfied, but energy transfer is never binned.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.import_ng0_to_matrix">
+<span class="sig-name descname"><span class="pre">import_ng0_to_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.import_ng0_to_matrix" title="Link to this definition">#</a></dt>
+<dd><p>Given a real MACS ng0 file, imports the result to the experimental data matrix.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fname</strong> (<em>str</em>) – Filename of the ng0 file.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.load_data_matrix_from_csv">
+<span class="sig-name descname"><span class="pre">load_data_matrix_from_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">csv_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.load_data_matrix_from_csv" title="Link to this definition">#</a></dt>
+<dd><p>Provided a csv_file produced by a previous data matrix, loads it and appends it to the current data_matrix.
+Duplicates are automatically removed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.project_data_QE">
+<span class="sig-name descname"><span class="pre">project_data_QE</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">which_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcstas'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">PTAI</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">viewing_axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.project_data_QE" title="Link to this definition">#</a></dt>
+<dd><p>Project the results stored in the data matrix into QE space- requires information from the sample object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>which_data</strong> (<em>str</em>) – Determines if experimental or simulated data should be used, 
+‘mcstas’ to use calculated scattering and ‘macs’ for experimental. Allowed value ‘mcstas’ and ‘macs’</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.take_cut">
+<span class="sig-name descname"><span class="pre">take_cut</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ubins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omegabins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcstas'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.take_cut" title="Link to this definition">#</a></dt>
+<dd><dl class="simple">
+<dt>Takes a cut of the data in the same style as MANTID.</dt><dd><p>Syntax for bins are [min,max] - averaged (or integrated) within this limit
+[min,max,numBins] - cut axis, cut will be from min to max with that number of steps. Two of the three bins must be 
+integrated over.</p>
+</dd>
+</dl>
+<p>Integration not supported now- only mean in the region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ubins</strong> (<em>list</em>) – Binning along u-direction in format of [min,max,numBins] or [min,max]</p></li>
+<li><p><strong>vbins</strong> (<em>list</em>) – Binning along v-direction in format of [min,max,numBins] or [min,max]</p></li>
+<li><p><strong>omegabins</strong> (<em>list</em>) – Binning along energy-axis in format of [min,max,numBins] or [min,max]</p></li>
+<li><p><strong>which_data</strong> (<em>str</em>) – Determines if experimental or simulated data should be used, 
+‘mcstas’ to use calculated scattering and ‘macs’ for experimental. Allowed value ‘mcstas’ and ‘macs’</p></li>
+<li><p><strong>statistic</strong> (<em>str</em>) – Only mean is supported right now. Integration in the future.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return x,i,err<span class="colon">:</span></dt>
+<dd class="field-even"><p>Returns three np arrays of the cut axis dimension coordinates, the intensities, and errors
+at this points.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray, np.ndarray, np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.take_slice">
+<span class="sig-name descname"><span class="pre">take_slice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ubins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omegabins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcstas'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.take_slice" title="Link to this definition">#</a></dt>
+<dd><p>Takes a slice integrating over one dimension in Q-space. Two  of the bins must be in MANTID/HORACE style
+format [min,max,number of bins], and one must be integrated over and specified as [min,max]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ubins</strong> (<em>list</em>) – Bin specification in mantid format along u-direction (min,max,number of bins)</p></li>
+<li><p><strong>vbins</strong> (<em>list</em>) – Bin specification in mantid format along v-direction (min,max,number of bins)</p></li>
+<li><p><strong>omeagabins</strong> – Bin specification in mantid format along energy axis (min,max,number of bins)</p></li>
+<li><p><strong>which_data</strong> (<em>str</em>) – Determines if experimental or simulated data should be used, 
+‘mcstas’ to use calculated scattering and ‘macs’ for experimental. Allowed value ‘mcstas’ and ‘macs’</p></li>
+<li><p><strong>statistic</strong> (<em>str</em>) – Todo - not currently supported, always ‘mean’</p></li>
+<li><p><strong>smooth</strong> – Output slice gaussian smoothing, either false or std dev in pixels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return X,Y,Z<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrices of U-coordinates, V-coordinates, and intensities. Suitable to plot in plt.pcolormesh. 
+The X and Y matrices are bin edges, not centers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,np.ndarray,np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.take_volume">
+<span class="sig-name descname"><span class="pre">take_volume</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ubins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vbins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omegabins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mcstas'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">statistic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">smooth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.take_volume" title="Link to this definition">#</a></dt>
+<dd><p>Returns a volume integrating over no dimensions. All bins must be in MANTID/HORACE style
+format [min,max,number of bins]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ubins</strong> (<em>list</em>) – Bin specification in mantid format along u-direction (min,max,number of bins)</p></li>
+<li><p><strong>vbins</strong> (<em>list</em>) – Bin specification in mantid format along v-direction (min,max,number of bins)</p></li>
+<li><p><strong>omeagabins</strong> – Bin specification in mantid format along energy axis (min,max,number of bins)</p></li>
+<li><p><strong>which_data</strong> (<em>str</em>) – Determines if experimental or simulated data should be used, 
+‘mcstas’ to use calculated scattering and ‘macs’ for experimental. Allowed value ‘mcstas’ and ‘macs’</p></li>
+<li><p><strong>statistic</strong> (<em>str</em>) – Todo - not currently supported, always ‘mean’</p></li>
+<li><p><strong>smooth</strong> – Output slice gaussian smoothing, either false or std dev in pixels.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return X,Y,Z<span class="colon">:</span></dt>
+<dd class="field-even"><p>Matrices of U-coordinates, V-coordinates, and intensities. Suitable to plot in plt.pcolormesh. 
+The X and Y matrices are bin edges, not centers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray,np.ndarray,np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.macsdata.Data.write_data_to_ng0">
+<span class="sig-name descname"><span class="pre">write_data_to_ng0</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'McStas_output_'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_2</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.macsdata.Data.write_data_to_ng0" title="Link to this definition">#</a></dt>
+<dd><p>Writes the current data matrix to an ng0 file directly readable by MSlice.
+:param filename: Output filename beginning. 
+:type filename: str</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Create a list of object parameters, like n_mono.</p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="monochromator.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">monochromator</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="scripting.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">scripting</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data"><code class="docutils literal notranslate"><span class="pre">Data</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.append_data_matrix_from_csv"><code class="docutils literal notranslate"><span class="pre">Data.append_data_matrix_from_csv()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.bin_constE_slice"><code class="docutils literal notranslate"><span class="pre">Data.bin_constE_slice()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.combine_all_csv"><code class="docutils literal notranslate"><span class="pre">Data.combine_all_csv()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.combine_csv_scans"><code class="docutils literal notranslate"><span class="pre">Data.combine_csv_scans()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.fake_A3_scan"><code class="docutils literal notranslate"><span class="pre">Data.fake_A3_scan()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.get_QE_FWHM"><code class="docutils literal notranslate"><span class="pre">Data.get_QE_FWHM()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.import_ng0_to_matrix"><code class="docutils literal notranslate"><span class="pre">Data.import_ng0_to_matrix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.load_data_matrix_from_csv"><code class="docutils literal notranslate"><span class="pre">Data.load_data_matrix_from_csv()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.project_data_QE"><code class="docutils literal notranslate"><span class="pre">Data.project_data_QE()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.take_cut"><code class="docutils literal notranslate"><span class="pre">Data.take_cut()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.take_slice"><code class="docutils literal notranslate"><span class="pre">Data.take_slice()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.take_volume"><code class="docutils literal notranslate"><span class="pre">Data.take_volume()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.macsdata.Data.write_data_to_ng0"><code class="docutils literal notranslate"><span class="pre">Data.write_data_to_ng0()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Thomas Halloran
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Thomas Halloran.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

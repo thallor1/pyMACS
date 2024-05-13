@@ -33,6 +33,7 @@ pyMACS/Demonstration/Test of pyMACS resolution methods.ipynb
 pyMACS/Demonstration/TiO2.cif
 pyMACS/Demonstration/cri3_example.py
 pyMACS/Demonstration/example_script.py
+pyMACS/Demonstration/fpx78891.ng0
 pyMACS/Demonstration/spinw_CrI3_full.sqw4
 pyMACS/Demonstration/.ipynb_checkpoints/CrI3 Plotting-checkpoint.ipynb
 pyMACS/Demonstration/.ipynb_checkpoints/CrI3 Simulation-checkpoint.ipynb

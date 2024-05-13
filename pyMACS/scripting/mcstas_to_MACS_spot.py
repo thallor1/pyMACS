@@ -6,7 +6,9 @@ import sys
 import os, os.path
 import glob 
 import time
-rootdir = os.path.dirname(os.path.realpath(__file__))
+from importlib.resources import files 
+'''
+rootdir = str(files("pyMACS"))
 
 # First, the script will assume that it is being in run in the directory of
 # a single kidney angle scanned over A3
@@ -379,3 +381,4 @@ with open('MSlice-'+output_file_name, "wb") as outfile:
 #Then the data
 #with open('No_header_'+output_file_name,'rb'):
 #	outfile.write('No_header_'+output_file_name.read())
+'''

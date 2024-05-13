@@ -1,0 +1,764 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pyMACS.sample package &#8212; pyMACS documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/bootstrap.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+
+  
+  <link href="_static/vendor/fontawesome/6.5.1/css/all.min.css?digest=8d27b9dea8ad943066ae" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="_static/vendor/fontawesome/6.5.1/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=384b581d" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=61a4c737" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae" />
+  <script src="_static/vendor/fontawesome/6.5.1/js/all.min.js?digest=8d27b9dea8ad943066ae"></script>
+
+    <script src="_static/documentation_options.js?v=e1a75a79"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=efea14e4"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'pyMACS.sample';</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a id="pst-skip-link" class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>
+    Back to top
+  </button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/MACS1.png" class="logo__image only-light" alt="pyMACS documentation - Home"/>
+    <script>document.write(`<img src="_static/MACS1.png" class="logo__image only-dark" alt="pyMACS documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn navbar-btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="index.html">
+                    Welcome to pyMACS’s documentation!
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="notebooks/introduction_notebook.html">pyMACS Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/emulate_MACS_data.html">Emulate a MACS ng0 file</a></li>
+<li class="toctree-l1"><a class="reference internal" href="notebooks/resolution_example.html">Resolution function demonstration</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="virtualMACS.html">virtualMACS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sample.html">Sample</a></li>
+<li class="toctree-l1"><a class="reference internal" href="kidney.html">kidney</a></li>
+<li class="toctree-l1"><a class="reference internal" href="monochromator.html">monochromator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="macsdata.html">macsdata</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripting.html">scripting</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/thallor1/pyMACS" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/pyMACS.sample.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch nav-link" data-mode="light"><i class="fa-solid fa-sun fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="dark"><i class="fa-solid fa-moon fa-lg"></i></span>
+    <span class="theme-switch nav-link" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg"></i></span>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>pyMACS.sample package</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.sample.import_NIST_table">pyMACS.sample.import_NIST_table module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.import_NIST_table.import_NIST_table"><code class="docutils literal notranslate"><span class="pre">import_NIST_table()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.sample.parseCif">pyMACS.sample.parseCif module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.parseCif.parseCIF"><code class="docutils literal notranslate"><span class="pre">parseCIF()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.sample.sample">pyMACS.sample.sample module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample"><code class="docutils literal notranslate"><span class="pre">Sample</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.HKL_to_QxQz"><code class="docutils literal notranslate"><span class="pre">Sample.HKL_to_QxQz()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.QE_to_twotheta"><code class="docutils literal notranslate"><span class="pre">Sample.QE_to_twotheta()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.Qmag_HKL"><code class="docutils literal notranslate"><span class="pre">Sample.Qmag_HKL()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.cif2lau"><code class="docutils literal notranslate"><span class="pre">Sample.cif2lau()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.fetch_F_HKL"><code class="docutils literal notranslate"><span class="pre">Sample.fetch_F_HKL()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.gen_flines"><code class="docutils literal notranslate"><span class="pre">Sample.gen_flines()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.gen_reflection_list"><code class="docutils literal notranslate"><span class="pre">Sample.gen_reflection_list()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.gen_unique_coords"><code class="docutils literal notranslate"><span class="pre">Sample.gen_unique_coords()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.gen_unit_cell_positions"><code class="docutils literal notranslate"><span class="pre">Sample.gen_unit_cell_positions()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.generate_symmetry_operations"><code class="docutils literal notranslate"><span class="pre">Sample.generate_symmetry_operations()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.project_sample_realspace"><code class="docutils literal notranslate"><span class="pre">Sample.project_sample_realspace()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.twotheta_hkl"><code class="docutils literal notranslate"><span class="pre">Sample.twotheta_hkl()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.twotheta_hkl_omega"><code class="docutils literal notranslate"><span class="pre">Sample.twotheta_hkl_omega()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.sample">Module contents</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="pymacs-sample-package">
+<h1>pyMACS.sample package<a class="headerlink" href="#pymacs-sample-package" title="Link to this heading">#</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
+</section>
+<section id="module-pyMACS.sample.import_NIST_table">
+<span id="pymacs-sample-import-nist-table-module"></span><h2>pyMACS.sample.import_NIST_table module<a class="headerlink" href="#module-pyMACS.sample.import_NIST_table" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.sample.import_NIST_table.import_NIST_table">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.sample.import_NIST_table.</span></span><span class="sig-name descname"><span class="pre">import_NIST_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nist_file</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'nist_scattering_table.txt'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.import_NIST_table.import_NIST_table" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</section>
+<section id="module-pyMACS.sample.parseCif">
+<span id="pymacs-sample-parsecif-module"></span><h2>pyMACS.sample.parseCif module<a class="headerlink" href="#module-pyMACS.sample.parseCif" title="Link to this heading">#</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="pyMACS.sample.parseCif.parseCIF">
+<span class="sig-prename descclassname"><span class="pre">pyMACS.sample.parseCif.</span></span><span class="sig-name descname"><span class="pre">parseCIF</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cif_file</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.parseCif.parseCIF" title="Link to this definition">#</a></dt>
+<dd><p>A wrapper for the “ReadCif” untility from externaly python library.
+Given a cif, returns a dictionary with relevant attributes defined by the parameters in the line.</p>
+</dd></dl>
+
+</section>
+<section id="module-pyMACS.sample.sample">
+<span id="pymacs-sample-sample-module"></span><h2>pyMACS.sample.sample module<a class="headerlink" href="#module-pyMACS.sample.sample" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pyMACS.sample.sample.</span></span><span class="sig-name descname"><span class="pre">Sample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.28</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.28</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6.28</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">90.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cell_vol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">V_recip</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'default_sample'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cylinder'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_diameter_d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.02</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_tilt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_length</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.04</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_widx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.003</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_widy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.003</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_widz</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.003</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">symm_ops</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">space_group</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ciffile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">laufile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">customlaufile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_arr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient_u</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[1,</span> <span class="pre">0,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient_v</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">1,</span> <span class="pre">0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">orient_w</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0,</span> <span class="pre">0,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_abs_fu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rho_abs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sigma_inc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_mosaic</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delta_d</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0005</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">abs_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crystal_axis_xrot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">45.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crystal_axis_yrot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crystal_axis_zrot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-15.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scattering_definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry_definition</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The purpose of this class is to perform operations related to intrinsic sample properties that will ultimately be simulated.
+It contains information regarding the sample itself as well as its orientaion, and methods to calculate crystallographic quantities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – Length of lattice vector in a-direction (Ang)</p></li>
+<li><p><strong>b</strong> (<em>float</em>) – Length of lattice vector in b-direction (Ang)</p></li>
+<li><p><strong>c</strong> (<em>float</em>) – length of lattice vector in c-direction (Ang)</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – Lattice alpha angle (deg)</p></li>
+<li><p><strong>beta</strong> (<em>float</em>) – Lattice beta angle (deg)</p></li>
+<li><p><strong>gamma</strong> (<em>float</em>) – Lattice gamma angle (deg)</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name assosciated with the sample.</p></li>
+<li><p><strong>astar</strong> (<em>np.ndarray</em><em> of </em><em>len 3</em>) – Reciprocal lattice vector astarin Ang^-1. Calculated from direct lattice and should not be input.</p></li>
+<li><p><strong>bstar</strong> (<em>np.ndarray</em><em> of </em><em>len 3</em>) – Reciprocal lattice vector bstar in Ang^-1. Calculated from direct lattice and should not be input.</p></li>
+<li><p><strong>cstar</strong> (<em>np.ndarray</em><em> of </em><em>len 3</em>) – Reciprocal lattice vector cstar in Ang^-1. Calculated from direct lattice and should not be input</p></li>
+<li><p><strong>avec</strong> (<em>np.ndarray</em><em> of </em><em>len 3</em>) – Direct lattice vector a in Ang. Calculated from lattice specification and should not be input.</p></li>
+<li><p><strong>bvec</strong> (<em>np.ndarray</em><em> of </em><em>len 3</em>) – Direct lattice vector b in Ang. Calculated from lattice specification and should not be input.</p></li>
+<li><p><strong>cvec</strong> (<em>np.ndarray</em><em> of </em><em>len 3</em>) – Direct lattice vector c in Ang. Calculated from lattice specification and should not be input.</p></li>
+<li><p><strong>cell_vol</strong> (<em>float</em>) – Direct unit cell volume in Ang^3, again calculated.</p></li>
+<li><p><strong>cell_vol_recip</strong> (<em>float</em>) – Recriprocal unit cell volume in Ang^-1, calculated.</p></li>
+<li><p><strong>sample_shape</strong> (<em>str</em>) – Sample shape which also affects many parts of the simulation. The allowed values for this are the following (‘box’,’cylinder’,’powder’,’spot_box’,’spot_cylinder’,’box_inel_crystal’). 
+The first three simulate only elastic scattering with their respective geometries. The spot_box and spot_cylinder components are effectively powders with a delta function in Q and energy. 
+Finally, the box_inel_crystal shape allows for the insertion of a delta function at arbitrary points in Q-E space.</p></li>
+<li><p><strong>sample_diameter_d</strong> (<em>float</em>) – For cylinder shape, the diameter</p></li>
+<li><p><strong>sample_tilt</strong> (<em>float</em>) – Tilt of cylinder from the vertical axis, with 0 being vertical and the rotation axis being the x-axis
+or perpendicular to the beam. In degrees.</p></li>
+<li><p><strong>sample_length</strong> (<em>float</em>) – Length of cylinder geometry in m.</p></li>
+<li><p><strong>sample_widx</strong> (<em>float</em>) – Box geometry width in the x-direction in m.</p></li>
+<li><p><strong>sample_widy</strong> (<em>float</em>) – Box geometry width in the y-direction in m.</p></li>
+<li><p><strong>sample_widz</strong> (<em>float</em>) – Box geometry width in the z-direction in m.</p></li>
+<li><p><strong>ciffile</strong> (<em>str</em>) – Cif file assosciated with sample initialization.</p></li>
+<li><p><strong>b_arr</strong> (<em>dict</em>) – Scattering lengths of ions in sample. Usually extracted from built in NIST tables.</p></li>
+<li><p><strong>scattering_def</strong> (<em>mcstasscript_instrument</em>) – McStas script instrument containing the relevant UNION scattering process from which the trace will be
+extracted in the final instrument file. See example for how to build this.</p></li>
+<li><p><strong>geometry_def</strong> (<em>mcstasscript_instrument</em>) – Mcstasscript instrument containing the relevant UNION geometry objects that define the sample environment.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.HKL_to_QxQz">
+<span class="sig-name descname"><span class="pre">HKL_to_QxQz</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.HKL_to_QxQz" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.QE_to_twotheta">
+<span class="sig-name descname"><span class="pre">QE_to_twotheta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Qmag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ei</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deg'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.QE_to_twotheta" title="Link to this definition">#</a></dt>
+<dd><p>Given HKL indices, incident energy, and energy transfer, returns the scattering angle</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>Qmag</strong> (<em>float</em>) – Input Q-magnitude in Ang^-1</p></li>
+<li><p><strong>Ei</strong> (<em>float</em>) – Incident neutron energy in meV</p></li>
+<li><p><strong>omega</strong> (<em>float</em>) – Neutron energy transfer at sample in meV</p></li>
+<li><p><strong>mode</strong> – Determines if angle is returned in degrees or radians. Allowed values ‘deg’ or ‘rad’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return twoTheta<span class="colon">:</span></dt>
+<dd class="field-even"><p>Neutron scattering angle in (deg/rad)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.Qmag_HKL">
+<span class="sig-name descname"><span class="pre">Qmag_HKL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.Qmag_HKL" title="Link to this definition">#</a></dt>
+<dd><p>For a specfied reflection in H, K, L, returns the magnitude of its momentum transfer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>H</strong> (<em>int / float</em>) – H-index of reflection. (rlu)</p></li>
+<li><p><strong>K</strong> (<em>int / float</em>) – K-index of reflection. (rlu)</p></li>
+<li><p><strong>L</strong> (<em>int / float</em>) – L-index of reflection. (rlu)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return qmag<span class="colon">:</span></dt>
+<dd class="field-even"><p>Structure factor squared (barn)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.cif2lau">
+<span class="sig-name descname"><span class="pre">cif2lau</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">outdir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/mnt/c/Users/tjh/OneDrive</span> <span class="pre">-</span> <span class="pre">NIST/GitHub/pyMACS/docs'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">launame</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.cif2lau" title="Link to this definition">#</a></dt>
+<dd><p>Converts input cif file to a Crystallographica format .lau file. Not intended for users.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.fetch_F_HKL">
+<span class="sig-name descname"><span class="pre">fetch_F_HKL</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.fetch_F_HKL" title="Link to this definition">#</a></dt>
+<dd><p>For a specified reflection in H, K, L, returns a squared structure factor.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>H</strong> (<em>int / float</em>) – H-index of reflection. (rlu)</p></li>
+<li><p><strong>K</strong> (<em>int / float</em>) – K-index of reflection. (rlu)</p></li>
+<li><p><strong>L</strong> (<em>int / float</em>) – L-index of reflection. (rlu)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return F<span class="colon">:</span></dt>
+<dd class="field-even"><p>Structure factor squared (barn)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.gen_flines">
+<span class="sig-name descname"><span class="pre">gen_flines</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.gen_flines" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.gen_reflection_list">
+<span class="sig-name descname"><span class="pre">gen_reflection_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_tau</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxQmag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10000000000.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.gen_reflection_list" title="Link to this definition">#</a></dt>
+<dd><p>Calculates the structure factor for all reflections in the unit cell up to some maximum momentum transfer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>max_tau</strong> (<em>int</em>) – Maximum index (doesn’t matter which) allowed for reflection generation. Default is 20.</p></li>
+<li><p><strong>maxQmag</strong> (<em>float</em>) – Alternate way to specify maximum allowed reflection, maximum momentum transfer in Ang^-1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return tau<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of reflections in a matrix with columns [H K L S(Q)^2] where S(Q)^2 is the structure factor. 
+Structure factors account for multiplicity.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>np.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.gen_unique_coords">
+<span class="sig-name descname"><span class="pre">gen_unique_coords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.gen_unique_coords" title="Link to this definition">#</a></dt>
+<dd><p>Generates the unique coordinates in the unit cell in fractional coordinates. Uses symmetry 
+operations as specified in cif file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return coords<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns a dictionary of coordinates with columns [ion,label,x,y,z,occupancy,thermal_dispacement,Uiso,site_multiplicity]
+Here, x,y,z are the coordinates in fractional coordinates and ‘ion’ refers to the element.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.gen_unit_cell_positions">
+<span class="sig-name descname"><span class="pre">gen_unit_cell_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.gen_unit_cell_positions" title="Link to this definition">#</a></dt>
+<dd><p>Generates the coordinates of ions in the unit cell in fractional coordinates.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return structure array<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Returns a numpy array with coulmns of [ion, b_elastic, x, y, z, occupancy].
+Here ion refers to the ion name and b_elastic is the elastic scattering cross section.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.generate_symmetry_operations">
+<span class="sig-name descname"><span class="pre">generate_symmetry_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.generate_symmetry_operations" title="Link to this definition">#</a></dt>
+<dd><p>Extracts the symmetry operations from the stored cif file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return symm_arr<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of symmetry operations in format of [x,y,z]</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.project_sample_realspace">
+<span class="sig-name descname"><span class="pre">project_sample_realspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.project_sample_realspace" title="Link to this definition">#</a></dt>
+<dd><p>Given an alignment in the objects orient_u and orient_v, with u being perpendicular to beam and v parallel to beam
+Used to write instr file, where convention is that x is perpendicular to beam, z is beam direction, y is vertical.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.twotheta_hkl">
+<span class="sig-name descname"><span class="pre">twotheta_hkl</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">E</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deg'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.twotheta_hkl" title="Link to this definition">#</a></dt>
+<dd><p>For a specfied reflection in H, K, L, and incident energy, returns the scattering angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>H</strong> (<em>int / float</em>) – H-index of reflection. (rlu)</p></li>
+<li><p><strong>K</strong> (<em>int / float</em>) – K-index of reflection. (rlu)</p></li>
+<li><p><strong>L</strong> (<em>int / float</em>) – L-index of reflection. (rlu)</p></li>
+<li><p><strong>E</strong> (<em>float</em>) – Incident neutron energy. (meV)</p></li>
+<li><p><strong>mode</strong> (<em>str</em>) – Specifies if angle should be returned in radians or degrees. Allowed values are ‘deg’ and ‘rad’.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return twoTheta<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scattering angle (degrees / rad)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="pyMACS.sample.sample.Sample.twotheta_hkl_omega">
+<span class="sig-name descname"><span class="pre">twotheta_hkl_omega</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">H</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">K</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">L</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Ei</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">omega</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'deg'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pyMACS.sample.sample.Sample.twotheta_hkl_omega" title="Link to this definition">#</a></dt>
+<dd><p>For a specfied reflection in H, K, L, and incident energy, and energy transfer returns the scattering angle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>H</strong> (<em>int / float</em>) – H-index of reflection. (rlu)</p></li>
+<li><p><strong>K</strong> (<em>int / float</em>) – K-index of reflection. (rlu)</p></li>
+<li><p><strong>L</strong> (<em>int / float</em>) – L-index of reflection. (rlu)</p></li>
+<li><p><strong>Ei</strong> (<em>float</em>) – Incident neutron energy. (meV)</p></li>
+<li><p><strong>omega</strong> (<em>float</em>) – Neutron energy transfer at sample. (meV)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return twoTheta<span class="colon">:</span></dt>
+<dd class="field-even"><p>Scattering angle (degrees / rad)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-pyMACS.sample">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pyMACS.sample" title="Link to this heading">#</a></h2>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.sample.import_NIST_table">pyMACS.sample.import_NIST_table module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.import_NIST_table.import_NIST_table"><code class="docutils literal notranslate"><span class="pre">import_NIST_table()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.sample.parseCif">pyMACS.sample.parseCif module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.parseCif.parseCIF"><code class="docutils literal notranslate"><span class="pre">parseCIF()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.sample.sample">pyMACS.sample.sample module</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample"><code class="docutils literal notranslate"><span class="pre">Sample</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.HKL_to_QxQz"><code class="docutils literal notranslate"><span class="pre">Sample.HKL_to_QxQz()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.QE_to_twotheta"><code class="docutils literal notranslate"><span class="pre">Sample.QE_to_twotheta()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.Qmag_HKL"><code class="docutils literal notranslate"><span class="pre">Sample.Qmag_HKL()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.cif2lau"><code class="docutils literal notranslate"><span class="pre">Sample.cif2lau()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.fetch_F_HKL"><code class="docutils literal notranslate"><span class="pre">Sample.fetch_F_HKL()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.gen_flines"><code class="docutils literal notranslate"><span class="pre">Sample.gen_flines()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.gen_reflection_list"><code class="docutils literal notranslate"><span class="pre">Sample.gen_reflection_list()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.gen_unique_coords"><code class="docutils literal notranslate"><span class="pre">Sample.gen_unique_coords()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.gen_unit_cell_positions"><code class="docutils literal notranslate"><span class="pre">Sample.gen_unit_cell_positions()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.generate_symmetry_operations"><code class="docutils literal notranslate"><span class="pre">Sample.generate_symmetry_operations()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.project_sample_realspace"><code class="docutils literal notranslate"><span class="pre">Sample.project_sample_realspace()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.twotheta_hkl"><code class="docutils literal notranslate"><span class="pre">Sample.twotheta_hkl()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#pyMACS.sample.sample.Sample.twotheta_hkl_omega"><code class="docutils literal notranslate"><span class="pre">Sample.twotheta_hkl_omega()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-pyMACS.sample">Module contents</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Thomas Halloran
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Thomas Halloran.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="_static/scripts/bootstrap.js?digest=8d27b9dea8ad943066ae"></script>
+<script src="_static/scripts/pydata-sphinx-theme.js?digest=8d27b9dea8ad943066ae"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

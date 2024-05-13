@@ -9,14 +9,21 @@ import shutil
 import subprocess
 import time
 import glob
-
+try:
+    import mcstasscript as ms
+    testinstr = ms.McStas_instr("dummy_instr",checks=False)
+    inc_scatter = testinstr.add_component("inc_scatter","Incoherent_process")
+except Exception as e:
+    print(d)
+    print("Warning: Error when initializing McStasscript, refer to mcstasscript documentation.")
+    print("The configurator object must be pointing to your mcstas installation, which is system dependent.")
 from .scripting import import_ng0
 from .scripting import resfunc
 
 from joblib import Parallel, delayed
 from tqdm.auto import tqdm
 import pickle
-#from importlib.resources import files
+from importlib.resources import files
 
 class VirtualMACS(object):
     """
@@ -149,8 +156,8 @@ class VirtualMACS(object):
         cwd = self.cwd
         if self.useOld == True:
             self.clear_ramdisk()
-            self.instr_template_dir = os.path.dirname(__file__) + '/UNION MACS Models/UNION MACS Base/'
-            self.kidney_instr_dir = os.path.dirname(__file__) + '/UNION MACS Models/UNION MACS Kidney Files/'
+            self.instr_template_dir = str(files("pyMACS")) + '/UNION MACS Models/UNION MACS Base/'
+            self.kidney_instr_dir = str(files("pyMACS"))+ '/UNION MACS Models/UNION MACS Kidney Files/'
 
             instr_main_file = 'MACS_sample_kidney.instr'
             self.instr_main_file = instr_main_file
@@ -194,8 +201,8 @@ class VirtualMACS(object):
             self.sample.cif2lau()
         self.clear_ramdisk()
         cwd = self.cwd
-        self.instr_template_dir = os.path.dirname(__file__) + '/UNION MACS Models/UNION MACS Base/'
-        self.kidney_instr_dir = os.path.dirname(__file__) + '/UNION MACS Models/UNION MACS Kidney Files/'
+        self.instr_template_dir = str(files("pyMACS")) + '/UNION MACS Models/UNION MACS Base/'
+        self.kidney_instr_dir = str(files("pyMACS")) + '/UNION MACS Models/UNION MACS Kidney Files/'
         instr_main_file = 'MACS_sample_kidney.instr'
         self.instr_main_file = instr_main_file
         while os.path.exists(cwd + '/' + self.exptName + '/Instrument_files') and self.useOld is False:
@@ -282,6 +289,7 @@ class VirtualMACS(object):
                 elif "FINALLY" in line:
                     finallyflag = 1
         # Replace the block in the instrument file with this.
+        print(os.getcwd())
         instr_f = open(self.instr_main_file, 'r')
         contents = instr_f.readlines()
         instr_f.close()
@@ -729,7 +737,7 @@ class VirtualMACS(object):
             #print(kidney_output_dir)
             os.chdir(orig_dir)
         # Delete the parameter file unless otherwise specified.
-        return 1
+        return csvname
 
     def runKidneyScan_scripting(self, A3, kidney_angle, Ei, Ef, beta1=False, beta2=False, append_data_matrix=True,
                                 scan_suffix=False, PTAI_det=3):
@@ -1052,7 +1060,7 @@ class VirtualMACS(object):
         :return: interp_dQx, interp_dQz, interp_dE, scipy.interpolate.RegularGridInterpolator obejcts that return the macs Bragg widhths in the respective directions for arbitrary h,k,l,E, for the Ef=3.7 or Ef=5.0 settings.
         :rtype: scipy.interpolate.RegularGridInterpolator, scipy.interpolate.RegularGridInterpolator, scipy.interpolate.RegularGridInterpolator 
         """ 
-        interp_dir = os.path.dirname(__file__) + '/scripting/interp_fwhm/'
+        interp_dir = str(files("pyMACS")) + '/scripting/interp_fwhm/'
         if np.min(np.abs(np.array([5.0,3.7])-self.kidney.Ef))>0.1:
             #Check if the instrumental configruation is valid.
             print("Macs Ef hasn't been tabulated. Use Ef=3.7 or Ef=5.0")

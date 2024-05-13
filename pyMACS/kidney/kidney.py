@@ -1,6 +1,7 @@
 import numpy as np 
 import os
 import math
+from importlib.resources import files
 
 class Kidney(object):
 	"""
@@ -36,7 +37,7 @@ class Kidney(object):
 		:return: List of kidney positions for a scan with the given da4 and Ei.
 		:rtype: list
 		"""
-		angle_file = os.path.dirname(__file__)+'/macs_kidneylimit_new.txt'
+		angle_file = str(files("pyMACS.kidney").joinpath('macs_kidneylimit_new.txt'))
 		angle_dict= {}
 		angle_mat = np.genfromtxt(angle_file)
 		for row in angle_mat:

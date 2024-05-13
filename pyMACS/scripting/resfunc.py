@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 # constants
 import matplotlib
 import sys
+from importlib.resources import files
 import os
 
 matplotlib.rc("text", usetex=False)
@@ -78,7 +79,6 @@ def hkl_to_labframe(h,k,l,macs):
 	Qv_vec = macs.sample.bstar_vec_labframe*k  
 	Qw_vec = macs.sample.cstar_vec_labframe*l
 	Qnet = Qu_vec+Qv_vec+Qw_vec
-	print(f"Qnet = {Qnet}")
 	if np.linalg.norm(Qnet[1])>0.2:
 		print("WARNING: Specified lattice vector does not lie in the scattering plane of the instrument.")
 	Qx,Qz = Qnet[0],Qnet[2]
@@ -175,9 +175,10 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	"""
 	startA = time.time()
 	macs=macs_obj
+	orig_macs = copy.copy(macs_obj)
 	Qmag_ref = macs.sample.Qmag_HKL(h,k,l)
 
-	target_sqw4_dir=os.path.dirname(__file__)+'/ellipsoid_sqw4_files/'
+	target_sqw4_dir=str(files("pyMACS.scripting"))+'/ellipsoid_sqw4_files/'
 	sqw4_f = glob.glob(target_sqw4_dir+'*.sqw4')
 	omegas = []
 	#First get a list of omegas in the sqw4 files.
@@ -230,7 +231,6 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 		sqw4pts_0 = np.genfromtxt(sqw4_f_ei[0])
 		sqw4pts_1 = np.genfromtxt(sqw4_f_ei[1])
 		sqw4pts = np.concatenate((sqw4pts_0,sqw4pts_1),axis=0)
-
 	#Get the nearest points in each dimension. 
 	#The res sample was oriented in the qu=[1,0,0], qv=[0,1,0] plane
 	hpts = np.sort(np.unique(sqw4pts[:,0]))
@@ -251,7 +251,7 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	#At the end we will re-translate into the sample hkl frame. 
 	h_calc_pts = hpts[h_i]
 	E_calc_pts = wpts[w_i]
-	qxpt,qzpt = hkl_to_labframe(h,k,l,macs)
+	qxpt,qzpt = hkl_to_labframe(h,k,l,orig_macs)
 
 	macs = macs_dirac_obj
 	#Also need to find the rotation required in the Qx/Qz plane.
@@ -263,7 +263,7 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	#Now, recover the nearest calculated resolution ellipsoids, then rotate by phi. 
 	calc_pts = np.array(list(itertools.product(h_calc_pts,E_calc_pts)))
 	#Load the data matrixes for the Ei's assosciated with these points.
-	csvdir = os.path.dirname(__file__)+"/ellipsoid_csv_files/"
+	csvdir = str(files("pyMACS.scripting"))+"/ellipsoid_csv_files/"
 	macs.data.kidney_result_dir=''
 	macs.data.exptName=''
 	csvnames = glob.glob(csvdir+"*.csv")
@@ -317,7 +317,6 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	hpt_0, wpt_0 = np.copy(hpt),np.copy(wpt)
 	fkey = f"Ef_{macsEf:.2f}_omega_{wpt:.2f}"
 	if calc_mode == "default":
-		print(load_f_dict)
 		f_load = load_f_dict[fkey]
 	if macs.data.data_matrix is False and calc_mode != "load_cov":
 		macs.data.load_data_matrix_from_csv(f_load)
@@ -338,12 +337,18 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	if gen_plot is True:
 		fig,ax = plt.subplots(1,4,figsize=(3.54*3,3))
 		fig.subplots_adjust(hspace=0.6,wspace=0.6)
-		ax[0].set_aspect(1)
+		#ax[0].set_aspect(1)
 
 
 	#We handle the rotation by changing the supplied orientation vectors, as follows:
 	u_vec = np.copy(macs.sample.orient_u)
 	v_vec = np.copy(macs.sample.orient_v)
+	orig_u_vec = np.copy(orig_macs.sample.orient_u)
+	orig_v_vec = np.copy(orig_macs.sample.orient_v)
+
+	mag_Qu_orig = orig_macs.sample.Qmag_HKL(orig_u_vec[0],orig_u_vec[1],orig_u_vec[2])
+	mag_Qv_orig = orig_macs.sample.Qmag_HKL(orig_v_vec[0],orig_v_vec[1],orig_v_vec[2])
+
 	#Get the polar angle associated withthe point. 	
 	urot = np.array([qxpt,qzpt,0])
 	urot = urot/np.linalg.norm(urot)
@@ -351,7 +356,9 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	perpR = np.array([[np.cos(phi_perp),-np.sin(phi_perp)],[np.sin(phi_perp),np.cos(phi_perp)]])
 	vrot = np.matmul(perpR,np.array([urot[0],urot[1]]))
 	vrot = np.array([vrot[0],vrot[1],0])
-	vrot = vrot#/np.linalg.norm(vrot)
+	#These are in the lab frame. Need to reset in terms of the original sample u-v vectors
+
+
 	#Reset the projection.
 	macs.data.projected_matrix=False
 	macs.sample.project_sample_realspace()
@@ -373,6 +380,13 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 		maxE+=0.01
 		frac=2.0
 		nQ = 15
+		# Originally, point is specified in the h,k,l plane of the sample.
+		# Need to go to Qx, Qz plane. 
+
+		print(f"hpt={hpt:.2f}")
+		print(f"kpt={kpt:.2f}")
+		print(f"MinE={minE:.2f} MaxE={maxE:.2f}")
+
 		Qx_constE,Qz_constE,const_E_slice,const_E_slice_err = \
 			macs.data.take_slice([hpt-hres/frac,hpt+hres/frac,nQ],\
 			[kpt-kres/frac,kpt+kres/frac,nQ+1],[minE,maxE],smooth=False)
@@ -387,26 +401,26 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 		const_Qz_slice,const_Qz_slice_err=const_Qz_slice.T,const_Qz_slice_err.T
 		const_E_slice,const_E_slice_err=const_E_slice.T,const_E_slice_err.T
 	if gen_plot is True:
-		if calc_mode=='default':
+		if calc_mode!='load_cov':
 			ax[0].pcolormesh(Qx_constE,Qz_constE,const_E_slice,vmin=0,vmax=np.nanmax(const_E_slice),cmap='viridis',rasterized=True)
 		ax[0].plot(qxpt,qzpt,marker='o',mfc='w',mec='k')
 		ax[0].plot(hpt,kpt,marker='o',mfc='c',mec='k')
 		ax[0].set_xlabel(r"$Q_x\ (\AA^{-1}$)",labelpad=0,fontsize=8)
 		ax[0].set_ylabel(r"$Q_z\ (\AA^{-1}$)",labelpad=0,fontsize=8)
-		if calc_mode=='default':
+		if calc_mode!='load_cov':
 			ax[2].pcolormesh(Qz_constQx,E_constQx,const_Qx_slice,vmin=0,vmax=np.nanmax(const_Qx_slice),cmap='viridis',rasterized=True)
 		ax[2].plot(qzpt,E,marker='o',mfc='w',mec='k',label='Input Point')
 		ax[2].plot(kpt,wpt,marker='o',mfc='c',mec='k',label='Nearest Stored Point')
 		ax[2].set_xlabel(r"$Q_y\ (\AA^{-1}$)",labelpad=0,fontsize=8)
 		ax[2].set_ylabel(r"$\hbar\omega$ (meV)",labelpad=0,fontsize=8)
-		if calc_mode=='default':
+		if calc_mode!='load_cov':
 			ax[1].pcolormesh(Qx_constQz,E_constQz,const_Qz_slice,vmin=0,vmax=np.nanmax(const_Qz_slice),cmap='viridis',rasterized=True)
 		ax[1].plot(qxpt,E,marker='o',ls=' ',mfc='w',mec='k',label='Input Point')
 		ax[1].plot(hpt,wpt,marker='o',ls=' ',mfc='c',mec='k',label='Nearest Stored Point')
 		ax[1].set_xlabel(r"$Q_x\ (\AA^{-1}$)",labelpad=0,fontsize=8)
 		ax[1].set_ylabel(r"$\hbar\omega$ (meV)",labelpad=0,fontsize=8)
 		#The figure misbehaves if we don't fix the limits here. 
-		if calc_mode=='default':
+		if calc_mode!='load_cov':
 			ax[0].set_xlim(np.nanmin(Qx_constE),np.nanmax(Qx_constE))
 			ax[0].set_ylim(np.nanmin(Qz_constE),np.nanmax(Qz_constE))
 			ax[2].set_xlim(np.nanmin(Qz_constQx),np.nanmax(Qz_constQx))
@@ -446,7 +460,7 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 		Qcov = np.cov(Q4, rowvar = False, aweights = np.abs(w), ddof = 0)
 	elif calc_mode == "load_cov":
 		#get the filename
-		covdir = os.path.dirname(__file__)+"/covariance_matrices/"
+		covdir = str(files("pyMACS.scripting"))+"/covariance_matrices/"
 		fstr = covdir+ f"h_{hpt_0:.3f}_w_{wpt_0:.2f}_Ef_{macsEf:.1f}_Cov.dat"
 		Qcov = np.genfromtxt(fstr)
 		w=1.0
@@ -465,11 +479,12 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 		np.insert(Qnorm, 2, 0),
 		np.insert(Qside, 2, 0),
 		[0, 0, 1] ]))
+
 	if calc_mode=="load_cov":
 		T = np.transpose(np.array([[vrot[0],vrot[1],0],[urot[0],urot[1],0],[0,0,1]]))
+		#T = np.transpose(np.array([[urot[0],urot[1],0],[vrot[0],vrot[1],0],[0,0,1]]))
 	options={}
 	options['verbose']=verbose
-	T = np.copy(T)
 	if options["verbose"]:
 		print("Transformation into (Qpara, Qperp, E) system:\n%s\n" % T)
 
@@ -598,7 +613,7 @@ def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_m
 	"""	
 	from pyMACS.virtualMACS import VirtualMACS
 
-	macs_dirac = VirtualMACS('resolution_calculation',cifName=os.path.dirname(__file__)+'/dirac.cif',useOld=False)
+	macs_dirac = VirtualMACS('resolution_calculation',cifName=str(files("pyMACS.scripting"))+'/dirac.cif',useOld=False)
 	macs_dirac.sample.orient_u=[1,0.0,0]
 	macs_dirac.sample.orient_v=[0,1,0]
 	macs_dirac.sample.project_sample_realspace()
@@ -608,6 +623,7 @@ def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_m
 		macs = macsobj
 	#macsEf=3.7
 	mode='nearest'
+
 	if calc_mode == "Covariance":
 		#development option
 		Cov = nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=gen_plot,figdir=figdir,
@@ -628,7 +644,7 @@ def res_ellipses(M,Qmean,macsobj=None,n_phi=361):
 
 	:param M: 3x3 Resolution matrix of the specified point. 
 	:type M: np.ndarray, required
-	:param Qmean: Center of the resolution ellipsoid, in format [Qu, Qv, E]. This is in terms of the viewing axes U and V. 
+	:param Qmean: Center of the resolution ellipsoid, in format [h, k, l, E]. Note that if the input point is not in the scattering plane, this will give wrong results.
 	:type Qmean: np.ndarray, required.
 	:param macsobj: Virtualmacs object containing sample information and orientation. If not provided, will default to the lab frame and results will be in Ang^-1
 	:type macsobj: virtualMACS, optional.
@@ -652,6 +668,31 @@ def res_ellipses(M,Qmean,macsobj=None,n_phi=361):
 		Qxscale = 1.0
 		Qzscale =1.0
 		Escale =1.0
+	#Convert Qmean from H,K,L to Qu, Qv
+	Qmean_lab = macsobj.sample.astar_vec_labframe*Qmean[0]+\
+				macsobj.sample.bstar_vec_labframe*Qmean[1]+\
+				macsobj.sample.cstar_vec_labframe*Qmean[2]
+	Qu_lab = hkl_to_labframe(macsobj.sample.orient_u[0],
+							macsobj.sample.orient_u[1],
+							macsobj.sample.orient_u[2],macsobj)
+	Qv_lab = hkl_to_labframe(macsobj.sample.orient_v[0],
+							macsobj.sample.orient_v[1],
+							macsobj.sample.orient_v[2],macsobj)
+	mag_Qu = np.linalg.norm(Qu_lab)
+	mag_Qv = np.linalg.norm(Qv_lab)
+
+	Qmean_lab_rot = np.array([Qmean_lab[0],Qmean_lab[2]])
+	#Put in terms of Qu, Qv using a change of basis
+	M = np.array([[Qu_lab[0],Qv_lab[0]],[Qu_lab[1],Qv_lab[1]]])
+	B_mat = np.matmul(np.linalg.inv(np.matmul(M.T,M)),M.T)
+	Q_u1u2 = np.matmul(B_mat,Qmean_lab_rot)
+	print(f"Q_u1u2={Q_u1u2}")
+	U1_proj=Q_u1u2[0]
+	U2_proj = Q_u1u2[1]
+	U_proj = U1_proj
+	V_proj = U2_proj
+	Qmean = np.array([U_proj,V_proj,Qmean[3]])
+
 	ellfkt = lambda rad, rot, phi, xscale,yscale, Qmean2d : \
 	    np.dot(rot, np.array([ rad[0]*xscale*np.cos(phi), rad[1]*yscale*np.sin(phi) ])) + Qmean2d
 
@@ -668,6 +709,7 @@ def res_ellipses(M,Qmean,macsobj=None,n_phi=361):
 	ellip_scales = [[Qxscale,Qzscale],[Qxscale,Escale],[Qzscale,Escale]]
 	for ellidx in [0,1,2]:
 	    # centre plots on zero or mean Q vector ?
+
 	    QxE = np.array([[Qmean[coord_axes[ellidx][0]]],
 	                    [Qmean[coord_axes[ellidx][1]]]])
 

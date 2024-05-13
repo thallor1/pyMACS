@@ -13,11 +13,6 @@ import os
 import glob
 import os.path
 
-baseName='tiO2_110'
-num_threads = 12
-#number simulated neutrons 
-n_mono = 1e6
-n=1e6
 
 def getParams(ng0file):
 	# Gets all parameters relevant to the instrument simulation from the ng0 file
@@ -271,7 +266,7 @@ def speed_writeScriptLine_monochromator(script_file, Ei, angle, baseName, speed_
 
 
 #This first bit should only be done if the monochromator Ei's haven't been simulated already
-
+'''
 #First gather a list of all .ng0 files in the directory.
 ng0_files = glob.glob('*.ng0')
 #Loop through and create necessary monochromator script file to be run first.
@@ -306,6 +301,8 @@ for file in ng0_files:
 
 		speed_writeScriptLine_monochromator(mono_script_file, Ei, angle, baseName, speed_param,n_mono=1e6,)
 		i=i+1
+'''
+'''
 #Monochromator sim should be ready at this point.
 mono_script_file.close()
 os.system('chmod +x '+baseName+'_monochromator.sh')
@@ -339,3 +336,4 @@ for file in ng0_files:
 	progress()
 kidney_script_file.close()
 os.system('chmod +x '+baseName+'.sh')
+'''
