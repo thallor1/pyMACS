@@ -349,6 +349,20 @@
      },
      "metadata": {},
      "output_type": "display_data"
+    },
+    {
+     "data": {
+      "application/vnd.jupyter.widget-view+json": {
+       "model_id": "22cd3fa146c14d3494fa6278c3c03bb3",
+       "version_major": 2,
+       "version_minor": 0
+      },
+      "text/plain": [
+       "Ei=6.0 meV:   0%|          | 0/12 [00:00<?, ?it/s]"
+      ]
+     },
+     "metadata": {},
+     "output_type": "display_data"
     }
    ],
    "source": [
