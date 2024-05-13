@@ -33,7 +33,9 @@ Notebook Tutorials
    notebooks/introduction_notebook
    notebooks/emulate_MACS_data
    notebooks/resolution_example
-
+   notebooks/tio2_111
+   notebooks/sqw4_simulation
+   notebooks/cri3_plotting_example
 
 Classes and Methods
 -------------------

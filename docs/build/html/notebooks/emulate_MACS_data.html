@@ -221,9 +221,11 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction_notebook.html">pyMACS Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction_notebook.html#Assign-Instrument-Parameters">Assign Instrument Parameters</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Emulate a MACS ng0 file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="resolution_example.html">Resolution function demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tio2_111.html">Simulation of measured TiO2 111 peak</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sqw4_simulation.html">Simulation of the ferromagnet CrI<span class="math notranslate nohighlight">\(_3\)</span>, SQW4-component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cri3_plotting_example.html">pyMACS plotting capabilities</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../virtualMACS.html">virtualMACS</a></li>
@@ -274,14 +276,346 @@
         <article role="main" id="furo-main-content">
           <section id="Emulate-a-MACS-ng0-file">
 <h1>Emulate a MACS ng0 file<a class="headerlink" href="#Emulate-a-MACS-ng0-file" title="Link to this heading">¶</a></h1>
+<p>An important use case of pyMACS is to reproduce experimental data. One of the key features of the package is the ability to automatically import .ng0 files, and simulate them. Of course, the user is still required to define the sample scattering and geometry definitions.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pyMACS</span>
 <span class="kn">from</span> <span class="nn">pyMACS.virtualMACS</span> <span class="kn">import</span> <span class="n">VirtualMACS</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">mcstasscript</span> <span class="k">as</span> <span class="nn">ms</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 </pre></div>
 </div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">macs</span> <span class="o">=</span> <span class="n">VirtualMACS</span><span class="p">(</span><span class="n">exptName</span><span class="o">=</span><span class="s1">&#39;test&#39;</span><span class="p">,</span><span class="n">cifName</span><span class="o">=</span><span class="s2">&quot;TiO2.cif&quot;</span><span class="p">,</span><span class="n">useOld</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># define sample parameters</span>
+
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sample_shape</span><span class="o">=</span><span class="s1">&#39;box&#39;</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sample_widx</span><span class="o">=</span><span class="mf">4.3e-3</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sample_widy</span><span class="o">=</span><span class="mf">1.3e-3</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sample_widz</span><span class="o">=</span><span class="mf">3.3e-3</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sample Lattice vectors&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;a=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">a</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;alpha=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">alpha</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;b=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">b</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;beta=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">beta</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;c=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">c</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;gamma=&#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">gamma</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sample orientation U&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">orient_u</span><span class="p">)</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">orient_u</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">orient_v</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Sample orientation v&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">orient_v</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">project_sample_realspace</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Real Space projection of lattice vectors [ax,ay,az; bx,by,bz;cx,cy,cz]&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">labframe_mat</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Structure factors:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;|F(110)|^2 = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">fetch_F_HKL</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)[</span><span class="mi">3</span><span class="p">],</span><span class="mi">4</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; barn&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;|F(100)|^2 = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">fetch_F_HKL</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">)[</span><span class="mi">3</span><span class="p">],</span><span class="mi">4</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; barn&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;|F(1-10)|^2 = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">fetch_F_HKL</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)[</span><span class="mi">3</span><span class="p">],</span><span class="mi">4</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; barn&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;|F(001)|^2 = &#39;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">fetch_F_HKL</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)[</span><span class="mi">3</span><span class="p">],</span><span class="mi">4</span><span class="p">))</span><span class="o">+</span><span class="s1">&#39; barn&#39;</span><span class="p">)</span>
+
+<span class="c1"># Define the scattering, geometry definitions</span>
+
+<span class="n">scattering_def</span> <span class="o">=</span> <span class="n">ms</span><span class="o">.</span><span class="n">McStas_instr</span><span class="p">(</span><span class="s2">&quot;scattering_definition&quot;</span><span class="p">,</span><span class="n">checks</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">inc_scatter</span> <span class="o">=</span> <span class="n">scattering_def</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="s2">&quot;inc_scatter&quot;</span><span class="p">,</span><span class="s2">&quot;Incoherent_process&quot;</span><span class="p">)</span>
+<span class="n">inc_scatter</span><span class="o">.</span><span class="n">sigma</span><span class="o">=</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sigma_inc</span>
+<span class="n">inc_scatter</span><span class="o">.</span><span class="n">unit_cell_volume</span> <span class="o">=</span> <span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">cell_vol</span>
+<span class="n">inc_scatter</span><span class="o">.</span><span class="n">packing_factor</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">inc_scatter</span><span class="o">.</span><span class="n">set_AT</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c1">#Single crystal process.</span>
+<span class="n">crystal_scatter</span> <span class="o">=</span> <span class="n">scattering_def</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="s2">&quot;crystal_scatter&quot;</span><span class="p">,</span><span class="s2">&quot;Single_crystal_process&quot;</span><span class="p">)</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">delta_d_d</span><span class="o">=</span><span class="mf">0.005</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">mosaic</span> <span class="o">=</span> <span class="mf">30.0</span>
+<span class="c1">#Projections of lattice vectors onto lab frame is handled by the previous helper process.</span>
+<span class="n">labproj</span> <span class="o">=</span> <span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">labframe_mat</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">ay</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">az</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">bx</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">by</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">bz</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">cx</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">cy</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">cz</span> <span class="o">=</span> <span class="n">labproj</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">reflections</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span><span class="o">+</span><span class="s2">&quot;TiO2.lau&quot;</span><span class="o">+</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">&#39;</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">barns</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">packing_factor</span><span class="o">=</span><span class="mi">1</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">powder</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">PG</span><span class="o">=</span><span class="mi">0</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">interact_fraction</span><span class="o">=</span><span class="mf">0.8</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">set_AT</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">crystal_scatter</span><span class="o">.</span><span class="n">set_ROTATED</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="n">scattering</span> <span class="o">=</span> <span class="n">scattering_def</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="s2">&quot;TiO2&quot;</span><span class="p">,</span><span class="s2">&quot;Union_make_material&quot;</span><span class="p">)</span>
+<span class="n">scattering</span><span class="o">.</span><span class="n">process_string</span><span class="o">=</span><span class="s1">&#39;&quot;crystal_scatter,inc_scatter&quot;&#39;</span>
+<span class="n">scattering</span><span class="o">.</span><span class="n">my_absorption</span><span class="o">=</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">rho_abs</span>
+<span class="n">scattering</span><span class="o">.</span><span class="n">set_AT</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+
+<span class="c1">#Now, this pseudo-instrument will be saved as the scattering definition of the sample.</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">scattering_def</span> <span class="o">=</span> <span class="n">scattering_def</span>
+
+<span class="c1">#Make a second object for the geometry. This particular case replicates the validation experiment for this package.</span>
+<span class="n">geo_def</span> <span class="o">=</span> <span class="n">ms</span><span class="o">.</span><span class="n">McStas_instr</span><span class="p">(</span><span class="s2">&quot;geometry_definition&quot;</span><span class="p">,</span><span class="n">checks</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">sample_cube</span><span class="o">=</span><span class="n">geo_def</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="s2">&quot;sample_cube&quot;</span><span class="p">,</span><span class="s2">&quot;Union_box&quot;</span><span class="p">)</span>
+<span class="n">sample_cube</span><span class="o">.</span><span class="n">xwidth</span><span class="o">=</span><span class="mf">1.0</span><span class="o">*</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sample_widx</span>
+<span class="n">sample_cube</span><span class="o">.</span><span class="n">yheight</span><span class="o">=</span><span class="mf">1.0</span><span class="o">*</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sample_widy</span>
+<span class="n">sample_cube</span><span class="o">.</span><span class="n">zdepth</span><span class="o">=</span><span class="mf">1.0</span><span class="o">*</span><span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sample_widz</span>
+<span class="n">sample_cube</span><span class="o">.</span><span class="n">priority</span><span class="o">=</span><span class="mi">100</span>
+<span class="n">sample_cube</span><span class="o">.</span><span class="n">material_string</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">TiO2</span><span class="se">\&quot;</span><span class="s1">&#39;</span>
+<span class="n">sample_cube</span><span class="o">.</span><span class="n">number_of_activations</span><span class="o">=</span><span class="s2">&quot;number_of_activations_sample&quot;</span> <span class="c1">#Do not change.</span>
+<span class="n">sample_cube</span><span class="o">.</span><span class="n">set_AT</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">RELATIVE</span><span class="o">=</span><span class="s1">&#39;crystal_assembly&#39;</span><span class="p">)</span>
+<span class="n">sample_cube</span><span class="o">.</span><span class="n">set_ROTATED</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">RELATIVE</span><span class="o">=</span><span class="s1">&#39;crystal_assembly&#39;</span><span class="p">)</span>
+
+
+<span class="n">sample_plate</span> <span class="o">=</span> <span class="n">geo_def</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="s2">&quot;sample_plate&quot;</span><span class="p">,</span><span class="s2">&quot;Union_cylinder&quot;</span><span class="p">)</span>
+<span class="n">sample_plate</span><span class="o">.</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.006</span>
+<span class="n">sample_plate</span><span class="o">.</span><span class="n">yheight</span><span class="o">=</span><span class="mf">0.002</span>
+<span class="n">sample_plate</span><span class="o">.</span><span class="n">priority</span><span class="o">=</span><span class="mi">40</span>
+<span class="n">sample_plate</span><span class="o">.</span><span class="n">material_string</span><span class="o">=</span><span class="s1">&#39;&quot;Al&quot;&#39;</span>
+<span class="n">plate_distance</span> <span class="o">=</span> <span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">sample_widy</span><span class="o">+</span><span class="mf">0.002</span>
+<span class="n">sample_plate</span><span class="o">.</span><span class="n">set_AT</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="n">plate_distance</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">RELATIVE</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+<span class="n">sample_plate</span><span class="o">.</span><span class="n">set_ROTATED</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">RELATIVE</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+
+<span class="n">sample_plate_rod</span> <span class="o">=</span> <span class="n">geo_def</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="s2">&quot;sample_plate_rod&quot;</span><span class="p">,</span><span class="s2">&quot;Union_cylinder&quot;</span><span class="p">)</span>
+<span class="n">sample_plate_rod</span><span class="o">.</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.00125</span>
+<span class="n">sample_plate_rod</span><span class="o">.</span><span class="n">yheight</span><span class="o">=</span><span class="mf">0.0633</span>
+<span class="n">sample_plate_rod</span><span class="o">.</span><span class="n">priority</span><span class="o">=</span><span class="mi">41</span>
+<span class="n">sample_plate_rod</span><span class="o">.</span><span class="n">material_string</span><span class="o">=</span><span class="s1">&#39;&quot;Al&quot;&#39;</span>
+<span class="n">sample_plate_rod</span><span class="o">.</span><span class="n">set_AT</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="n">plate_distance</span><span class="o">+</span><span class="mf">0.001</span><span class="o">+</span><span class="mf">0.031</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">RELATIVE</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+<span class="n">sample_plate_rod</span><span class="o">.</span><span class="n">set_ROTATED</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">RELATIVE</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+
+<span class="n">sample_base</span> <span class="o">=</span> <span class="n">geo_def</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="s2">&quot;sample_base&quot;</span><span class="p">,</span><span class="s2">&quot;Union_cylinder&quot;</span><span class="p">)</span>
+<span class="n">sample_base</span><span class="o">.</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.0065</span>
+<span class="n">sample_base</span><span class="o">.</span><span class="n">yheight</span><span class="o">=</span><span class="mf">0.013</span>
+<span class="n">sample_base</span><span class="o">.</span><span class="n">priority</span><span class="o">=</span><span class="mi">42</span>
+<span class="n">sample_base</span><span class="o">.</span><span class="n">material_string</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\&quot;</span><span class="s1">Al</span><span class="se">\&quot;</span><span class="s1">&#39;</span>
+<span class="n">sample_base</span><span class="o">.</span><span class="n">set_AT</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.0628</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">RELATIVE</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+<span class="n">sample_base</span><span class="o">.</span><span class="n">set_ROTATED</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">RELATIVE</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+
+<span class="n">sample_base_gap</span> <span class="o">=</span> <span class="n">geo_def</span><span class="o">.</span><span class="n">add_component</span><span class="p">(</span><span class="s2">&quot;sample_base_gap&quot;</span><span class="p">,</span><span class="s2">&quot;Union_cylinder&quot;</span><span class="p">)</span>
+<span class="n">sample_base_gap</span><span class="o">.</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.004</span>
+<span class="n">sample_base_gap</span><span class="o">.</span><span class="n">yheight</span><span class="o">=</span><span class="mf">0.009</span>
+<span class="n">sample_base_gap</span><span class="o">.</span><span class="n">priority</span><span class="o">=</span><span class="mi">43</span>
+<span class="n">sample_base_gap</span><span class="o">.</span><span class="n">material_string</span><span class="o">=</span><span class="s1">&#39;&quot;Vacuum&quot;&#39;</span>
+<span class="n">sample_base_gap</span><span class="o">.</span><span class="n">set_AT</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mf">0.0668</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span> <span class="n">RELATIVE</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+<span class="n">sample_base_gap</span><span class="o">.</span><span class="n">set_ROTATED</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">],</span><span class="n">RELATIVE</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">)</span>
+
+<span class="n">macs</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">geometry_def</span> <span class="o">=</span> <span class="n">geo_def</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+WARNING: Overwriting previous total file test_total.csv
+#########################
+Old simulations found in /mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/Kidney_simulations/
+
+Successfully combined old simulations into /mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/Kidney_simulations/test_total.csv
+
+Data matrix instantiated and ready to use.
+#########################
+Sample Lattice vectors
+
+a=4.6001
+alpha=90.0
+b=4.6001
+beta=90.0
+c=2.9288
+gamma=90.0
+
+Sample orientation U
+[1, 0, 0]
+Sample orientation v
+[0, 0, 1]
+
+Real Space projection of lattice vectors [ax,ay,az; bx,by,bz;cx,cy,cz]
+[[ 3.25276 -3.25276  0.     ]
+ [ 3.25276  3.25276  0.     ]
+ [ 0.       0.       2.9288 ]]
+
+Structure factors:
+|F(110)|^2 = 0.1782 barn
+|F(100)|^2 = 0.0 barn
+|F(1-10)|^2 = 0.1782 barn
+|F(001)|^2 = 0.0 barn
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># It is usually a good idea to leave this flag as True, however if you want to</span>
+<span class="c1"># start from scratch it can be a good idea to make it False.</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">useOld</span><span class="o">=</span><span class="kc">False</span>
+
+<span class="k">if</span> <span class="n">macs</span><span class="o">.</span><span class="n">useOld</span><span class="o">==</span><span class="kc">True</span><span class="p">:</span>
+    <span class="n">macs</span><span class="o">.</span><span class="n">useOld</span><span class="o">=</span><span class="kc">True</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_matrix</span><span class="o">=</span><span class="kc">False</span>
+    <span class="c1"># prepare_expt_directory populates the a folder in the base directory with all necessary files</span>
+    <span class="c1"># to perform the simulation.</span>
+    <span class="n">macs</span><span class="o">.</span><span class="n">prepare_expt_directory</span><span class="p">()</span>
+    <span class="c1">#The below command write the McStas .instr file for the full MACS simulation based on the</span>
+    <span class="c1"># user-provided definitions above</span>
+    <span class="n">macs</span><span class="o">.</span><span class="n">edit_instr_file</span><span class="p">()</span>
+    <span class="n">macs</span><span class="o">.</span><span class="n">compileMonochromator</span><span class="p">()</span>
+    <span class="n">macs</span><span class="o">.</span><span class="n">compileInstr</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+Conversion of CIF to crystallographical LAU file successful.
+WARNING: Old instrument directory found. Older files deleted, instrument will need to be recompiled.
+/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks
+#################
+
+Starting compilation of monochromator.
+
+Compilation of monochromator geometry successful.
+
+#################
+
+#################
+
+Starting compilation of sample kidney geometry.
+
+Compilation of sample kidney geometry successful.
+
+#################
+
+</pre></div></div>
+</div>
+<p>The actual emulation begins here. There are two modes, one simulates individual ng0 files the other simulates a directory.</p>
+<p>If an ng0 file is emulated, it is automatically saved as both a csv and a .ng0 file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_matrix</span><span class="o">=</span><span class="kc">False</span>
+<span class="n">sample_ng0</span> <span class="o">=</span> <span class="s1">&#39;fpx78891.ng0&#39;</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">n_mono</span><span class="o">=</span><span class="mf">1e6</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">n_sample</span><span class="o">=</span><span class="mf">1e5</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">simulate_ng0</span><span class="p">(</span><span class="n">sample_ng0</span><span class="p">,</span><span class="n">n_threads</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="c1"># To scan through a directory, use a format like below</span>
+
+<span class="n">ngo_dir</span> <span class="o">=</span> <span class="s1">&#39;Example_ng0_files/&#39;</span>
+<span class="c1">#macs.simulate_ng0dir(ngo_dir,n_threads=12)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Emulating scan from fpx78891.ng0
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1
+</pre></div></div>
+</div>
+<p>Plot this scan to see how it looks</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># The data must be converted from detector numbers and angles to the sample frame.</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">project_data_QE</span><span class="p">()</span>
+<span class="n">U</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">I</span> <span class="o">=</span> <span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">bin_constE_slice</span><span class="p">(</span><span class="mi">120</span><span class="p">,</span><span class="mi">120</span><span class="p">,[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">I</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;[HH0]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;[00L]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;TiO2 A3 Scan, Elastic&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;TiO2 A3 Scan, Elastic&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_emulate_MACS_data_7_1.png" src="../_images/notebooks_emulate_MACS_data_7_1.png" />
+</div>
+</div>
+<p>At any point the files in the kidney scan folder can be converted into MSlice readable ng0 files.</p>
+<p>The files may be divided into individual Ei values or combined into a single larger one. If they originate from ng0 files, they may also be individual ng0 files corresponding to their origin files</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#Here we combine any scans that exist individually and append them to the data holder class</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">combine_all_csv</span><span class="p">()</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">load_data_matrix_from_csv</span><span class="p">(</span><span class="s1">&#39;_total.csv&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#The data is now written to a MACS style file for comparison in MSlice.</span>
+<span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">write_data_to_ng0</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="s1">&#39;_cube_TiO2_demonstration_scan.ng0&#39;</span><span class="p">,</span><span class="n">beta_1</span><span class="o">=</span><span class="n">macs</span><span class="o">.</span><span class="n">monochromator</span><span class="o">.</span><span class="n">beta_1</span><span class="p">,</span>\
+                               <span class="n">beta_2</span><span class="o">=</span><span class="n">macs</span><span class="o">.</span><span class="n">monochromator</span><span class="o">.</span><span class="n">beta_2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1
+</pre></div></div>
 </div>
 </section>
 

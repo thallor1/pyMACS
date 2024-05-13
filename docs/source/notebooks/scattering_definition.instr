@@ -15,7 +15,7 @@
 * 
 * %Identification
 * Written by: Python McStas Instrument Generator
-* Date: 15:06:02 on May 13, 2024
+* Date: 15:35:17 on May 13, 2024
 * Origin: ESS DMSC
 * %INSTRUMENT_SITE: Generated_instruments
 * 
@@ -39,25 +39,39 @@ INITIALIZE
 
 TRACE 
 COMPONENT inc_scatter = Incoherent_process(
- sigma = 2.8716, packing_factor = 1,
- unit_cell_volume = 62.74)
+ sigma = 2.76, packing_factor = 1,
+ unit_cell_volume = 808.88, interact_fraction = 1)
 AT (0,0,0) ABSOLUTE
 
 COMPONENT crystal_scatter = Single_crystal_process(
- reflections = "TiO2.lau", delta_d_d = 0.005,
+ reflections = "CrI3.lau", delta_d_d = 0.005,
  mosaic = 30, barns = 1,
- ax = 3.25276, ay = -3.25276,
- az = 0, bx = 3.25276,
- by = 3.25276, bz = 0,
- cx = 0, cy = 0,
- cz = 2.9288, powder = 0,
- PG = 0, interact_fraction = 0.8,
+ ax = 5.947, ay = 0,
+ az = -3.4335, bx = 0,
+ by = 0, bz = 6.867,
+ cx = 0, cy = 19.807,
+ cz = 0, powder = 0,
+ PG = 0, interact_fraction = 1,
  packing_factor = 1)
 AT (0,0,0) ABSOLUTE
 ROTATED (0,0,0) ABSOLUTE
 
-COMPONENT TiO2 = Union_make_material(
- process_string = "crystal_scatter,inc_scatter", my_absorption = 12.1808)
+COMPONENT sample_sqw4 = Sqw4_process(
+ sqw = "spinw_CrI3_full.sqw4", recip_cell = 0,
+ barns = 1, ax = 5.947,
+ ay = 0, az = -3.4335,
+ bx = 0, by = 0,
+ bz = 6.867, cx = 0,
+ cy = 19.807, cz = 0,
+ aa = 90, bb = 90,
+ cc = 120, interact_fraction = 1,
+ max_bad = 100000, max_stored_ki = 100000,
+ stored_dTheta = 0.1, stored_dkmag = 0.0001)
+AT (0,0,0) ABSOLUTE
+ROTATED (0,0,0) ABSOLUTE
+
+COMPONENT CrI3 = Union_make_material(
+ process_string = "crystal_scatter,inc_scatter,sample_sqw4", my_absorption = 129)
 AT (0,0,0) ABSOLUTE
 
 FINALLY 

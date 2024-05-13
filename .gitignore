@@ -8,3 +8,4 @@ docs/*.rst
 pyMACS/Demonstration/cri3_experiment/Kidney_simluations
 pyMACS/Demonstration/cri3_experiment/Simulated ng0 files
 *.csv
+docs/cri3_experiment/

@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="virtualMACS" href="../virtualMACS.html" /><link rel="prev" title="Emulate a MACS ng0 file" href="emulate_MACS_data.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Simulation of measured TiO2 111 peak" href="tio2_111.html" /><link rel="prev" title="Emulate a MACS ng0 file" href="emulate_MACS_data.html" />
 
     <!-- Generated with Sphinx 7.3.7 and Furo 2024.05.06 -->
         <title>Resolution function demonstration - pyMACS documentation</title>
@@ -221,9 +221,11 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="introduction_notebook.html">pyMACS Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction_notebook.html#Assign-Instrument-Parameters">Assign Instrument Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="emulate_MACS_data.html">Emulate a MACS ng0 file</a></li>
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">Resolution function demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tio2_111.html">Simulation of measured TiO2 111 peak</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sqw4_simulation.html">Simulation of the ferromagnet CrI<span class="math notranslate nohighlight">\(_3\)</span>, SQW4-component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cri3_plotting_example.html">pyMACS plotting capabilities</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../virtualMACS.html">virtualMACS</a></li>
@@ -274,6 +276,110 @@
         <article role="main" id="furo-main-content">
           <section id="Resolution-function-demonstration">
 <h1>Resolution function demonstration<a class="headerlink" href="#Resolution-function-demonstration" title="Link to this heading">¶</a></h1>
+<p>Using Ho2Ti2O7 as an example.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#More complex example of pyMACS usage</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pyMACS.virtualMACS</span> <span class="kn">import</span> <span class="n">VirtualMACS</span>
+<span class="kn">import</span> <span class="nn">mcstasscript</span> <span class="k">as</span> <span class="nn">ms</span>
+<span class="kn">import</span> <span class="nn">pyMACS</span>
+
+<span class="n">macs_instr</span> <span class="o">=</span> <span class="n">VirtualMACS</span><span class="p">(</span><span class="s1">&#39;HTO_test&#39;</span><span class="p">,</span><span class="n">cifName</span><span class="o">=</span><span class="s1">&#39;HTO.cif&#39;</span><span class="p">,</span><span class="n">useOld</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">macs_instr</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">formula_weight</span><span class="o">=</span><span class="mf">432.7</span>
+<span class="n">macs_instr</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">orient_u</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">macs_instr</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">orient_v</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">macs_instr</span><span class="o">.</span><span class="n">sample</span><span class="o">.</span><span class="n">project_sample_realspace</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1
+</pre></div></div>
+</div>
+<p>This function pulls from a tabulated list of pre-calculated ellipsoids. I cannot guarantee the accuracy, if something seems strangely broad it likely means that the covariance matrix was not generated correctly.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">macs_Ef</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="n">h</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+<span class="n">k</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+<span class="n">l</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="n">E</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="c1">#energy transfer, i.e. Ei=6 meV</span>
+<span class="n">M</span><span class="p">,</span><span class="n">M_fwhms</span><span class="p">,</span><span class="n">Q_hkw</span> <span class="o">=</span> <span class="n">pyMACS</span><span class="o">.</span><span class="n">scripting</span><span class="o">.</span><span class="n">macs_resfunc</span><span class="p">(</span><span class="n">h</span><span class="p">,</span><span class="n">k</span><span class="p">,</span><span class="n">l</span><span class="p">,</span><span class="n">E</span><span class="p">,</span><span class="n">macs_Ef</span><span class="p">,</span><span class="n">macs_instr</span><span class="p">,</span><span class="n">gen_plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">calc_mode</span><span class="o">=</span><span class="s1">&#39;load_cov&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+
+ Qx, Qz, for hkl = [-0.87948, 0.0]
+Covariance matrix in lab system:
+[[ 0.00106006 -0.00058764  0.00430066]
+ [-0.00058764  0.00163485 -0.00077156]
+ [ 0.00430066 -0.00077156  0.03246623]]
+
+Resolution matrix in lab system:
+[[2901.93397622  871.43672721 -363.69709695]
+ [ 871.43672721  880.3024156   -94.51506611]
+ [-363.69709695  -94.51506611   76.73248463]]
+
+Transformation into (Qpara, Qperp, E) system:
+[[-6.123234e-17 -1.000000e+00  0.000000e+00]
+ [-1.000000e+00  0.000000e+00  0.000000e+00]
+ [ 0.000000e+00  0.000000e+00  1.000000e+00]]
+
+Mean (Q, E) vector in (Qpara, Qperp, Qup, E) system:
+[-6.63091133e-17  1.08291000e+00  1.00000000e+00]
+
+Covariance matrix in (Qpara, Qperp, E) system:
+[[ 0.00163485 -0.00058764  0.00077156]
+ [-0.00058764  0.00106006 -0.00430066]
+ [ 0.00077156 -0.00430066  0.03246623]]
+
+Resolution matrix in (Qpara, Qperp, E) system:
+[[ 880.3024156   871.43672721   94.51506611]
+ [ 871.43672721 2901.93397622  363.69709695]
+ [  94.51506611  363.69709695   76.73248463]]
+
+3d resolution ellipsoid diagonal elements fwhm (coherent-elastic scattering) lengths:
+[0.07936733 0.04371334 0.26882403]
+
+3d resolution ellipsoid principal axes fwhm: [0.04337044 0.42525026]
+Incoherent-elastic fwhm: 0.4243 meV
+
+Qx,E sliced ellipse fwhm and slope angle: [0.09981989 0.04146147], 20.3825
+Qz,E sliced ellipse fwhm and slope angle: [0.07887751 0.29037485], 6.6187
+Qx,Qy sliced ellipse fwhm and slope angle: [0.04337044 0.42525026], 7.2191
+
+Qx,E projected ellipse fwhm and slope angle: [0.1053531  0.06200404], 31.9691
+Qz,E projected ellipse fwhm and slope angle: [0.0946496  0.42442669], 1.4326
+Qx,Qy projected ellipse fwhm and slope angle: [0.05168759 0.42806265], 7.6581
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/Calculated_ellipsoid_pngs/MACS_resfunc_Ef_5.00meV_h_-1.00_k_-1.00_l_0.00_w_0.95.png&#39;
+Saving figure failed, ensure that the specfied figure directory exists.
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_resolution_example_3_1.png" src="../_images/notebooks_resolution_example_3_1.png" />
+</div>
+</div>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
@@ -289,12 +395,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="../virtualMACS.html">
+          <a class="next-page" href="tio2_111.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">virtualMACS</div>
+                <div class="title">Simulation of measured TiO2 111 peak</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>

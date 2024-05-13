@@ -193,7 +193,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -221,9 +221,11 @@
 </ul>
 <ul class="current">
 <li class="toctree-l1 current current-page"><a class="current reference internal" href="#">pyMACS Introduction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="#Assign-Instrument-Parameters">Assign Instrument Parameters</a></li>
 <li class="toctree-l1"><a class="reference internal" href="emulate_MACS_data.html">Emulate a MACS ng0 file</a></li>
 <li class="toctree-l1"><a class="reference internal" href="resolution_example.html">Resolution function demonstration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tio2_111.html">Simulation of measured TiO2 111 peak</a></li>
+<li class="toctree-l1"><a class="reference internal" href="sqw4_simulation.html">Simulation of the ferromagnet CrI<span class="math notranslate nohighlight">\(_3\)</span>, SQW4-component</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cri3_plotting_example.html">pyMACS plotting capabilities</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../virtualMACS.html">virtualMACS</a></li>
@@ -266,7 +268,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -437,7 +439,7 @@ for Aluminum have already been defined, support for more sample holder materials
 Conversion of CIF to crystallographical LAU file successful.
 </pre></div></div>
 </div>
-<p>Now, we make a geometry object representing the sample and its holder.</p>
+<p>Define a geometry object representing the sample and its holder.</p>
 <div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
@@ -495,8 +497,7 @@ Conversion of CIF to crystallographical LAU file successful.
 </div>
 </div>
 <p>While this may seem intimidating at first, this is the most difficult part of setting up the instrument. Many different sample geometries can be built up using the mcstasscript language, the backend of the MACS simulation is constructed in this way.</p>
-<section id="Define-parameters-relevant-to-the-McStas-simulation:">
-<h2>Define parameters relevant to the McStas simulation:<a class="headerlink" href="#Define-parameters-relevant-to-the-McStas-simulation:" title="Link to this heading">¶</a></h2>
+<p><strong>Define parameters relevant to the McStas simulation:</strong></p>
 <p>There are a number of attributes of the virtualMACS object that dictate the Monte-Carlo simulation parameters.</p>
 <p>By default, McStas will create a new directory in the project folder containing all of the necessary files for the experiment. If the “useOld” option is flagged as true, the object will attempt to load in all previous simulated results. It will also preserve the directory, instead of deleting it and overwriting it with new files.</p>
 <div class="nbinput docutils container">
@@ -549,10 +550,7 @@ Compilation of sample kidney geometry successful.
 </div>
 <p>All of the relevant McStas files have now been prepared, it may be instructive to browse them in &gt;exptName/Instrument files/</p>
 <p>We assign a few more parameters relevant to the simulation. Here we are doing the simplest possible scan, which is defining a single instrumental configuration and running.</p>
-</section>
-</section>
-<section id="Assign-Instrument-Parameters">
-<h1>Assign Instrument Parameters<a class="headerlink" href="#Assign-Instrument-Parameters" title="Link to this heading">¶</a></h1>
+<p><strong>Assign Instrument Parameters</strong></p>
 <p>In this example, we use Ei=5meV = Ef</p>
 <div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
@@ -610,90 +608,6 @@ Scan complete. Saved to test_Ei_9.078_Ef_9.078_A3_67.3700_kidney_3.0000_dataMatr
 </div>
 <p>We can use the built in tools to visualize the data below:</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
-</div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">data_matrix</span>
-</pre></div>
-</div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-  <thead>
-    <tr style="text-align: right;">
-      <th></th>
-      <th>Unnamed: 0</th>
-      <th>A3</th>
-      <th>A2</th>
-      <th>A5</th>
-      <th>A6</th>
-      <th>H</th>
-      <th>K</th>
-      <th>L</th>
-      <th>Ei</th>
-      <th>Ef</th>
-      <th>...</th>
-      <th>SPEC11Err</th>
-      <th>SPEC12Err</th>
-      <th>SPEC13Err</th>
-      <th>SPEC14Err</th>
-      <th>SPEC15Err</th>
-      <th>SPEC16Err</th>
-      <th>SPEC17Err</th>
-      <th>SPEC18Err</th>
-      <th>SPEC19Err</th>
-      <th>SPEC20Err</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th>0</th>
-      <td>0</td>
-      <td>67.37</td>
-      <td>53.15998</td>
-      <td>26.57999</td>
-      <td>53.15998</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>NaN</td>
-      <td>9.078</td>
-      <td>9.078</td>
-      <td>...</td>
-      <td>0.350611</td>
-      <td>0.862267</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-      <td>0.0</td>
-    </tr>
-  </tbody>
-</table>
-<p>1 rows × 117 columns</p>
-</div></div>
-</div>
-<div class="nbinput docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
 </pre></div>
 </div>
@@ -722,13 +636,13 @@ Text(0.5, 1.0, &#39;TiO2 A3 Scan, Elastic&#39;)
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
-<img alt="../_images/notebooks_introduction_notebook_22_1.png" src="../_images/notebooks_introduction_notebook_22_1.png" />
+<img alt="../_images/notebooks_introduction_notebook_21_1.png" src="../_images/notebooks_introduction_notebook_21_1.png" />
 </div>
 </div>
 <p>As expected, a single scan won’t do much good to visualize sample scattering. Below is an example showing a scripted A3/A4 scan.</p>
 <p>This method automatically appends the calculations to the data_matrix.</p>
 <div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">#The parameter below is the A4 / twoTheta resolution. The Kidney angles are generated</span>
@@ -756,7 +670,7 @@ Text(0.5, 1.0, &#39;TiO2 A3 Scan, Elastic&#39;)
 <div class="output_area docutils container">
 <script type="application/vnd.jupyter.widget-view+json">{"model_id": "ee9792815c3c445b8c7679906a710fb0", "version_major": 2, "version_minor": 0}</script></div>
 </div>
-<div class="nboutput nblast docutils container">
+<div class="nboutput docutils container">
 <div class="prompt empty docutils container">
 </div>
 <div class="output_area docutils container">
@@ -779,16 +693,77 @@ Warning when trying to remove paramter file:
 [Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m56.59999999999981_Ef_5.0.txt&#39;
 Warning when trying to remove paramter file:
 [Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m41.399999999999594_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m22.999999999999332_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m57.599999999999824_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m52.59999999999975_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m47.59999999999968_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m37.999999999999545_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m36.39999999999952_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m25.399999999999366_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m23.59999999999934_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m57.19999999999982_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m38.99999999999956_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m69.19999999999999_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m67.59999999999997_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m47.199999999999676_Ef_5.0.txt&#39;
+Warning when trying to remove paramter file:
+[Errno 2] No such file or directory: &#39;/mnt/c/Users/tjh/OneDrive - NIST/GitHub/pyMACS/docs/source/notebooks/test/param_files_kidney/test_kidney_params_Ei_5.0_kid_angle_3.0_A3_angle_m39.19999999999956_Ef_5.0.txt&#39;
 </pre></div></div>
 </div>
-<div class="nbinput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+1
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">project_data_QE</span><span class="p">()</span>
+<span class="n">U</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">I</span> <span class="o">=</span> <span class="n">macs</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">bin_constE_slice</span><span class="p">(</span><span class="mi">90</span><span class="p">,</span><span class="mi">90</span><span class="p">,[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">],[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">U</span><span class="p">,</span><span class="n">V</span><span class="p">,</span><span class="n">I</span><span class="o">.</span><span class="n">T</span><span class="p">,</span><span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span><span class="n">vmax</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;[HH0]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;[00L]&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;TiO2 A3 Scan, Elastic&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Text(0.5, 1.0, &#39;TiO2 A3 Scan, Elastic&#39;)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/notebooks_introduction_notebook_24_1.png" src="../_images/notebooks_introduction_notebook_24_1.png" />
+</div>
+</div>
+<p>With this, the most simple iteration of a pyMACS project is complete.</p>
 </section>
 
         </article>
@@ -834,28 +809,8 @@ Warning when trying to remove paramter file:
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">pyMACS Introduction</a><ul>
-<li><a class="reference internal" href="#Define-parameters-relevant-to-the-McStas-simulation:">Define parameters relevant to the McStas simulation:</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#Assign-Instrument-Parameters">Assign Instrument Parameters</a></li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

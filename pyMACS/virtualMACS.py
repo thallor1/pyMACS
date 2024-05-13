@@ -1081,3 +1081,5 @@ class VirtualMACS(object):
         with open(f_dE, "rb") as input_file:
             interp_dE = pickle.load(input_file)
         return interp_dQx,interp_dQz,interp_dE
+
+    
