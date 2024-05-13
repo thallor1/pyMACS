@@ -12,7 +12,7 @@ jobs:
         pip install sphinx furo
     - name: Sphinx build
       run: |
-        sphinx-build doc _build
+        sphinx-build docs _build
     - name: Upload artifacts
       uses: actions/upload-artifact@v1
       with:
