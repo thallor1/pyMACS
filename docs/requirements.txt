@@ -1,7 +1,7 @@
 furo==2024.5.6
+PyCifRW==4.4.1
 lmfit==1.2.2
 matplotlib==3.7.5
 numpy==1.24.4
-PyCifRW==4.4.1
-Sphinx
+Sphinx==7.3.7
 sphinx-gallery==0.16.0
