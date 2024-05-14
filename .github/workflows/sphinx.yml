@@ -11,11 +11,11 @@ jobs:
     - name: Add pyMACS
       run: | 
         import sys,os
-    -name: Add pyMACS2
+    - name: Add pyMACS2
       run: | 
         sys.path.append("..")
-    -name: Add pyMACS3
-      run: |
+    - name: Add pyMACS3
+      run: | 
         import pyMACS
     - uses: actions/checkout@v4
     - name: Build HTML
