@@ -8,9 +8,6 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Install pyMACS
-      run: |
-        pip install git+https://github.com/thallor1/pyMACS
     - uses: actions/checkout@v4
     - name: Build HTML
       uses: ammaraskar/sphinx-action@master
