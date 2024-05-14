@@ -10,7 +10,7 @@ jobs:
     steps:
     - name: Install pyMACS
       run: |
-        pip install -e https://github.com/thallor1/pyMACS
+        pip install -e git+https://github.com/thallor1/pyMACS
     - uses: actions/checkout@v4
     - name: Build HTML
       uses: ammaraskar/sphinx-action@master
