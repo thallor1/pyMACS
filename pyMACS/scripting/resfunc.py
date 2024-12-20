@@ -144,7 +144,7 @@ def calc_ellipses(Qres_Q,verbose=True):
 	return results,Qres_proj
 
 
-def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellipsoid_pngs/',macs_obj=None,verbose=True,macs_dirac_obj=None,calc_mode="default"):
+def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellipsoid_pngs/',macs_obj=None,verbose=True,macs_dirac_obj=None,calc_mode="default",return_ellips=False):
 	"""
 	Using a prevoiusly calculated database of resolution ellipsoids, returns the nearest ellipsoid to the input h,k,l,energy point. Can optionally 
 	:param h: Miller h index. Non-integer values allowed.
@@ -169,6 +169,8 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	:type macs_dirac_obj: virtualMACS, optional
 	:param calc_mode: There are three options, "default", "load_cov", and "Covariance". Users should only use "load_cov", or "default" if they have the correct csv files available. "Covariance" was a developer option, and returns just the covariance matrix.
 	:type calc_mode: str, optional.
+	:param return_ellips: Flag to return projected resolution ellipsoids to overplot on data rather than full matrix.
+	:type return_ellips: bool, optional.
 
 	:return: Qres_Q,[fwhm_M[0],fwhm_M[1],fwhm_M_Eres],[hpt,kpt,wpt]. A list of the resolution ellipsoid M, The Bragg fwhms in Qx (Ang^-1), Qz (Ang^-1), E (meV), and the value of the closest tabulated point in (Qx,Qz,E).
 	:rtype: dict, np.ndarray
@@ -405,19 +407,19 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 			ax[0].pcolormesh(Qx_constE,Qz_constE,const_E_slice,vmin=0,vmax=np.nanmax(const_E_slice),cmap='viridis',rasterized=True)
 		ax[0].plot(qxpt,qzpt,marker='o',mfc='w',mec='k')
 		ax[0].plot(hpt,kpt,marker='o',mfc='c',mec='k')
-		ax[0].set_xlabel(r"$Q_x\ (\AA^{-1}$)",labelpad=0,fontsize=8)
-		ax[0].set_ylabel(r"$Q_z\ (\AA^{-1}$)",labelpad=0,fontsize=8)
+		ax[0].set_xlabel(r"$Q_\perp\ (\AA^{-1}$)",labelpad=0,fontsize=8)
+		ax[0].set_ylabel(r"$Q_\parallel\ (\AA^{-1}$)",labelpad=0,fontsize=8)
 		if calc_mode!='load_cov':
 			ax[2].pcolormesh(Qz_constQx,E_constQx,const_Qx_slice,vmin=0,vmax=np.nanmax(const_Qx_slice),cmap='viridis',rasterized=True)
 		ax[2].plot(qzpt,E,marker='o',mfc='w',mec='k',label='Input Point')
 		ax[2].plot(kpt,wpt,marker='o',mfc='c',mec='k',label='Nearest Stored Point')
-		ax[2].set_xlabel(r"$Q_y\ (\AA^{-1}$)",labelpad=0,fontsize=8)
+		ax[2].set_xlabel(r"$Q_\parallel\ (\AA^{-1}$)",labelpad=0,fontsize=8)
 		ax[2].set_ylabel(r"$\hbar\omega$ (meV)",labelpad=0,fontsize=8)
 		if calc_mode!='load_cov':
 			ax[1].pcolormesh(Qx_constQz,E_constQz,const_Qz_slice,vmin=0,vmax=np.nanmax(const_Qz_slice),cmap='viridis',rasterized=True)
 		ax[1].plot(qxpt,E,marker='o',ls=' ',mfc='w',mec='k',label='Input Point')
 		ax[1].plot(hpt,wpt,marker='o',ls=' ',mfc='c',mec='k',label='Nearest Stored Point')
-		ax[1].set_xlabel(r"$Q_x\ (\AA^{-1}$)",labelpad=0,fontsize=8)
+		ax[1].set_xlabel(r"$Q_\perp\ (\AA^{-1}$)",labelpad=0,fontsize=8)
 		ax[1].set_ylabel(r"$\hbar\omega$ (meV)",labelpad=0,fontsize=8)
 		#The figure misbehaves if we don't fix the limits here. 
 		if calc_mode!='load_cov':
@@ -554,12 +556,18 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 
 		ell_QxE = ellfkt(ellis[ellidx]["fwhms"]*0.5, ellis[ellidx]["rot"], phi, QxE)
 		ell_QxE_proj = ellfkt(ellis[ellidx]["fwhms_proj"]*0.5, ellis[ellidx]["rot_proj"], phi, QxE)
-		ellplots.append({"sliced":ell_QxE, "proj":ell_QxE_proj})
+
+		#ell_QxE = ellfkt(ellis[ellidx]["fwhms"], ellis[ellidx]["rot"], phi, QxE)
+		#ell_QxE_proj = ellfkt(ellis[ellidx]["fwhms_proj"], ellis[ellidx]["rot_proj"], phi, QxE)
+		ellplots.append([{"sliced":ell_QxE, "proj":ell_QxE_proj}])
 
 		if gen_plot is True:
 			ax[ellidx].plot(ell_QxE[0], ell_QxE[1], c="r", linestyle="dashed")
 			ax[ellidx].plot(ell_QxE_proj[0], ell_QxE_proj[1], c="r", linestyle="solid")
 			ax[ellidx].set_xlim()
+
+	if return_ellips is True:
+		return ellplots
 	#plt.tight_layout()
 	fwhm_M = np.copy(1./np.sqrt(np.abs(np.diag(Qres_Q))) * sig2fwhm)
 	fwhm_M_Eres = np.copy(1./np.sqrt(np.abs(Qres_proj[0,0])) * sig2fwhm)
@@ -567,8 +575,8 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	if gen_plot is True:
 		infostr = "MACS Resolution Simulation:\n"+"HF=1 VF=1 "+r"$E_f$"+f"={macsEf:.2f}"+" meV"+f"\n\nRequested point (h,k,l,"+r"$\hbar\omega$"+f"):\n ({h:.1f}, {k:.1f}, {l:.1f}, {E:.1f})"+\
 					"\n\nBragg Widths: "+\
-					r"$\delta Q_x$="+f"{fwhm_M[0]:.3f} "+r"$\AA^{-1}$,"+"\n"+\
-					r"$\delta Q_y$="+f"{fwhm_M[1]:.3f} "+r"$\AA^{-1}$,"+\
+					r"$\delta Q_\perp$="+f"{fwhm_M[0]:.3f} "+r"$\AA^{-1}$,"+"\n"+\
+					r"$\delta Q_\parallel$="+f"{fwhm_M[1]:.3f} "+r"$\AA^{-1}$,"+\
 					r" $\delta \hbar\omega$="+f"{fwhm_M_Eres:.3f}"+r" meV"
 	res_matstr = "Resolution Matrix\n"+f"{np.array_str(Qres_Q,precision=2,suppress_small=True)}"
 
@@ -579,14 +587,15 @@ def nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=False,figdir='Calculated_ellips
 	if gen_plot is True:
 		fig.show()
 		try:
-			fig.savefig(figdir+f"MACS_resfunc_Ef_{macsEf:.2f}meV_h_{h:.2f}_k_{k:.2f}_l_{l:.2f}_w_{E:.2f}.png",dpi=300)
+			fig.savefig(figdir+f"MACS_resfunc_Ef_{macsEf:.2f}meV_h_{h:.2f}_k_{k:.2f}_l_{l:.2f}_w_{E:.2f}.pdf",dpi=300)
 		except Exception as e:
 			print(e)
 			print("Saving figure failed, ensure that the specfied figure directory exists.")
 	return Qres_Q,[fwhm_M[0],fwhm_M[1],fwhm_M_Eres],[hpt,kpt,wpt]
 
 
-def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_mode="load_cov",figdir="Calculated_ellipsoid_pngs/"):
+def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_mode="load_cov",figdir="Calculated_ellipsoid_pngs/",
+	return_ellips=False):
 	"""
 	Main function that recovers the MACS resolution ellipsoid from a pre-calculated set of ellipsoids. 
 
@@ -608,6 +617,8 @@ def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_m
 	:type verbose: bool, optional.
 	:param calc_mode: There are three options, "default", "load_cov", and "Covariance". Users should only use "load_cov", or "default" if they have the correct csv files available. "Covariance" was a developer option, and returns just the covariance matrix.
 	:type calc_mode: str, optional.
+	:param return_ellips: Flag to return the projected resolution ellipsoids rather than the full matrix. Useful for plotting. 
+	:type return_ellips: bool, optional
 	:return: M, M_diag, Q_hkw. The resolution matrix, the diagonal elements / fwhm in Qx, Qz, E, and the (Qx, Qz, E) position of the closest tabulated point.
 	:rtype: np.ndarray, np.ndarray, np.ndarray
 	"""	
@@ -627,12 +638,14 @@ def macs_resfunc(h,k,l,E,macsEf,macsobj=False,gen_plot=True,verbose=False,calc_m
 	if calc_mode == "Covariance":
 		#development option
 		Cov = nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=gen_plot,figdir=figdir,
-		macs_obj=macs,verbose=verbose,macs_dirac_obj=macs_dirac,calc_mode=calc_mode)
+		macs_obj=macs,verbose=verbose,macs_dirac_obj=macs_dirac,calc_mode=calc_mode,
+		return_ellips=return_ellips)
 		return Cov
 
 	else:
 		M,M_diag,Q_hkw = nearest_MACS_resfunc(h,k,l,E,macsEf,gen_plot=gen_plot,figdir=figdir,
-			macs_obj=macs,verbose=verbose,macs_dirac_obj=macs_dirac,calc_mode=calc_mode)
+			macs_obj=macs,verbose=verbose,macs_dirac_obj=macs_dirac,calc_mode=calc_mode,
+			return_ellips=return_ellips)
 		M_diag = np.copy(M_diag)
 	return M,M_diag,Q_hkw
 
@@ -692,7 +705,7 @@ def res_ellipses(M,Qmean,macsobj=None,n_phi=361):
 	U_proj = U1_proj
 	V_proj = U2_proj
 	Qmean = np.array([U_proj,V_proj,Qmean[3]])
-
+	ellfkt_factor = 0.5 # In mccode it is 0.5
 	ellfkt = lambda rad, rot, phi, xscale,yscale, Qmean2d : \
 	    np.dot(rot, np.array([ rad[0]*xscale*np.cos(phi), rad[1]*yscale*np.sin(phi) ])) + Qmean2d
 
@@ -715,8 +728,8 @@ def res_ellipses(M,Qmean,macsobj=None,n_phi=361):
 
 	    phi = np.linspace(0, 2.*np.pi, n_phi)
 
-	    ell_QxE = ellfkt(ellis[ellidx]["fwhms"]*0.5, ellis[ellidx]["rot"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
-	    ell_QxE_proj = ellfkt(ellis[ellidx]["fwhms_proj"]*0.5, ellis[ellidx]["rot_proj"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
+	    ell_QxE = ellfkt(ellis[ellidx]["fwhms"]*ellfkt_factor, ellis[ellidx]["rot"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
+	    ell_QxE_proj = ellfkt(ellis[ellidx]["fwhms_proj"]*ellfkt_factor, ellis[ellidx]["rot_proj"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
 
 	    ellippts = np.array([ell_QxE[0], ell_QxE[1]])
 	    ellip_list.append(ellippts)

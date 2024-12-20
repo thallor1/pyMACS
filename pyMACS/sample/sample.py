@@ -275,7 +275,10 @@ class Sample(object):
 		:return symm_arr: List of symmetry operations in format of [x,y,z]
 		:rtype: list
 		"""
-		symm_arr = self.cif_dict['_symmetry_equiv_pos_as_xyz']
+		try:
+			symm_arr = self.cif_dict['_symmetry_equiv_pos_as_xyz']
+		except KeyError:
+			symm_arr = self.cif_dict['_space_group_symop_operation_xyz']
 		for i in range(len(symm_arr)):
 			if type(symm_arr[i])==str:
 				symm_arr[i]=symm_arr[i].split(',')

@@ -15,7 +15,7 @@
 * 
 * %Identification
 * Written by: Python McStas Instrument Generator
-* Date: 15:35:17 on May 13, 2024
+* Date: 09:16:04 on June 16, 2024
 * Origin: ESS DMSC
 * %INSTRUMENT_SITE: Generated_instruments
 * 
@@ -39,7 +39,7 @@ INITIALIZE
 
 TRACE 
 COMPONENT sample_cube = Union_box(
- material_string = "CrI3", priority = 100,
+ material_string = "PbVPO", priority = 100,
  xwidth = 0.01, yheight = 0.01,
  zdepth = 0.01, number_of_activations = number_of_activations_sample)
 AT (0,0,0) RELATIVE crystal_assembly

@@ -1,0 +1,36 @@
+"""
+This McStasScript file was generated from a
+McStas instrument file. It is advised to check
+the content to ensure it is as expected.
+"""
+from mcstasscript.interface import instr, plotter, functions
+
+dmtas = instr.McStas_instr("dmtas_generated")
+dmtas.add_parameter("double", "EM", value=5.0)
+dmtas.add_parameter("double", "EF_all", value=5.0)
+dmtas.add_parameter("int", "HF", value=1)
+dmtas.add_parameter("int", "VF", value=1)
+dmtas.add_parameter("double", "sample_diameter_d", value=0.02)
+dmtas.add_parameter("double", "beta_1", value=1.0)
+dmtas.add_parameter("double", "beta_2", value=1.0)
+dmtas.add_parameter("double", "CPF", value=0.0)
+dmtas.add_parameter("double", "MPL", value=6.06)
+dmtas.add_parameter("double", "MPD", value=0.775)
+dmtas.add_parameter("double", "APE_h", value=0.35)
+dmtas.add_parameter("double", "APE_v", value=0.35)
+dmtas.add_parameter("double", "misalign_mono_deg", value=0.15)
+dmtas.add_parameter("double", "kidney_angle", value=0.0)
+dmtas.add_parameter("double", "DIRDEV", value=0.0)
+dmtas.add_parameter("double", "DIVSOU", value=3.0)
+dmtas.add_parameter("double", "L0_delta", value=-1.06)
+dmtas.add_parameter("double", "L1_delta", value=0.0)
+dmtas.add_parameter("double", "mon_t", value=0.0)
+dmtas.add_parameter("double", "mon_e", value=0.0)
+dmtas.add_parameter("double", "monrot_delta", value=0.0)
+dmtas.add_parameter("double", "write_virtual_out", value=1.0)
+dmtas.add_declare_var("double", "dmtas_sou_radusv")
+dmtas.add_declare_var("double", "dmtas_sou_radush")
+dmtas.add_declare_var("double", "phi_source")
+dmtas.add_declare_var("double", "diverg")
+dmtas.add_declare_var("double", "dmtas_sou_E0")
+dmtas.add_declare_var("double", "dmtas_sou_dE")
