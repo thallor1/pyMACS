@@ -1,3 +1,12 @@
+try:
+    import mcstasscript as ms
+    testinstr = ms.McStas_instr("dummy_instr",checks=False)
+    inc_scatter = testinstr.add_component("inc_scatter","Incoherent_process")
+except Exception as e:
+    print(d)
+    print("Warning: Error when initializing McStasscript, refer to mcstasscript documentation.")
+    print("The configurator object must be pointing to your mcstas installation, which is system dependent.")
+
 import mcstasscript as ms
 import numpy as np
 from append_vertical_crystal_mono_array import *

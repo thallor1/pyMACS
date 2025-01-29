@@ -14,13 +14,13 @@ try:
     testinstr = ms.McStas_instr("dummy_instr",checks=False)
     inc_scatter = testinstr.add_component("inc_scatter","Incoherent_process")
 except Exception as e:
-    print(d)
+    print(e)
     print("Warning: Error when initializing McStasscript, refer to mcstasscript documentation.")
     print("The configurator object must be pointing to your mcstas installation, which is system dependent.")
 from .scripting import import_ng0
 from .scripting import resfunc
 
-from joblib import Parallel, delayed
+#from joblib import Parallel, delayed
 from tqdm.auto import tqdm
 import pickle
 from importlib.resources import files
@@ -774,6 +774,7 @@ class VirtualMACS(object):
 
 
 		"""
+        from joblib import Parallel, delayed
         if scan_title == False:
             suffix = ''
         else:
@@ -892,7 +893,7 @@ class VirtualMACS(object):
 		:param ng0_file: Input file or path to file. Must be a MACS ng0 file. 
 		:type ng0_file: str
 		"""
-
+        from joblib import Parallel, delayed
         # Mount the ramdisk
         self.mount_ramdisk()
         # Directly simulates an input ng0 file from start to finish.
@@ -959,7 +960,7 @@ class VirtualMACS(object):
 		"""
         # First mount ramdisk
         self.mount_ramdisk()
-
+        from joblib import Parallel, delayed
         # They may also be in folders, but nothing else should be in this folder.
         file_list = []
         cwd = os.getcwd()
@@ -1049,6 +1050,22 @@ class VirtualMACS(object):
             macsobj=False
         M,M_diag,Q_hkw = resfunc.macs_resfunc(h,k,l,E,self.kidney.Ef,macsobj=macsobj,gen_plot=gen_plot,verbose=verbose,calc_mode="load_cov",figdir=figdir)
         return M,M_diag,Q_hkw
+
+    def resmat_Elist(self,h,k,l,elist,sampleFrame=True):
+        """
+        Using a previously tabulated list of resolution ellipsoid calculations, returns the closest resolution ellipsoid to the input h,k,l,E points.
+        """
+        if sampleFrame is True:
+            macsobj = self
+        else: 
+            macsobj=False
+        output_E_fwhm = np.zeros(len(elist))
+        for i,deltaE in elist:
+            M,M_diag,Q_hkw = resfunc.macs_resfunc(h,k,l,E,self.kidney.Ef,macsobj=macsobj,gen_plot=False,verbose=False,calc_mode="load_cov",figdir="Calculated_ellipsoid_pngs/")
+            delE = M_diag[2]
+            outout_E_fwhm[i]=delE 
+        return output_E_fwhm
+
 
     def load_res_fwhm_interp_objects(self):
         """
