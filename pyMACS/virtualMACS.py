@@ -1060,11 +1060,11 @@ class VirtualMACS(object):
         else: 
             macsobj=False
         output_E_fwhm = np.zeros(len(elist))
-        for i,deltaE in elist:
-            M,M_diag,Q_hkw = resfunc.macs_resfunc(h,k,l,E,self.kidney.Ef,macsobj=macsobj,gen_plot=False,verbose=False,calc_mode="load_cov",figdir="Calculated_ellipsoid_pngs/")
-            delE = M_diag[2]
-            outout_E_fwhm[i]=delE 
-        return output_E_fwhm
+        interp_dQx,interp_dQz, interp_dE = load_res_fwhm_interp_objects()
+        # Get the Qx, Qz of the hkl point
+        qx, qz = self.sample.HKL_to_QxQz(h,k,l)
+        dE_list = interp_dE([qx,qx,elist])
+        return dE_list
 
 
     def load_res_fwhm_interp_objects(self):
