@@ -1060,7 +1060,7 @@ class VirtualMACS(object):
         else: 
             macsobj=False
         output_E_fwhm = np.zeros(len(elist))
-        interp_dQx,interp_dQz, interp_dE = load_res_fwhm_interp_objects()
+        interp_dQx,interp_dQz, interp_dE = self.load_res_fwhm_interp_objects()
         # Get the Qx, Qz of the hkl point
         qx, qz = self.sample.HKL_to_QxQz(h,k,l)
         dE_list = interp_dE([qx,qx,elist])
