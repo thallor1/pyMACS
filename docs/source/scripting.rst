@@ -12,7 +12,7 @@ This is a python object that is the main wrapper for all of the methods of pyMAC
 
 .. autofunction:: pyMACS.scripting.calc_ellipses
 
-.. autofunction:: pyMACS.scripting.nearest_MACS_resfunc
+.. autofunction:: pyMACS.scripting.resfunc.nearest_MACS_resfunc
 
 .. autofunction:: pyMACS.scripting.macs_resfunc
 
