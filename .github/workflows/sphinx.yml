@@ -1,23 +1,38 @@
-name: "Sphinx: Render docs"
+name: Sphinx docs to gh-pages
 
-on: push
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:        # Un comment line if you also want to trigger action manually
 
 jobs:
-  build:
+  sphinx_docs_to_gh-pages:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    - uses: actions/checkout@v4
-    - name: Build HTML
-      uses: ammaraskar/sphinx-action@master
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: html-docs
-        path: docs/build/html/
-    - name: Deploy
-      uses: peaceiris/actions-gh-pages@v3
-      if: github.ref == 'refs/heads/main'
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: docs/build/html
+    name: Sphinx docs to gh-pages
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Make conda environment
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.12"    # Python version to build the html sphinx documentation
+          # environment-file: doc/docs_env.yaml    # Path to the documentation conda environment
+          auto-update-conda: false
+          auto-activate-base: false
+          show-channel-urls: true
+      - name: Installing the library
+        shell: bash -l {0}
+        run: |
+          python -m pip install .
+          python -m pip install -r docs/requirements.txt
+          conda install -y pandoc
+      - name: Running the Sphinx to gh-pages Action
+        uses: uibcdf/action-sphinx-docs-to-gh-pages@v2.1.0
+        with:
+          branch: main
+          dir_docs: docs/source
+          sphinx-apidoc-opts: '--separate -o . ../'
+          sphinx-opts: ''

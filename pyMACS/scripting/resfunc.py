@@ -721,19 +721,19 @@ def res_ellipses(M,Qmean,macsobj=None,n_phi=361):
 	proj_ellip_list = []
 	ellip_scales = [[Qxscale,Qzscale],[Qxscale,Escale],[Qzscale,Escale]]
 	for ellidx in [0,1,2]:
-	    # centre plots on zero or mean Q vector ?
+		# centre plots on zero or mean Q vector ?
 
-	    QxE = np.array([[Qmean[coord_axes[ellidx][0]]],
+		QxE = np.array([[Qmean[coord_axes[ellidx][0]]],
 	                    [Qmean[coord_axes[ellidx][1]]]])
 
-	    phi = np.linspace(0, 2.*np.pi, n_phi)
+		phi = np.linspace(0, 2.*np.pi, n_phi)
 
-	    ell_QxE = ellfkt(ellis[ellidx]["fwhms"]*ellfkt_factor, ellis[ellidx]["rot"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
-	    ell_QxE_proj = ellfkt(ellis[ellidx]["fwhms_proj"]*ellfkt_factor, ellis[ellidx]["rot_proj"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
+		ell_QxE = ellfkt(ellis[ellidx]["fwhms"]*ellfkt_factor, ellis[ellidx]["rot"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
+		ell_QxE_proj = ellfkt(ellis[ellidx]["fwhms_proj"]*ellfkt_factor, ellis[ellidx]["rot_proj"],phi,float(ellip_scales[ellidx][0]),float(ellip_scales[ellidx][1]), QxE)
 
-	    ellippts = np.array([ell_QxE[0], ell_QxE[1]])
-	    ellip_list.append(ellippts)
-	    projpts=np.array([ell_QxE_proj[0], ell_QxE_proj[1]])
-	    proj_ellip_list.append(projpts)
+		ellippts = np.array([ell_QxE[0], ell_QxE[1]])
+		ellip_list.append(ellippts)
+		projpts=np.array([ell_QxE_proj[0], ell_QxE_proj[1]])
+		proj_ellip_list.append(projpts)
 
 	return np.array(ellip_list),np.array(proj_ellip_list)
