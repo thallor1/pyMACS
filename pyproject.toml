@@ -24,3 +24,6 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/thallor1/pyMACS"
 Documentation = "https://thallor1.github.io/pyMACS/"
+
+[tool.setuptools.packages.find]
+include=["pyMACS*"]
