@@ -2,11 +2,7 @@ import numpy as np
 from .parseCif import parseCIF
 from .import_NIST_table import import_NIST_table
 import os
-import shutil  
-import lmfit 
-from lmfit import Model,Parameters
 from importlib.resources import files
-import matplotlib.pyplot as plt
 
 class Sample(object):
 	"""
@@ -122,8 +118,7 @@ class Sample(object):
 		#The parameter that defines the space group is often inconsistent. Find something that contains the string
 		# '_space_group' but not 'xyz'
 		space_group = 'Undefined'
-		for i in range(len(cif_obj)):
-			key_str = cif_obj.keys()[i]
+		for key_str in list(cif_obj.keys()):
 			if (('_space_group' in key_str) or ('_space_group_name_h-m' in key_str)) and ('xyz' not in key_str) and ('number' not in key_str) and ('symop_id' not in key_str):
 				#found the key to the space group in the dictionary.
 				space_key = key_str 
