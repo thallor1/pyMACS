@@ -1,1 +1,1 @@
-../../../pyMACS/Demonstration/CrI3.cif
+../notebooks/CrI3.cif
