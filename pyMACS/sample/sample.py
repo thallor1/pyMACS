@@ -2,11 +2,7 @@ import numpy as np
 from .parseCif import parseCIF
 from .import_NIST_table import import_NIST_table
 import os
-import shutil  
-import lmfit 
-from lmfit import Model,Parameters
 from importlib.resources import files
-import matplotlib.pyplot as plt
 
 class Sample(object):
 	"""
@@ -122,8 +118,7 @@ class Sample(object):
 		#The parameter that defines the space group is often inconsistent. Find something that contains the string
 		# '_space_group' but not 'xyz'
 		space_group = 'Undefined'
-		for i in range(len(cif_obj)):
-			key_str = cif_obj.keys()[i]
+		for key_str in list(cif_obj.keys()):
 			if (('_space_group' in key_str) or ('_space_group_name_h-m' in key_str)) and ('xyz' not in key_str) and ('number' not in key_str) and ('symop_id' not in key_str):
 				#found the key to the space group in the dictionary.
 				space_key = key_str 
@@ -172,7 +167,7 @@ class Sample(object):
 			#print("WARNING: Chemical weight not in cif file. Placeholder value used but should be updated manually using: \n Material.formula_weight=(val)")
 			formula_weight = 100.0
 
-		formula_units = int(cif_obj['_cell_formula_units_Z'])
+		formula_units = int(cif_obj['_cell_formula_units_z'])
 		self.chem_sum = chem_sum 
 		self.formula_weight=formula_weight
 		self.formula_units = formula_units
@@ -257,7 +252,6 @@ class Sample(object):
 		self.cstar_vec_labframe=cstar
 		self.labframe_mat=None
 		# extracts some additional info in the cif file about the general unit cell
-		f_lines = self.gen_flines()
 		return None
 
 
@@ -295,7 +289,6 @@ class Sample(object):
 			Here, x,y,z are the coordinates in fractional coordinates and 'ion' refers to the element.
 		:rtype: dict
 		"""
-		f_lines = self.gen_flines()
 
 		coords = {}
 		#Make a dictionary of the ions and their positions- dctionary of format 
