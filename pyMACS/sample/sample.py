@@ -257,7 +257,6 @@ class Sample(object):
 		self.cstar_vec_labframe=cstar
 		self.labframe_mat=None
 		# extracts some additional info in the cif file about the general unit cell
-		f_lines = self.gen_flines()
 		return None
 
 
@@ -295,7 +294,6 @@ class Sample(object):
 			Here, x,y,z are the coordinates in fractional coordinates and 'ion' refers to the element.
 		:rtype: dict
 		"""
-		f_lines = self.gen_flines()
 
 		coords = {}
 		#Make a dictionary of the ions and their positions- dctionary of format 
