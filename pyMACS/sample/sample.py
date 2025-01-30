@@ -172,7 +172,7 @@ class Sample(object):
 			#print("WARNING: Chemical weight not in cif file. Placeholder value used but should be updated manually using: \n Material.formula_weight=(val)")
 			formula_weight = 100.0
 
-		formula_units = int(cif_obj['_cell_formula_units_Z'])
+		formula_units = int(cif_obj['_cell_formula_units_z'])
 		self.chem_sum = chem_sum 
 		self.formula_weight=formula_weight
 		self.formula_units = formula_units
