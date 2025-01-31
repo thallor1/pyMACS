@@ -9,7 +9,10 @@
 project = 'pyMACS'
 copyright = '2024, Thomas Halloran'
 author = 'Thomas Halloran'
-release = '0.1'
+
+# Dynamic version
+import pyMACS
+release = pyMACS.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -41,3 +44,31 @@ html_theme_options = {
 '''
 html_logo = "MACS1.png"
 html_title = "pyMACS documentation"
+
+# This is processed by Jinja2 and inserted before each notebook
+nbsphinx_prolog = r"""
+{% set docname = 'docs/source/' + env.doc2path(env.docname, base=None)|string %}
+
+.. raw:: html
+
+    <div class="admonition note">
+      This page was generated from
+      <a class="reference external" href="https://github.com/bmaranville/pyMACS/tree/main/{{ docname|e }}">{{ docname|e }}</a>.
+      [<a href="{{ env.docname.split('/')|last|e + '.ipynb' }}" class="reference download internal" download>Download notebook</a>.]
+      <br>
+      Interactive online versions:
+      <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/bmaranville/pyMACS/{{ env.config.release|e }}?filepath={{ docname|e }}"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg" style="vertical-align:text-bottom"></a>.</span>
+      <span style="white-space: nowrap;">
+        <a target="_blank" href="https://colab.research.google.com/github/bmaranville/pyMACS/blob/main/{{ docname|e }}">
+            <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
+        </a>
+      </span>
+     
+    </div>
+
+.. raw:: latex
+
+    \nbsphinxstartnotebook{\scriptsize\noindent\strut
+    \textcolor{gray}{The following section was generated from
+    \sphinxcode{\sphinxupquote{\strut {{ docname | escape_latex }}}} \dotfill}}
+"""

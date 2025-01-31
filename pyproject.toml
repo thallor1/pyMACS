@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyMACS"
-version = "0.1.0"
+dynamic = ["version"]
 description = "reliable interface between MACS measurements at NCNR in Gaithursburg, MD to Monte-Carlo simulations produced by a McStas simulation originally written by Mads Bertelsen"
 authors = [
   {name = "Thomas Halloran", email = "thomas.halloran@nist.gov" },
@@ -27,3 +27,6 @@ Documentation = "https://thallor1.github.io/pyMACS/"
 
 [tool.setuptools.packages.find]
 include=["pyMACS*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "pyMACS.__version__"}
