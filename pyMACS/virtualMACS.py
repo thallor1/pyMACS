@@ -1072,7 +1072,7 @@ class VirtualMACS(object):
         Using a previously tabulated list of resolution ellipsoid calculations, returns the closest resolution ellipsoid to the input h,k,l,E point. 
         This variant uses a linear interpolation between the tabulated points to quickly get the FWHM in the principle axes, Qx, Qz, E, in (Ang^-1, Ang^-1, meV)
         The returned objects are scipy interpolators, which take input such as 
-            - dE = interp_dE(h,k,l,E)
+            - dE = interp_dE(qx,qz,E)
         The interpolation objects is a RegularGridInterpolator, and also accepts np.ndarrays of shape (N,4), where N is the number of points. 
 
         :return: interp_dQx, interp_dQz, interp_dE, scipy.interpolate.RegularGridInterpolator obejcts that return the macs Bragg widhths in the respective directions for arbitrary h,k,l,E, for the Ef=3.7 or Ef=5.0 settings.
