@@ -518,9 +518,9 @@ class Sample(object):
 
 	def HKL_to_QxQz(self,h,k,l):
 		# provided rlu indices and a macs object, returns the Qx (Q_perp) and Qy (Q_parallel) components in Ang^-1
-		Qu_vec = self.sample.astar_vec_labframe*h 
-		Qv_vec = self.sample.bstar_vec_labframe*k  
-		Qw_vec = self.sample.cstar_vec_labframe*l
+		Qu_vec = self.astar_vec_labframe*h 
+		Qv_vec = self.bstar_vec_labframe*k  
+		Qw_vec = self.cstar_vec_labframe*l
 		Qnet = Qu_vec+Qv_vec+Qw_vec
 		if np.linalg.norm(Qnet[1])>0.2:
 			print("WARNING: Specified lattice vector does not lie in the scattering plane of the instrument.")
