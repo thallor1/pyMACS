@@ -2,3 +2,4 @@ graft pyMACS/UNION?MACS?Models/
 recursive-include **/ *.txt *.ipynb *.sqw4 *.cif
 include pyMACS/Demonstration/fpx78891.ng0
 recursive-include pyMACS/scripting/**/ *.dat
+recursive-include pyMACS/scripting/ *.pck
