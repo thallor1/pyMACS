@@ -1078,7 +1078,7 @@ class VirtualMACS(object):
         :return: interp_dQx, interp_dQz, interp_dE, scipy.interpolate.RegularGridInterpolator obejcts that return the macs Bragg widhths in the respective directions for arbitrary h,k,l,E, for the Ef=3.7 or Ef=5.0 settings.
         :rtype: scipy.interpolate.RegularGridInterpolator, scipy.interpolate.RegularGridInterpolator, scipy.interpolate.RegularGridInterpolator 
         """ 
-        interp_dir = str(files("pyMACS")) + '/scripting/interp_fwhm/'
+        interp_dir = str(files("pyMACS")) + '/scripting/'
         if np.min(np.abs(np.array([5.0,3.7])-self.kidney.Ef))>0.1:
             #Check if the instrumental configruation is valid.
             print("Macs Ef hasn't been tabulated. Use Ef=3.7 or Ef=5.0")
