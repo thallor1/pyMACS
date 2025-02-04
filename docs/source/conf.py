@@ -53,13 +53,13 @@ nbsphinx_prolog = r"""
 
     <div class="admonition note">
       This page was generated from
-      <a class="reference external" href="https://github.com/bmaranville/pyMACS/tree/main/{{ docname|e }}">{{ docname|e }}</a>.
+      <a class="reference external" href="https://github.com/thallor1/pyMACS/tree/main/{{ docname|e }}">{{ docname|e }}</a>.
       [<a href="{{ env.docname.split('/')|last|e + '.ipynb' }}" class="reference download internal" download>Download notebook</a>.]
       <br>
       Interactive online versions:
-      <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/bmaranville/pyMACS/{{ env.config.release|e }}?filepath={{ docname|e }}"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg" style="vertical-align:text-bottom"></a>.</span>
+      <span style="white-space: nowrap;"><a href="https://mybinder.org/v2/gh/thallor1/pyMACS/{{ env.config.release|e }}?filepath={{ docname|e }}"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg" style="vertical-align:text-bottom"></a>.</span>
       <span style="white-space: nowrap;">
-        <a target="_blank" href="https://colab.research.google.com/github/bmaranville/pyMACS/blob/main/{{ docname|e }}">
+        <a target="_blank" href="https://colab.research.google.com/github/thallor1/pyMACS/blob/main/{{ docname|e }}">
             <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/>
         </a>
       </span>
