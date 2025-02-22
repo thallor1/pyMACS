@@ -15,7 +15,7 @@
 * 
 * %Identification
 * Written by: Python McStas Instrument Generator
-* Date: 09:16:04 on June 16, 2024
+* Date: 14:21:28 on February 21, 2025
 * Origin: ESS DMSC
 * %INSTRUMENT_SITE: Generated_instruments
 * 
@@ -39,39 +39,39 @@ INITIALIZE
 
 TRACE 
 COMPONENT inc_scatter = Incoherent_process(
- sigma = 5.1032, packing_factor = 1,
- unit_cell_volume = 763.64, interact_fraction = 1)
+ sigma = 2.8716, packing_factor = 1,
+ unit_cell_volume = 62.74, interact_fraction = 0.25)
 AT (0,0,0) ABSOLUTE
 
 COMPONENT crystal_scatter = Single_crystal_process(
- reflections = "Pb2VO_PO4_2.lau", delta_d_d = 0.005,
+ reflections = "TiO2.lau", delta_d_d = 0.005,
  mosaic = 30, barns = 1,
- ax = 8.58746, ay = 1.66301,
- az = 0, bx = -0,
- by = 0, bz = 9.016,
- cx = 0, cy = -9.863,
- cz = 0, powder = 0,
- PG = 0, interact_fraction = 1,
+ ax = 3.25276, ay = -3.25276,
+ az = 0, bx = 3.25276,
+ by = 3.25276, bz = 0,
+ cx = 0, cy = 0,
+ cz = 2.9288, powder = 0,
+ PG = 0, interact_fraction = 0.5,
  packing_factor = 1)
 AT (0,0,0) ABSOLUTE
 ROTATED (0,0,0) ABSOLUTE
 
 COMPONENT sample_sqw4 = Sqw4_process(
- sqw = "spinw_PbVOPO_full.sqw4", recip_cell = 0,
- barns = 1, ax = 8.58746,
- ay = 1.66301, az = 0,
- bx = -0, by = 0,
- bz = 9.016, cx = 0,
- cy = -9.863, cz = 0,
- aa = 90, bb = 100.96,
+ sqw = "tio2_resfunc.sqw4", recip_cell = 0,
+ barns = 1, ax = 3.25276,
+ ay = -3.25276, az = 0,
+ bx = 3.25276, by = 3.25276,
+ bz = 0, cx = 0,
+ cy = 0, cz = 2.9288,
+ aa = 90, bb = 90,
  cc = 90, interact_fraction = 1,
  max_bad = 100000, max_stored_ki = 100000,
  stored_dTheta = 0.1, stored_dkmag = 0.0001)
 AT (0,0,0) ABSOLUTE
 ROTATED (0,0,0) ABSOLUTE
 
-COMPONENT PbVPO = Union_make_material(
- process_string = "crystal_scatter,inc_scatter,sample_sqw4", my_absorption = 23.0708)
+COMPONENT TiO2 = Union_make_material(
+ process_string = "crystal_scatter,inc_scatter,sample_sqw4", my_absorption = 12.1808)
 AT (0,0,0) ABSOLUTE
 
 FINALLY 

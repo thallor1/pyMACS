@@ -1000,8 +1000,8 @@ class Data(object):
 		kid_list = np.array(data[:,file_params['Columns'].index('Kidney')]).astype(float)
 		ptai_det = np.array(data[:,file_params['Columns'].index('PTAI')]).astype(int)
 
-		#Need to normalize spec, diff to monitor
-		monitor_list = np.array(data[:,file_params['Columns'].index('Monitor')]).astype(int)
+		#Need to normalize spec, diff to monitor Edittest
+		monitor_list = np.array(data[:,file_params['Columns'].index('Monitor')]).astype(float)
 
 		data_matrix = pd.DataFrame(index=np.arange(0,len(Ei_list),1),columns=col_labels,dtype=float)
 		data_matrix['Ei']=Ei_list
@@ -1034,7 +1034,10 @@ class Data(object):
 			specstr_mat_err = 'SPEC'+str(i)+'Err'
 
 			diffarray=data[:,file_params['Columns'].index(diffstr)].astype(float)
-			anaarray=data[:,file_params['Columns'].index(anastr)].astype(float)
+			try:
+				anaarray=data[:,file_params['Columns'].index(anastr)].astype(float)
+			except Exception as e:
+				anaarray = np.zeros(len(data[:,0]))
 			specarray=data[:,file_params['Columns'].index(specstr)].astype(float)
 			differrarray=np.sqrt(data[:,file_params['Columns'].index(diffstr)].astype(float))
 			specerrarray=np.sqrt(data[:,file_params['Columns'].index(specstr)].astype(float))

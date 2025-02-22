@@ -1,0 +1,906 @@
+/*******************************************************************************
+*
+*  McStas, neutron ray-tracing package
+*  Copyright(C) 2007 Risoe National Laboratory.
+*
+* %I
+* Written by: Tom Halloran
+* Date: 20.08.15
+* Version: $Revision: 0.1 $
+* Origin: NIST
+*
+* Port of the Sqw_inelastic component to the Union components
+* Requires companion python script for SQW sampling. 
+* %D
+* 
+*
+* %P
+* INPUT PARAMETERS:
+* packing_factor: [1]  How dense is the material compared to optimal 0-1
+* interact_fraction: [1] How large a part of the scattering events should use this process 0-1 (sum of all processes in material = 1)
+* recip_cell: [1]                                         Choice of direct/reciprocal (0/1) unit cell definition
+* ax: [AA or AA^-1]                                       Coordinates of first (direct/recip) unit cell vector
+* ay: [AA or AA^-1]                                       a on y axis
+* az: [AA or AA^-1]                                       a on z axis
+* bx: [AA or AA^-1]                                       Coordinates of second (direct/recip) unit cell vector
+* bz: [AA or AA^-1]                                       b on z axis
+* by: [AA or AA^-1]                                       b on y axis
+* cx: [AA or AA^-1]                                       Coordinates of third (direct/recip) unit cell vector
+* cy: [AA or AA^-1]                                       c on y axis
+* cz: [AA or AA^-1]                                       c on z axis
+* sqw: [string]                                   File name containing structure factors of sqw. Use empty ("") or NULL for incoherent scattering only
+* order: [1]                                              Limit multiple scattering up to given order (0: all, 1: first, 2: second, ...)
+* p_transmit: [1]                                         Monte Carlo probability for neutrons to be transmitted without any scattering. Used to improve statistics from weak sqw
+* sigma_abs: [barns]                                      Absorption cross-section per unit cell at 2200 m/s
+* sigma_inc: [barns]                                      Incoherent scattering cross-section per unit cell Use -1 to unactivate
+* aa: [deg]                                               Unit cell angles alpha, beta and gamma. Then uses norms of vectors a,b and c as lattice parameters
+* bb: [deg]                                               Beta angle
+* cc: [deg]                                               Gamma angle
+* barns: [1]                                              Flag to indicate if |F|^2 from 'sqw' is in barns or fm^2. barns=1 for laz and isotropic constant elastic scattering (sqw=NULL), barns=0 for lau type files
+* RX: [m]                                                 Radius of lattice curvature along X. flat when 0.
+* RY: [m]                                                 Radius of lattice curvature along Y. flat when 0.
+* RZ: [m]                                                 Radius of lattice curvature along Z. flat when 0.
+* powder: [1]                                             Flag to indicate powder mode, for simulation of Debye-Scherrer cones via random crystallite orientation. A powder texture can be approximated with 0
+* PG: [1]                                                 Flag to indicate "Pyrolytic Graphite" mode, only meaningful with choice of Graphite.lau, models PG crystal. A powder texture can be approximated with 0
+*
+* OUTPUT PARAMETERS:
+* Template_storage          // Important to update this output paramter
+* effective_my_scattering   // Variable used in initialize
+*
+* %L
+*
+* %E
+******************************************************************************/
+
+DEFINE COMPONENT Sqw_process // Remember to change the name of process here
+DEFINITION PARAMETERS ()
+SETTING PARAMETERS(string sqw=0,
+            recip_cell=0, barns=0,
+            a = 0, 
+            b = 0, 
+            c = 0,
+            aa=0, bb=0, cc=0, cell_vol=0,
+            interact_fraction=-1, packing_factor=1, 
+            max_bad=1e5, max_stored_ki=1e5, string init="init",
+            stored_dTheta=1, stored_dkmag=2e-3, coh_xc=10)
+OUTPUT PARAMETERS (This_process,Sqw_physics_storage_struct,effective_my_scattering)
+
+SHARE
+%{
+#ifndef Union
+#define Union $Revision: 0.8 $
+
+%include "Union_functions.c"
+%include "Union_initialization.c"
+#include <time.h>
+
+#endif
+
+%include "read_table-lib"
+%include "interoff-lib"
+
+#ifndef SQW_PROCESS_DECL
+#define SQW_PROCESS_DECL
+
+#endif
+
+    struct qw_data_union
+    {
+      double en;                  /* E dimension in r.l.u. */
+      double SQW;                 /* Value of dynamical structure factor */
+      double qmod;                /* Length of (qx, qy, qz) */
+      double chki;                /* |Q|+(2m/hbar^2)*E/|Q| - should be less than 2ki to satisfy conservation */
+      double u1x, u1y, u1z;       /* First axis of local coordinate system */
+      double u2x, u2y, u2z;       /* Second axis of local coordinate system */
+      double u3x, u3y, u3z;       /* Third axis of local coordinate system */
+    };
+
+  struct qw_store // Struct to store allowed reflections for individual ki's
+  {
+      double kx,ky,kz;            /* Momentum direction (in crystal) for this ki */
+      int    *allowed_i;           /* Indices of the qw list that satisfy scattering condition */
+      int    nqw;                /* Number of hkl,en points accessible from this ki */ 
+  };
+  struct qw_info_struct_union
+    {
+      struct qw_data_union *list;/* Reflection array */
+      int count;                  /* Number of sqw */
+      double m_a, m_b, m_c;       /* length of lattice parameter lengths */
+      double m_aa, m_bb, m_cc;    /* lattice angles */
+      double sigma_a, sigma_i;    /* abs and inc X sect */
+      double m_delta_d_d;
+      double rho;                 /* density */
+      double xc;                  /* Coherent cross section for a unit cell in barn */
+      double at_weight;           /* atomic weight */
+      double at_nb;               /* nb of atoms in a cell */
+      double V0;                  /* Unit cell volume (AA**3) */
+      int    column_order[5];     /* column signification [h,k,l,en,S] */
+      int    recip;               /* Flag to indicate if recip or direct cell axes given */
+      int    flag_warning;        /* number of warnings */
+      char   type;                /* type of last event: t=transmit,c=coherent or i=incoherent */
+      int    is_sorted;           /* S(Q,w) is sorted first by en, then by |Q| in that order */
+      int    stored_ki_max;       /* Maximum number of saved hkl/ki to store */
+      int    last_stored;         /* Index of the last hkl/ki list computed */
+      double *badx,*bady,*badz;   /* kx,ky,kz of bad ki which cannot satisfy any E(hkl) */
+      int    nbad;                /* Number of bad ki's found */
+      int    nextbad;
+      int    maxbad;
+      int    num_count;               /* Number of sqw within cutoff */
+      double coh_refl, coh_xsect; /* cross section computed with last tau_list */
+      double kix, kiy, kiz;       /* last incoming neutron ki */
+      double kfx, kfy, kfz;       /* last incoming neutron ki */
+      struct qw_store *stored;   /* Stored list of allowed hkl for particular ki vector */
+      int    nb_reuses, nb_refl, nb_refl_count;
+      int picked_ref;             /* Index of last particular reflection */
+      int num_bad_end, num_stored_end, num_searched_end; /* Keeps track of how often optimizations are used */
+      double dTheta, dKmag; /* parameters used to consider stored K-values a "Match", in degrees and ang^-1 respectively */
+    };
+
+  
+  /* ------------------------------------------------------------------------ */
+  int
+  read_qw_data_union(char *SC_file, struct qw_info_struct_union *info)
+  {
+    struct qw_data_union *list = NULL;
+    int size = 0;
+    t_Table sTable; /* sample data table structure from SC_file */
+    int i=0;
+    double tmp_x, tmp_y, tmp_z;
+    char **parsing;
+    char flag=0;
+    double nb_atoms=1;
+
+
+    if (!SC_file || !strlen(SC_file) || !strcmp(SC_file,"NULL") || !strcmp(SC_file,"0")) {
+      info->count = 0;
+      flag=1;
+    }
+    if (!flag) {
+      Table_Read(&sTable, SC_file, 1); /* read 1st block data from SC_file into sTable*/
+      if (sTable.columns < 3) {
+        fprintf(stderr, "SQW: Error: The number of columns in %s should be at least %d for [h,k,l,en,S]\n", SC_file, 3);
+        return(0);
+      }
+      if (!sTable.rows) {
+        fprintf(stderr, "SQW: Error: The number of rows in %s should be at least %d\n", SC_file, 1);
+        return(0);
+      } else size = sTable.rows;
+
+      /* parsing of header */
+      parsing = Table_ParseHeader(sTable.header,
+        "sigma_abs","sigma_a ",
+        "sigma_inc","sigma_i ",
+        "column_Q",
+        "column_E",
+        "column_S",
+        "column_h ",
+        "column_k ",
+        "Delta_d/d",
+        "lattice_a ",
+        "lattice_b ",
+        "lattice_c ",
+        "lattice_aa",
+        "lattice_bb",
+        "lattice_cc",
+        "nb_atoms",
+        "sorted",
+        NULL);
+
+      if (parsing) {
+        if (parsing[0] && !info->sigma_a) info->sigma_a=atof(parsing[0]);
+        if (parsing[1] && !info->sigma_a) info->sigma_a=atof(parsing[1]);
+        if (parsing[2] && !info->sigma_i) info->sigma_i=atof(parsing[2]);
+        if (parsing[3] && !info->sigma_i) info->sigma_i=atof(parsing[3]);
+        if (parsing[4])                   info->column_order[0]=atoi(parsing[4]);
+        if (parsing[5])                   info->column_order[1]=atoi(parsing[5]);
+        if (parsing[6])                   info->column_order[2]=atoi(parsing[6]);
+        if (parsing[7])                   info->column_order[3]=atoi(parsing[7]);
+        if (parsing[8])                   info->column_order[4]=atoi(parsing[8]);
+        if (parsing[9] && info->m_delta_d_d <0) info->m_delta_d_d=atof(parsing[9]);
+        if (parsing[10] && !info->m_a)    info->m_a =atof(parsing[10]);
+        if (parsing[11] && !info->m_b)    info->m_b =atof(parsing[11]);
+        if (parsing[12] && !info->m_c)    info->m_c =atof(parsing[12]);
+        if (parsing[13] && !info->m_aa)   info->m_aa=atof(parsing[13]);
+        if (parsing[14] && !info->m_bb)   info->m_bb=atof(parsing[14]);
+        if (parsing[15] && !info->m_cc)   info->m_cc=atof(parsing[15]);
+        if (parsing[16])   nb_atoms=atof(parsing[16]);
+        if (parsing[17])   info->is_sorted=1;
+        for (i=0; i<=17; i++) if (parsing[i]) free(parsing[i]);
+        free(parsing);
+      }
+    }
+    if (nb_atoms > 1) { info->sigma_a *= nb_atoms; info->sigma_i *= nb_atoms; }
+    /* parameters consistency checks */
+
+    if (!info->column_order[0] || !info->column_order[1]) {
+      fprintf(stderr,
+              "SQW: Error: Wrong Q,E column definition\n");
+      return(0);
+    }
+    if (!info->column_order[2]) {
+      fprintf(stderr,
+              "SQW: Error: Wrong S(Q,w) column definition\n");
+      return(0);
+    }
+
+    /* allocate qw_data array */
+    list = (struct qw_data_union*)malloc(size*sizeof(struct qw_data_union));
+
+    /* Populates the table, if not sorted by |Q| and energy */
+    double en, Qm, *vl;
+    vl = (double*)malloc(size*sizeof(double));
+    double Emax=0, Qmax=0;
+    double Emul, Qmul, S;
+    int bad_count = 0;
+    info->is_sorted=1;  
+    info->count=size;
+
+    for (i=0; i<size; i++)
+    {
+      double h=0, k=0, l=0;
+
+      /* get data from table */
+      Qm = Table_Index(sTable, i, info->column_order[0]-1);
+      en = Table_Index(sTable, i, info->column_order[1]-1);
+      S= Table_Index(sTable, i, info->column_order[2]-1);
+      //printf("For i=%d, Qm=%4f, en=%4f, S=%4e\n",i,Qm,en,S);
+      /* Precompute some values */
+      list[i].SQW = S;
+      list[i].en = en;
+      list[i].qmod = Qm;
+      list[i].chki = (Qm + 0.4825966246*en/Qm)/2.0;
+
+      if(i>0 && (list[i].chki-list[i-1].chki)<-1e-3) // Small buffer for rounding errors. 
+        {
+          bad_count=bad_count+1;
+          info->is_sorted = 0;
+        } 
+    }
+    if(!info->is_sorted)
+      {
+      printf("Warning: %d/%d values in this list are found to be in the wrong order.\nPlease double check your input .sqw file.\n",bad_count,size);
+      }
+    Table_Free(&sTable);
+    // Assign the list to the shared memory struct
+    info->list = list;
+    return(info->count = size);
+  };
+   /* read_qw_data */
+
+  /* ------------------------------------------------------------------------ */
+  /* qw_select
+    search the HKLE sqw which are allowed,
+    pick a random one. 
+    input:
+      L,count,V0: constants for all calls
+      kix,kiy,kiz: may be different for each call
+    this function returns:
+      selected_i,S(q,w)
+   */
+  int qw_select_union(struct qw_data_union *L, struct qw_info_struct_union *info, int count, double kix, double kiy, double kiz)
+  {
+    //printf("Starting qw_select\n");
+    // Find first index in sqw list where |ki^2 - kf^2| is not allowed by energy conservation. 
+    // |Q|+(2m/hbar^2)*E/|Q| <= 2|ki| to satisfy conservation.
+    double kimod = sqrt(kix*kix + kiy*kiy + kiz*kiz);
+    int i,maxi,j;
+    double kfx, kfy, kfz, kfmod;
+    double q_mod;
+    double max_chi, neutron_const;
+    double Ei,Ef,omega, en2, S;
+    double curr_chi;
+    int last_stored = info->last_stored;
+    int nqw=0; // Number of points that satisfy all scattering requirements.
+    int kin_flag=0, fail_flag=0; // Flag to stop the search of the overall list
+    double cpu_time, cpu_time2,init_time, final_time; // for debugging 
+
+    int print_times=0;
+
+    clock_t start_T,start_T2, end_T;
+
+    if (print_times==1){
+      start_T = clock();
+    }
+    //printf("On call B for qw_select_union.\n");
+    if(L[0].chki > (2*kimod)) {  // No hkl point can satisfy kinematics for this ki.
+        return 0;  // Should propagate it out of the crystal ...
+    }
+    
+    // Goes through the full S(q,w) list to find points which are kinematically accessible with this ki, then save this
+    //   to an array which is then re-used for ki's similar to this one in future.
+    int klist = -1;
+    double kdir,kmag;
+    int i1;
+    int foundflag=0; // Flag to say if an old ki has been matched. If not, the full sqw list will be checked for scattering processes.
+    //  this is very slow, so we will try to avoid it using two lists of good and bad ki's below, i.e. memoization. 
+    // Checks previously generated list of ki's which cannot scatter from the sample due to orientation.
+    for(i1=0; i1<info->nbad; i1++) 
+      {
+      //printf("Checking i1 A=%d\n",i1);
+      kmag = sqrt(info->badx[i1]*info->badx[i1] + info->bady[i1]*info->bady[i1] + info->badz[i1]*info->badz[i1]);
+      kdir = ((kix*info->badx[i1])+ (kiy*info->bady[i1])+  (kiz*info->badz[i1]))/kmag/kimod;
+      kdir = acos(kdir)*(1.0/DEG2RAD); // Now this is the angle between the two k-vectors in deg
+      if((fabs(kdir))<info->dTheta && fabs(kmag-kimod)<info->dKmag) 
+        {
+          info->num_bad_end++;
+          foundflag=1;
+          //printf("Found bad point \n");
+          if(print_times==1){
+            end_T = clock();
+            cpu_time = ((double) (end_T-start_T))/CLOCKS_PER_SEC;
+            printf("For bad ki cpu_time=%6e s\n",cpu_time);
+          }
+          return 0;  // Should propagate it out of the crystal ...
+          break;
+        }
+      }
+    if(print_times==1){
+      end_T=clock();
+      cpu_time = ((double) (end_T-start_T))/CLOCKS_PER_SEC;
+
+      //printf("To search entire bad list requires cpu_time=%6e s\n",cpu_time);
+    }
+    
+    // Check previously generated list of ki's which can scatter, and see if this ki matches, saving us to go through the S(q,w) list again.
+    if(print_times==1){
+      start_T=clock();
+      printf("kix = %4f, kiy = %4f, kiz = %4f\n",kix,kiy,kiz);
+
+    }
+    for(i1=0; i1<info->last_stored; i1++) 
+        {
+          if(info->stored[i1].nqw>0) 
+            {
+              nqw = info->stored[i1].nqw;
+              kmag = sqrt(info->stored[i1].kx*info->stored[i1].kx + info->stored[i1].ky*info->stored[i1].ky + info->stored[i1].kz*info->stored[i1].kz);
+              kdir = ((kix*info->stored[i1].kx) + (kiy*info->stored[i1].ky) + (kiz*info->stored[i1].kz))/kmag/kimod;
+              kdir = acos(fabs(kdir))*(1.0/DEG2RAD);
+              //printf("ki_stored = %4f, kiy_stored = %4f, kiz_stored = %4f\n",info->stored[i1].kx,info->stored[i1].ky,info->stored[i1].kz);
+              //printf("d_kdir = %d\n",kdir);
+              //printf("d_kmag= %d\n",fabs(kmag-kimod));
+              //printf("kdir condition: %d, kmag condition: %d\n",fabs(kdir)<info->dTheta,fabs(kmag-kimod)<info->dKmag);
+              //if((fabs(kdir))<info->dTheta && fabs(kmag-kimod)<info->dKmag) 
+
+              if(fabs(kmag-kimod)<info->dKmag) 
+                {
+                  int j_mapped;
+                  j_mapped = rand0max(info->stored[i1].nqw);
+                  int scatter_i[nqw];
+                  int i2;
+                  //j = info->stored[i1].allowed_i[j_mapped];
+                  j=j_mapped;
+                  info->num_searched_end++;
+                  //printf("found like point\n");
+                  if(print_times==1){
+                  end_T = clock();
+                  cpu_time = ((double) (end_T-start_T))/CLOCKS_PER_SEC;
+                  printf("For stored ki cpu_time=%6e s\n",cpu_time);
+                  }
+                  return j+1;
+                }
+            }
+        }
+    
+    //int *tmp_list;tmp_list = (int*)malloc(info->count*sizeof(int));
+    nqw=0;
+
+    if(foundflag==0) //Need to iterate through the whole list. 
+    {
+      int i0=0;
+      for(i0=0; i0<info->count-1; i0++)
+        {
+          max_chi = L[i0].chki;
+          q_mod= L[i0].qmod;
+          en2 = L[i0].en;
+
+
+          neutron_const=0.4825966246;
+          curr_chi = (q_mod + neutron_const*en2/(q_mod))/2.0;
+          //printf("for i=%d, curr_chi=%4f, kimod=%4f\n",i0,curr_chi,kimod);
+          //printf("q_mod=%4f \n",q_mod);
+          //printf("en2 = %4f \n",en2);
+          // check that this value is allowed by energy conservation. 
+          if(curr_chi<=kimod && kin_flag==0)
+          {
+            //All good. Add this event to the list..
+            //printf("found a value. \n")
+            //tmp_list[nqw]=i0;
+            nqw++;
+          }
+          
+          else
+          {
+            // Energy no longer conserved. 
+            if(nqw>0){
+              kin_flag=1; //handles case of no neutrons satisfying scattering condition. 
+            }
+            else{
+              kin_flag=1;
+              fail_flag=1;
+            }
+            break;
+          }
+        }
+      }
+
+    if(nqw>0 && fail_flag==0)
+      {
+        if(print_times==1){
+          start_T2=clock();
+        }        
+        // Select a random index between 0 and maxi
+        // This value is unacceptable by energy conservation. Mark it as the final point.
+        maxi = nqw-1;
+        int select_i, final_i;
+        select_i = rand0max(maxi);
+        //final_i = tmp_list[select_i];
+        final_i = select_i;
+        q_mod = L[final_i].qmod;
+        en2 = L[final_i].en;
+
+        // Print the final energy. 
+        Ei = 2.0724*kimod*kimod ;
+        omega = en2;
+        Ef = Ei-omega;
+
+        //For this ki, save a copy of the tmp list that contains all possible scattering processes allowed. 
+        info->stored[last_stored].kx = kix;
+        info->stored[last_stored].ky = kiy;
+        info->stored[last_stored].kz = kiz;
+        info->stored[last_stored].nqw=nqw;
+
+        int i3;
+        i3=0;
+        /*
+        for(i3=0;i3<nqw;i3++)
+        {
+          info->stored[last_stored].allowed_i[i3]=tmp_list[i3];
+        }
+        */
+        i3=0;
+
+        info->last_stored++;
+        if(info->last_stored>=info->stored_ki_max || print_times==1){
+          //printf("Stored %d points. \n",info->last_stored);
+          if(info->last_stored>=info->stored_ki_max){
+            info->last_stored=0;
+          } // overwrite old values.
+        }
+        // This saves us from iterating through the sqw list again if a similar ki is encountered. 
+        //free(tmp_list);
+        //free(outlist);
+        info->num_searched_end++;
+        j=final_i;
+        if(print_times==1)
+        {
+          end_T = clock();
+          cpu_time = ((double) (end_T-start_T))/CLOCKS_PER_SEC;
+          cpu_time2 = ((double)(end_T-start_T2))/CLOCKS_PER_SEC;
+          printf("For full search cpu_time=%6e s\n",cpu_time);
+        }
+
+        //printf("Returning on j=%d\n",j);
+
+        return j+1;
+      }
+    //free(tmp_list);
+    if(fail_flag==1 || nqw==0)
+      {
+        // No points in the hkl list satisfy the scattering condition. 
+        //printf("No points. Returning on i=%d\n",i);
+        //free(tmp_list);
+        // Add to list of bad ki
+        info->badx[info->nextbad]=kix;
+        info->bady[info->nextbad]=kiy;
+        info->badz[info->nextbad]=kiz;
+        info->nbad++;
+        info->nextbad++;
+        //printf("Nbad=%d, nextbad=%d\n",info->nbad,info->nextbad);
+        if(info->nbad>=info->maxbad){
+          info->nbad=info->maxbad;
+        } 
+        if(info->nextbad>=info->maxbad) 
+          {
+            info->nextbad=0;
+          }
+        if(print_times==1)
+        {
+          end_T = clock();
+          cpu_time = ((double) (end_T-start_T))/CLOCKS_PER_SEC;
+          printf("For no found ki cpu_time=%6e s\n",cpu_time);
+        }
+
+        return 0;
+      }
+    // fallback for if somehow none of these conditions are met. 
+    printf("Shouldn't be here!\n");
+    return 0;
+  }
+  
+
+
+/* !Sqw_PROCESS_DECL */
+
+// Very important to add a pointer to this struct in the Union_functions.c file
+struct Sqw_physics_storage_struct{
+    // Variables that needs to be transfered between any of the following places:
+    // The initialize in this component
+    // The function for calculating my
+    // The function for calculating scattering
+    struct qw_info_struct_union *qw_info_storage; // struct containing all necessary info for SC
+    double pack; // packing factor
+    double barns_setting; // Sets wether barns of fm^2 is used
+};
+
+// Function for calculating my, the inverse penetration depth (for only this scattering process).
+// The input for this function and its order may not be changed, but the names may be updated.
+int Sqw_physics_my(double *my, double *k_initial, union data_transfer_union data_transfer, struct focus_data_struct *focus_data, _class_particle *_particle) {
+    // *k_initial is a pointer to a simple vector with 3 doubles, k[0], k[1], k[2]Â which describes the wavevector
+    double kix = k_initial[0];
+    double kiy = k_initial[1];
+    double kiz = k_initial[2];
+    double ki = sqrt(k_initial[0]*k_initial[0]+k_initial[1]*k_initial[1]+k_initial[2]*k_initial[2]);
+    //printf("Ei=%5f meV\n",ki*ki*2.072);
+    int choice_i;
+    double S;
+    double kfx;
+    double kfy;
+    double kfz;
+    double energy;
+    struct qw_info_struct_union *qw_info = data_transfer.pointer_to_a_Sqw_physics_storage_struct->qw_info_storage;
+    // Taken from Sqw and changed qw_info to a pointer.
+    /* in case we use 'SPLIT' then consecutive neutrons can be identical when entering here
+         and we may skip the qw_search call */
+    if ( fabs(kix - qw_info->kix) < 1e-3
+        && fabs(kiy - qw_info->kiy) < 1e-3
+        && fabs(kiz - qw_info->kiz) < 1e-3) {
+        qw_info->nb_reuses++;
+      } else {
+        double coh_xsect = 0, coh_refl = 0;
+        
+        /* call qw_search */
+        //choice_i = qw_select_union(qw_info->list, qw_info, qw_info->count, kix, kiy, kiz); /* CPU consuming */
+        //printf("qw_search returned j=%d\n",choice_i);
+        //choice_i = qw_info->picked_ref;
+        S=qw_info->xc; // This is clearly not right, needs to be fixed. 
+        //S*=coh_xc; // This is clearly not right, needs to be fixed. 
+        //if (choice_i==0)
+        //{
+          //Should absorb, no possible scattering process. 
+        //  S=0;
+        //}
+        coh_xsect = S;
+        coh_refl = S;
+        int event_counter = 0;
+
+        /* store ki so that we can check for further SPLIT iterations */
+        if (event_counter == 0 ) { /* only for incoming neutron */
+          qw_info->kix = kix;
+          qw_info->kiy = kiy;
+          qw_info->kiz = kiz;
+        }
+
+        qw_info->coh_refl  = coh_refl;
+        qw_info->coh_xsect = coh_xsect;
+        qw_info->nb_refl += qw_info->num_count;
+        qw_info->nb_refl_count++;
+      }
+
+      /* (3). Probability for this particular scattering process. */
+      /* Cross-sections are in barns = 10**-28 m**2, and unit cell volumes are
+         in AA**3 = 10**-30 m**2. Hence a factor of 100 is used to convert
+         scattering lengths to m**-1 */
+      double coh_xlen = qw_info->coh_xsect/qw_info->V0;
+      if (data_transfer.pointer_to_a_Sqw_physics_storage_struct->barns_setting) {
+        coh_xlen *= 100;
+      }
+      *my = coh_xlen*data_transfer.pointer_to_a_Sqw_physics_storage_struct->pack;
+      int iterate;
+      if (qw_info->count == 0) printf("my: ki=%f, no sqw matched \n",ki);
+    return 1;
+};
+
+// Function that provides description of a basic scattering event.
+// Do not change the
+int Sqw_physics_scattering(double *k_final, double *k_initial, double *weight, union data_transfer_union data_transfer, struct focus_data_struct *focus_data, _class_particle *_particle) {
+    int i, maxi;                        /* Index into structure factor list */
+    struct qw_data_union *L;     /* Structure factor list */
+    int j;                        /* Index into reflection list */
+    double adjust, r, sum;        /* Temporaries */
+    double kfx, kfy, kfz;         /* Final wave vector */
+    double qx,qy,qz;
+    double kix = k_initial[0];
+    double kiy = k_initial[1];
+    double kiz = k_initial[2];
+    double ki = sqrt(k_initial[0]*k_initial[0]+k_initial[1]*k_initial[1]+k_initial[2]*k_initial[2]);
+    double S;
+    struct qw_info_struct_union *qw_info = data_transfer.pointer_to_a_Sqw_physics_storage_struct->qw_info_storage;
+    double kfmod,energy;
+    double omega, Ei, Ef;
+    double twotheta;
+    double u1x;
+    double u1y;
+    double u1z;
+    double q_mod;
+    double u2x;
+    double u2y;
+    double u2z;
+    double u0x;
+    double u0y;
+    double u0z;
+    double u3x;
+    double u3y;
+    double u3z;
+    double alpha0;
+    L = qw_info->list;
+    // Taken from Sqw.comp
+    if(qw_info->count <= 0){
+          return 0; // Return 0 will use ABSORB in main component (as it is not allowed in a function)
+    }
+    sum = 0;
+    //printf("On call C for qw_select_union.\n");
+    // Algorithm to select scattering process described elsewhere. 
+    j = qw_select_union(L, qw_info, qw_info->count, kix, kiy, kiz);
+    if (j==0){
+      // Easiest way to do this is to ignore the scattering event. 
+      k_final[0] = kix;
+      k_final[1] = kiy;
+      k_final[2] = kiz;
+      kfmod = sqrt(kix*kix+kiy*kiy+kiz*kiz);
+      return 0;
+    }
+    j=j-1; // Zero reserved for errors, real indices all shifted by one.
+    //printf("Selected j = %d\n",j);
+    //j = qw_info->picked_ref;
+
+    /* Adjust neutron weight (see manual for explanation). */
+    *weight *= L[j].SQW;
+
+    q_mod = L[j].qmod;
+    omega = L[j].en;
+    // At this point need to pick a random point on the debye-schierre cone, do this by randomly rotating about the z-direction in the lab frame. 
+    // Q^2 = ki^2 + kf^2 - 2 ki kf cos(2theta)
+    Ei = 2.072*(ki*ki);
+    //printf("Ei = %5f\n",Ei);
+
+    Ef = Ei - omega;
+    // Sometimes tolerance in stored ki values results in negative Ef here. Fix.
+    if(Ef<=0){
+      // Easiest way to do this is to ignore the scattering event. 
+      k_final[0] = kix;
+      k_final[1] = kiy;
+      k_final[2] = kiz;
+      kfmod = sqrt(kix*kix+kiy*kiy+kiz*kiz);
+      printf("Ouch\n");
+      return 0;
+    }
+    kfmod = sqrt(Ef/2.072);
+    twotheta = acos((-q_mod*q_mod + ki*ki + kfmod*kfmod)/(2.0*ki*kfmod));
+    // Deflect neutron by this amount in the plane, then rotate by a random amount along the original propagation axis
+
+    // First, find a vector perpendicular to ki. Assume that ki is not precisely in the y-direction, if so fix. 
+    if(kix==0 && kiz==0){
+      kix = 0.05;
+    }
+    u1x = 0; u1y=1 ; u1z=0;
+    // u2 some vector perpendicular to both u1 and ki
+    vec_prod(u2x,u2y,u2z,kix,kiy,kiz,u1x,u1y,u1z);
+    // deflect ki in the direction of u2 by 2theta
+    rotate(u3x,u3y,u3z,kix,kiy,kiz,twotheta,u2x,u2y,u2z);
+    // Now rotate this vector about the original ki, some random angle.
+    alpha0 = PI*randpm1();
+    rotate(u0x,u0y,u0z,u3x,u3y,u3z,alpha0,kix,kiy,kiz);
+
+    /* now find a nearly vertical rotation axis (u1) :
+       * Either
+       *  (v along Z) x (X axis) -> nearly Y axis
+       * Or
+       *  (v along X) x (Z axis) -> nearly Y axis
+       */
+    /*
+    if (fabs(scalar_prod(1,0,0,kix/ki,kiy/ki,kiz/ki)) < fabs(scalar_prod(0,0,1,kix/ki,kiy/ki,kiz/ki))) {
+      u1x = 1; u1y = u1z = 0;
+    } else {
+      u1x = u1y = 0; u1z = 1;
+    }
+
+    vec_prod(u2x,u2y,u2z, kix,kiy,kiz, u1x,u1y,u1z);
+    */
+    /* handle case where v and aim are parallel */
+    //if (!u2x && !u2y && !u2z) { u2x=u2z=0; u2y=1; }
+
+    /* u1 = rotate 'ki' by twotheta around u2: DS scattering angle, nearly in horz plane */
+    //rotate(u1x,u1y,u1z, kix,kiy,kiz, twotheta, u2x,u2y,u2z);
+    //alpha0 = PI*randpm1();
+    /* u0 = rotate u1 by alpha0 around 'v' (Debye-Scherrer cone) */
+    //rotate(u0x,u0y,u0z, u1x,u1y,u1z, alpha0, kix, kiy, kiz);
+
+    NORM(u0x,u0y,u0z);
+    kfx = u0x*kfmod;
+    kfy = u0y*kfmod;
+    kfz = u0z*kfmod;
+    // Handle the cases where k_final is nan. 
+    if(isnan(kfx) || isnan(kfy) || isnan(kfz)){
+      // Don't know why this error occurs, but 
+      // if we don't propogate here there is weird behavior. 
+      kfx=kix;kfy=kiy;kfz=kiz;
+      return 0;
+    }
+
+    // These is the returned final wavevector
+    k_final[0] = kfx;
+    k_final[1] = kfy;
+    k_final[2] = kfz;
+
+    kfmod = sqrt(kfx*kfx + kfy*kfy+kfz*kfz);
+    Ef = 2.0724*kfmod*kfmod;
+
+    // handle case where neutron gets stuck in sample
+    if(Ef<0.1){
+      // This will cause problems in backscattering instruments.
+      k_final[0] = kix;
+      k_final[1] = kiy;
+      k_final[2] = kiz;
+
+      kfmod = sqrt(kix*kix + kfy*kiy+kfz*kiz);
+      Ef = 2.0724*kfmod*kfmod;
+      return 0 ;
+    }
+    // Print the final energy. 
+    Ei = 2.0724*ki*ki ;
+    Ef = 2.0724*kfmod*kfmod;
+    omega = Ei-Ef;
+    //printf("Ei = %5f meV, Ef = %5f meV, omega=%5f meV\n",Ei,Ef,omega);
+    // very low energy neutrons will cause union errors. Absorb. 
+
+    qw_info->type = 'c';
+    return 1;
+};
+
+#ifndef PROCESS_DETECTOR
+    #define PROCESS_DETECTOR dummy
+#endif
+
+#ifndef PROCESS_Sqw_DETECTOR
+    #define PROCESS_Sqw_DETECTOR dummy
+#endif
+%}
+
+DECLARE
+%{
+// Declare for this component, to do calculations on the input / store in the transported data
+struct Sqw_physics_storage_struct Sqw_storage;
+
+// Variables needed in initialize of this function.
+struct qw_info_struct_union qw_info_union;
+
+// Needed for transport to the main component, will be the same for all processes
+struct global_process_element_struct global_process_element;
+struct scattering_process_struct This_process;
+
+// These lines help with future error correction, and tell other Union components
+//  that at least one process have been defined.
+#ifndef PROCESS_DETECTOR
+    // Obsolete
+  //struct pointer_to_global_process_list global_process_list = {0,NULL};
+  #define PROCESS_DETECTOR dummy
+#endif
+%}
+
+INITIALIZE
+%{
+  // Single crystal initialize
+  double as, bs, cs;
+  int i;
+
+  /* transfer input parameters */
+  qw_info_union.m_aa = aa;
+  qw_info_union.m_bb = bb;
+  qw_info_union.m_cc = cc;
+  qw_info_union.m_a = a;
+  qw_info_union.m_b = b;
+  qw_info_union.m_c = c;
+  qw_info_union.V0=cell_vol;
+  qw_info_union.xc=coh_xc;
+  printf("SQW2: Input lattice params a=[%g] b=[%g], c=[%g]\n",a,b,c);
+
+  //qw_info_union.sigma_a = sigma_abs;
+  //qw_info_union.sigma_i = sigma_inc;
+  qw_info_union.recip   = recip_cell;
+
+  /* default format h,k,l,en,S  */
+  qw_info_union.column_order[0]=1;
+  qw_info_union.column_order[1]=2;
+  qw_info_union.column_order[2]=3;
+  qw_info_union.kix = qw_info_union.kiy = qw_info_union.kiz = 0;
+  qw_info_union.nb_reuses = qw_info_union.nb_refl = qw_info_union.nb_refl_count = 0;
+  qw_info_union.num_count = 0;
+  qw_info_union.num_bad_end=0;
+  qw_info_union.num_stored_end=0;
+  qw_info_union.num_searched_end=0;
+  qw_info_union.dTheta = stored_dTheta;
+  qw_info_union.dKmag = stored_dkmag;
+  //int num_bad_end, num_stored_end, num_searched_end /* Keeps track of how often optimizations are used */
+
+
+
+  /* Read in structure factors, and do some pre-calculations. */
+  if (!read_qw_data_union(sqw, &qw_info_union)) {
+    printf("SQW_process: %s: Error: Aborting.\n", NAME_CURRENT_COMP);
+    exit(0);
+  }
+    
+  if (qw_info_union.sigma_a<0) qw_info_union.sigma_a=0;
+  if (qw_info_union.sigma_i<0) qw_info_union.sigma_i=0;
+
+  /* Allocates space for saved ki */
+
+  qw_info_union.stored_ki_max = max_stored_ki;
+  qw_info_union.stored = (struct qw_store*)malloc(max_stored_ki*sizeof(struct qw_store));
+  for(i=0; i<max_stored_ki; i++) {
+    qw_info_union.stored[i].kx = 0.;
+    qw_info_union.stored[i].ky = 0.;
+    qw_info_union.stored[i].kz = 0.;
+    qw_info_union.stored[i].nqw = 0;
+    // This list is very wasteful in memory, especially for larger .sqw files. 
+    //qw_info_union.stored[i].allowed_i = (int *)malloc(qw_info_union.count*sizeof(int));//should be dynamically allocated.;
+    qw_info_union.stored[i].allowed_i = 0;
+  }
+  qw_info_union.last_stored = 0;
+  i=0;
+  /* Initialise bad ki_list */
+  qw_info_union.maxbad = max_bad;
+  qw_info_union.badx = (double*)malloc(max_bad*sizeof(double));
+  qw_info_union.bady = (double*)malloc(max_bad*sizeof(double));
+  qw_info_union.badz = (double*)malloc(max_bad*sizeof(double));
+  qw_info_union.nbad = 0;
+  qw_info_union.nextbad = 0;
+
+  if (qw_info_union.count)
+    printf("SQW_process: %s: Read %d (Q,w) points from file '%s'\n",
+      NAME_CURRENT_COMP, qw_info_union.count, sqw);
+  else printf("SQW_process: %s: Using incoherent elastic scattering only sigma=%g.\n",
+      NAME_CURRENT_COMP, qw_info_union.sigma_i);
+
+  
+  printf("SQW_process: %s: Vc=%g [Angs] sigma_abs=%g [barn] sigma_inc=%g [barn] sqw=%s\n",
+      NAME_CURRENT_COMP, qw_info_union.V0, qw_info_union.sigma_a, qw_info_union.sigma_i,
+      sqw && strlen(sqw) ? sqw : "NULL");
+
+  
+  // Initialize done in the component
+  Sqw_storage.barns_setting = barns;
+  Sqw_storage.pack = packing_factor;
+  Sqw_storage.qw_info_storage = &qw_info_union;
+
+  // Need to specify if this process is isotropic
+  //This_process.non_isotropic_rot_index = -1; // Yes (powder)
+  This_process.non_isotropic_rot_index =  1;  // No (single crystal)
+
+  // The type of the process must be saved in the global enum process
+  This_process.eProcess = Sqw;
+
+  // Packing the data into a structure that is transported to the main component
+  This_process.data_transfer.pointer_to_a_Sqw_physics_storage_struct = &Sqw_storage;
+  This_process.probability_for_scattering_function = &Sqw_physics_my;
+  This_process.scattering_function = &Sqw_physics_scattering;
+
+  // This will be the same for all process's, and can thus be moved to an include.
+  This_process.process_p_interact = interact_fraction;
+  sprintf(This_process.name,NAME_CURRENT_COMP);
+  rot_copy(This_process.rotation_matrix,ROT_A_CURRENT_COMP);
+  sprintf(global_process_element.name,NAME_CURRENT_COMP);
+  global_process_element.component_index = INDEX_CURRENT_COMP;
+  global_process_element.p_scattering_process = &This_process;
+  
+  struct pointer_to_global_process_list *global_process_list = COMP_GETPAR3(Union_init, init, global_process_list);
+  add_element_to_process_list(global_process_list, global_process_element);
+  
+ %}
+
+TRACE
+%{
+    // Trace should be empty, the simulation is done in Union_master
+%}
+
+END

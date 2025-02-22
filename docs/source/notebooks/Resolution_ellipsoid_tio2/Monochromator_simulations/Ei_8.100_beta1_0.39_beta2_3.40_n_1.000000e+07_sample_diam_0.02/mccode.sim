@@ -1,0 +1,68 @@
+McStas simulation description file for dmtas.
+Date:    Fri Feb 21 14:06:22 2025
+Program: 
+
+begin instrument: dmtas
+  File: Ei_8.100_beta1_0.39_beta2_3.40_n_1.000000e+07_sample_diam_0.02/mccode
+  Source: MACS_monochromator.instr
+  Parameters:  EM(double) EF_all(double) HF(int) VF(int) sample_diameter_d(double) beta_1(double) beta_2(double) CPF(double) MPL(double) MPD(double) APE_h(double) APE_v(double) misalign_mono_deg(double) kidney_angle(double) DIRDEV(double) DIVSOU(double) L0_delta(double) L1_delta(double) mon_t(double) mon_e(double) monrot_delta(double) write_virtual_out(double)
+  Trace_enabled: yes
+  Default_main: yes
+  Embedded_runtime: yes
+end instrument
+
+begin simulation: Ei_8.100_beta1_0.39_beta2_3.40_n_1.000000e+07_sample_diam_0.02
+  Format: McCode with text headers
+  URL: http://www.mccode.org
+  Creator: 
+  Instrument: MACS_monochromator.instr
+  Ncount: 10000000
+  Trace: no
+  Gravitation: no
+  Seed: 1740164782753550
+  Directory: Ei_8.100_beta1_0.39_beta2_3.40_n_1.000000e+07_sample_diam_0.02
+  Param: EM=8.1
+  Param: EF_all=5
+  Param: HF=1
+  Param: VF=1
+  Param: sample_diameter_d=0.02
+  Param: beta_1=0.39
+  Param: beta_2=3.4
+  Param: CPF=0
+  Param: MPL=6.06
+  Param: MPD=0.775
+  Param: APE_h=0.35
+  Param: APE_v=0.35
+  Param: misalign_mono_deg=0.15
+  Param: kidney_angle=0
+  Param: DIRDEV=0
+  Param: DIVSOU=3
+  Param: L0_delta=-1.06
+  Param: L1_delta=0
+  Param: mon_t=0
+  Param: mon_e=0
+  Param: monrot_delta=0
+  Param: write_virtual_out=1
+end simulation
+
+begin data
+  Date: Fri Feb 21 14:08:15 2025 (1740164895)
+  type: array_2d(11, 478385)
+  Source: dmtas (MACS_monochromator.instr)
+  component: Virtual_out
+  position: 1.32566 0 6.42383
+  title:  Intensity Position Position Position Velocity Velocity Velocity Time_Of_Flight Spin Spin Spin Monitor (Square)
+  Ncount: 20000000
+  filename: E8.10meV_HF1_VF1_Sample0.020_b1_0.39_b2_3.40_mono_mis0.15.dat
+  statistics: X0=0; dX=0; Y0=0; dY=0;
+  signal: Min=2883.57; Max=2883.57; Mean=0;
+  values: 0 0 0
+  xvar: Li
+  yvar: p 
+  xlabel: List of neutron events
+  ylabel: p x y z vx vy vz t sx sy sz 
+  zvar: I
+  zlabel: Signal per bin
+  xylimits: 1 478385 1 11
+  variables: p x y z vx vy vz t sx sy sz 
+end data

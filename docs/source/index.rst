@@ -37,6 +37,7 @@ Notebook Tutorials
    notebooks/sqw4_simulation
    notebooks/cri3_plotting_example
    notebooks/MACS_User_notebook
+   notebooks/Resolution_ellipsoid_simulation
 
 Classes and Methods
 -------------------
