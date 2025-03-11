@@ -345,12 +345,20 @@ class Data(object):
 		data_matrix.to_csv(self.kidney_result_dir+self.exptName+outfilename,header=True)
 		return outfilename
 
-	def project_data_QE(self,which_data='mcstas',PTAI=False,viewing_axes=False):
+	def project_data_QE(self,which_data='mcstas',PTAI=False,viewing_axes=False,nfold1=False,nfold2=False):
 		"""Project the results stored in the data matrix into QE space- requires information from the sample object
 		
 		:param which_data: Determines if experimental or simulated data should be used, 
 			'mcstas' to use calculated scattering and 'macs' for experimental. Allowed value 'mcstas' and 'macs'
 		:type which_data: str
+		:param PTAI: Flag to denote if the data should be treated in single detector i.e. PTAI mode.
+		:type PTAI: bool
+		:param viewing_axes: Optional argument to input viewing axes of the data that differ from the u-v orientation vectors. Default false, example format is [[u1x,u1y,u1z],[u2x,u2y,u2z]]
+		:type viewing_axes: array
+		:param nfold1: If set to an integer, performs n-fold symmetrization of projected data round the viewing axis. For example, nfold1=2 will perform a mirror reflection of the data about the (h00)-axis if the the u-vector is (1,0,0)
+		:type nfold1: int
+		:param nfold2: Identical behavior to nfold1, but for the v-vector. 
+		:type nfold2: int
 		"""
 		self.sample.project_sample_realspace()
 		if which_data=='mcstas':
@@ -452,7 +460,6 @@ class Data(object):
 		DeltaE_list = Ei_out_list - Ef_out_list
 		#Remembering that the sample u-vector is perpendicular to the beam, we now project the detector angles onto the 
 		# sample alignment
-
 		udir_list = np.zeros((len(det_angle_list),2)) # direction in x-z plane
 		vdir_list = np.zeros((len(det_angle_list),2))
 		#Also build list of viewing axes
@@ -468,7 +475,6 @@ class Data(object):
 		              [np.sin(A3_out_list_rad),np.cos(A3_out_list_rad)]])
 		R = R[:,:,:,0] #Remove extra dim at the end
 		#Changed from rotating the sample frame to rotating the lab frame
-		# Lines below are a relic of this and not using a proper IDE
 		#Crystal axes are now properly rotated- get the projection of each detector onto the vector
 		xdet_list = np.sin(det_angle_list*np.pi/180.0)
 		ydet_list = np.cos(det_angle_list*np.pi/180.0)
@@ -558,6 +564,144 @@ class Data(object):
 		proj_mat['Ei']=Ei_out_list
 		proj_mat['DeltaE']=DeltaE_list
 		proj_mat['PTAI']=ptai_out_list
+		# If desired, perform symmetrization by making N-copies of the projected matrix, then combining.
+		if nfold1 != False and type(nfold1)==int:
+
+			tot_matrix=proj_mat.copy(deep=True)
+			if nfold1>1:
+				proj_mat['SPECErr']=spec_out_err_list*np.sqrt(nfold1)
+				proj_mat['DIFFErr']=diff_out_err_list*np.sqrt(nfold1)
+				for i in range(nfold1)[1:]:
+					proj_mat_copy = proj_mat.copy(deep=True)
+					Q_vec_list_rot = np.copy(Q_vec_list)
+					# Perform rotation operation about the Qw-axis, by rotating the viewing axes and repeating the previous projection process
+					rot_angle = i*2.0*np.pi/nfold1
+					#Now project onto the basis defined by the viewing axis
+					Qx_samp = Q_vec_list[:,0]
+					Qz_samp = Q_vec_list[:,1]
+					U1_proj = np.zeros(np.shape(Qx_samp))
+					U2_proj = np.zeros(np.shape(Qz_samp))
+					#Should properly vectorize this using einsum
+
+					u1dir_lab = u1dir_init #Doesn't change in the sample frame.
+					u2dir_lab = u2dir_init
+					M = np.array([[u1dir_lab[0],u2dir_lab[0]],[u1dir_lab[1],u2dir_lab[1]]])
+					B_mat = np.matmul(np.linalg.inv(np.matmul(M.T,M)),M.T)
+					Rmat = np.array([[np.cos(rot_angle),-np.sin(rot_angle)],[np.sin(rot_angle),np.cos(rot_angle)]])
+					print(Rmat)
+					for j in range(len(spec_out_list)):
+						qvec = Q_vec_list[j]
+						#Rotate 
+						qrot = np.matmul(Rmat,qvec)
+						Q_vec_list_rot[j]=qrot
+						Q_u1u2 = np.matmul(B_mat,qrot)
+						#Q_u1u2 = np.matmul(Rmat,Q_u1u2)
+						#Rotate this quantity by 
+						U1_proj[j] = Q_u1u2[0]
+						U2_proj[j] = Q_u1u2[1]
+					#This can go in the output matrix now. 
+					proj_mat_copy['|Q|']=Q_list
+					#The projection of kf onto each direction gives the scattering plane
+					#I am unsure of why these minus signs are required. Handedness issue somewhere. 
+					U_proj = -U1_proj
+					V_proj = -U2_proj
+
+					#Get the HKL values from this
+					HKL_list = np.outer(U_proj,u1) + np.outer(V_proj,u2)
+					H_list = HKL_list[:,0]*1.0
+					K_list = HKL_list[:,1]*1.0
+					L_list = HKL_list[:,2]*1.0
+
+
+					proj_mat_copy['Det_index']=det_index_list
+					#Save to the projected matrix. 
+					proj_mat_copy['Qu']=U_proj
+					proj_mat_copy['Qv']=V_proj
+					proj_mat_copy['SPEC']=spec_out_list
+					proj_mat_copy['DIFF']=diff_out_list
+					proj_mat_copy['SPECErr']=spec_out_err_list
+					proj_mat_copy['DIFFErr']=diff_out_err_list 
+					proj_mat_copy['Qx']=Q_vec_list_rot[:,0]
+					proj_mat_copy['Qz']=Q_vec_list_rot[:,1]
+					proj_mat_copy['H']=H_list
+					proj_mat_copy['K']=K_list
+					proj_mat_copy['L']=L_list
+					proj_mat_copy['Ei']=Ei_out_list
+					proj_mat_copy['DeltaE']=DeltaE_list
+					proj_mat_copy['PTAI']=ptai_out_list
+					#Combine the dataframes.
+					tot_matrix = pd.concat([tot_matrix,proj_mat_copy])
+					tot_matrix.reset_index()
+			proj_mat = tot_matrix
+
+		if nfold2 != False and type(nfold2)==int:
+
+			tot_matrix=proj_mat.copy(deep=True)
+			if nfold2>1:
+				proj_mat['SPECErr']=spec_out_err_list*np.sqrt(nfold2)
+				proj_mat['DIFFErr']=diff_out_err_list*np.sqrt(nfold2)
+				for i in range(nfold2)[1:]:
+					proj_mat_copy = proj_mat.copy(deep=True)
+					Q_vec_list_rot = np.copy(Q_vec_list)
+					# Perform rotation operation about the Qw-axis, by rotating the viewing axes and repeating the previous projection process
+					rot_angle = np.pi/2 + i*2.0*np.pi/nfold2
+					#Now project onto the basis defined by the viewing axis
+					Qx_samp = Q_vec_list[:,0]
+					Qz_samp = Q_vec_list[:,1]
+					U1_proj = np.zeros(np.shape(Qx_samp))
+					U2_proj = np.zeros(np.shape(Qz_samp))
+					#Should properly vectorize this using einsum
+
+					u1dir_lab = u1dir_init #Doesn't change in the sample frame.
+					u2dir_lab = u2dir_init
+					M = np.array([[u1dir_lab[0],u2dir_lab[0]],[u1dir_lab[1],u2dir_lab[1]]])
+					B_mat = np.matmul(np.linalg.inv(np.matmul(M.T,M)),M.T)
+					Rmat = np.array([[np.cos(rot_angle),-np.sin(rot_angle)],[np.sin(rot_angle),np.cos(rot_angle)]])
+					for j in range(len(spec_out_list)):
+						qvec = Q_vec_list[j]
+						#Rotate 
+						qrot = np.matmul(Rmat,qvec)
+						Q_vec_list_rot[j]=qrot
+						Q_u1u2 = np.matmul(B_mat,qrot)
+						#Q_u1u2 = np.matmul(Rmat,Q_u1u2)
+						#Rotate this quantity by 
+						U1_proj[j] = Q_u1u2[0]
+						U2_proj[j] = Q_u1u2[1]
+					#This can go in the output matrix now. 
+					proj_mat_copy['|Q|']=Q_list
+					#The projection of kf onto each direction gives the scattering plane
+					#I am unsure of why these minus signs are required. Handedness issue somewhere. 
+					U_proj = -U1_proj
+					V_proj = -U2_proj
+
+					#Get the HKL values from this
+					HKL_list = np.outer(U_proj,u1) + np.outer(V_proj,u2)
+					H_list = HKL_list[:,0]*1.0
+					K_list = HKL_list[:,1]*1.0
+					L_list = HKL_list[:,2]*1.0
+
+
+					proj_mat_copy['Det_index']=det_index_list
+					#Save to the projected matrix. 
+					proj_mat_copy['Qu']=U_proj
+					proj_mat_copy['Qv']=V_proj
+					proj_mat_copy['SPEC']=spec_out_list
+					proj_mat_copy['DIFF']=diff_out_list
+					proj_mat_copy['SPECErr']=spec_out_err_list
+					proj_mat_copy['DIFFErr']=diff_out_err_list 
+					proj_mat_copy['Qx']=Q_vec_list_rot[:,0]
+					proj_mat_copy['Qz']=Q_vec_list_rot[:,1]
+					proj_mat_copy['H']=H_list
+					proj_mat_copy['K']=K_list
+					proj_mat_copy['L']=L_list
+					proj_mat_copy['Ei']=Ei_out_list
+					proj_mat_copy['DeltaE']=DeltaE_list
+					proj_mat_copy['PTAI']=ptai_out_list
+					#Combine the dataframes.
+					tot_matrix = pd.concat([tot_matrix,proj_mat_copy])
+					tot_matrix.reset_index()
+			proj_mat = tot_matrix
+
 		if PTAI==True:
 			proj_mat=proj_mat[proj_mat['Det_index']==proj_mat['PTAI']]
 		if which_data=='mcstas':
@@ -633,6 +777,7 @@ class Data(object):
 		"""
 
 		if type(self.projected_matrix)==bool and which_data=='mcstas':
+			print("Projecting data to Qu, Qv space. ")
 			self.project_data_QE()
 		if type(self.projected_expt_matrix)==bool and which_data=='macs':
 			self.project_data_QE(which_data='macs')
@@ -697,27 +842,35 @@ class Data(object):
 		sampledat = np.array([df_copy[slice_axis1].to_numpy(),df_copy[slice_axis2].to_numpy(),df_copy[bin_axis].to_numpy()]).T
 		values = df_copy['SPEC'].to_numpy()
 		errs = df_copy['SPECErr'].to_numpy()
-		errs[errs==0]=np.nan
-		weights = 1.0/errs 
-		weights[np.isinf(weights)]=np.nan
+		# Filter out bad values
+		goodi = ~np.isnan(errs)
+		values = values[goodi]
+		errs=errs[goodi]
+		sampledat=sampledat[goodi,:]
+		weights = 1.0/errs
 		weighted_vals = values*weights
-		weighted_vals[np.isnan(weighted_vals)]=0.0
 		sumofweights =  np.nansum(weights)
 		def weighted_mean(weighted_vals):
-			weighted_vals[np.isnan(weighted_vals)]=0 
-			weighted_vals[np.isinf(weighted_vals)]=0 
-			good_i = np.intersect1d(np.where(weighted_vals!=0)[0],np.where(~np.isnan(weighted_vals))[0])
-			weighted_vals=weighted_vals[good_i]
-			num = np.sqrt(np.nansum(weighted_vals))
+
+			#weighted_vals[np.isnan(weighted_vals)]=0 
+			#weighted_vals[np.isinf(weighted_vals)]=0 
+			#good_i = np.intersect1d(np.where(weighted_vals!=0)[0],np.where(~np.isnan(weighted_vals))[0])
+			#weighted_vals=weighted_vals[good_i]
+			num = np.sqrt(np.nansum(weighted_vals**2))
 			return num
 		def weighted_mean_errs(weights):
-			weights[weights==0]=np.nan 
+
+			#weights[weights==0]=0.0
 			errs=1.0/weights 
-			errs[errs==0]=np.nan
+			#errs[errs==0]=np.inf
+			#good_errs_i = np.intersect1d(np.where(weights!=0)[0],np.where(~np.isnan(weights))[0])
+			#errs=errs[good_errs_i]
 			return np.sqrt(np.nansum(errs**2))/np.nansum(weights)
+		def getnansum(weights):
+			return np.sqrt(np.sum(weights**2))
 		#Rather than simply computing the mean, we need to compute the weighted mean and its error bar. 
 		ret_weightvals = scipy.stats.binned_statistic_dd(sample=sampledat,values=values,statistic=weighted_mean,bins=bin_list)
-		sumweights = scipy.stats.binned_statistic_dd(sample=sampledat,values=weights,statistic='sum',bins=bin_list)
+		sumweights = scipy.stats.binned_statistic_dd(sample=sampledat,values=weights,statistic=getnansum,bins=bin_list)
 		ret_errs = scipy.stats.binned_statistic_dd(sample=sampledat,values=weights,statistic=weighted_mean_errs,bins=bin_list)
 		x = ret_weightvals.bin_edges[slicedim_index1]
 		y = ret_weightvals.bin_edges[slicedim_index2]
