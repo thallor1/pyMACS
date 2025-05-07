@@ -736,6 +736,14 @@ class VirtualMACS(object):
             #print('Found previous identical kidney simulation. If this is a mistake, ')
             #print('delete the scan from the data matrix and try again. ')
             #print(kidney_output_dir)
+            if scan_suffix == False:
+                suffix = ''
+            else:
+                suffix = scan_suffix
+            scan_prefix='_Ei_'+'{:.3f}'.format(self.monochromator.Ei)+'_Ef_'+'{:.3f}'.format(self.kidney.Ef)+'_A3_'+'{:.4f}'.format(self.A3_angle)+\
+                '_kidney_'+'{:.4f}'.format(self.kidney.kidney_angle)
+
+            csvname = self.exptName+scan_prefix+suffix+self.data.csv_name
             os.chdir(orig_dir)
         # Delete the parameter file unless otherwise specified.
         return csvname

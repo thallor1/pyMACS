@@ -379,7 +379,12 @@ class Data(object):
 		
 
 		#u1,u2 = u2,u1
-		num_configs = len(data_mat.index)
+		if which_data =="mcstas":
+			num_configs = len(data_mat.index)
+		elif which_data =="macs":
+			num_configs=len(data_mat.index)
+		else:
+			num_configs = len(data_mat.index)
 		data_indices = np.arange(0,num_configs*20,1)
 		col_labels = ['H','K','L','Qu','Qv','|Q|','Qx','Qz','Ei','DeltaE','DIFF','DIFFErr','SPEC','SPECErr','PTAI','Err','Det_index']
 		proj_mat = pd.DataFrame(index=data_indices,columns=col_labels)
@@ -588,7 +593,6 @@ class Data(object):
 					M = np.array([[u1dir_lab[0],u2dir_lab[0]],[u1dir_lab[1],u2dir_lab[1]]])
 					B_mat = np.matmul(np.linalg.inv(np.matmul(M.T,M)),M.T)
 					Rmat = np.array([[np.cos(rot_angle),-np.sin(rot_angle)],[np.sin(rot_angle),np.cos(rot_angle)]])
-					print(Rmat)
 					for j in range(len(spec_out_list)):
 						qvec = Q_vec_list[j]
 						#Rotate 
@@ -644,7 +648,8 @@ class Data(object):
 					proj_mat_copy = proj_mat.copy(deep=True)
 					Q_vec_list_rot = np.copy(Q_vec_list)
 					# Perform rotation operation about the Qw-axis, by rotating the viewing axes and repeating the previous projection process
-					rot_angle = np.pi/2 + i*2.0*np.pi/nfold2
+					
+					rot_angle = i*2.0*np.pi/nfold2
 					#Now project onto the basis defined by the viewing axis
 					Qx_samp = Q_vec_list[:,0]
 					Qz_samp = Q_vec_list[:,1]
@@ -659,7 +664,9 @@ class Data(object):
 					Rmat = np.array([[np.cos(rot_angle),-np.sin(rot_angle)],[np.sin(rot_angle),np.cos(rot_angle)]])
 					for j in range(len(spec_out_list)):
 						qvec = Q_vec_list[j]
-						#Rotate 
+						#Switch the viewing axes: 
+						qvec = np.array([qvec[2],qvec[1],qvec[0]])
+						#Rotate, need to offset by the real space angle between 
 						qrot = np.matmul(Rmat,qvec)
 						Q_vec_list_rot[j]=qrot
 						Q_u1u2 = np.matmul(B_mat,qrot)
